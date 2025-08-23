@@ -9,9 +9,9 @@ import (
 
 func main() {
 
-	router := router.Gerar()
+	router := router.Generate()
 
-	fmt.Println("Running server on localhost:8080")
+	fmt.Println("Running server on http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", router))
 
 }
