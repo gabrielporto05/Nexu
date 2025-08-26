@@ -7,17 +7,26 @@ import (
 )
 
 // JSON retorna uma resposta JSON para a requisição
-func JSON(w http.ResponseWriter, statusCode int, data interface{}) {
+// JSON retorna uma resposta JSON com mensagem e dados
+func JSON(w http.ResponseWriter, statusCode int, message string, data interface{}) {
 	w.WriteHeader(statusCode)
 
-	if err := json.NewEncoder(w).Encode(data); err != nil {
+	response := struct {
+		Message string      `json:"message"`
+		Data    interface{} `json:"data"`
+	}{
+		Message: message,
+		Data:    data,
+	}
+
+	if err := json.NewEncoder(w).Encode(response); err != nil {
 		log.Fatal(err)
 	}
 }
 
-// Erro retorna um erro em formato JSON
+// Erro retorna um erro em formato JSON com mensagem e detalhes
 func Erro(w http.ResponseWriter, statusCode int, err error) {
-	JSON(w, statusCode, struct {
+	JSON(w, statusCode, "Erro ao processar requisição", struct {
 		Error string `json:"error"`
 	}{
 		Error: err.Error(),

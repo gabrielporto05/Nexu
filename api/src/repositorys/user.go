@@ -107,3 +107,29 @@ func (repository user) GetUserByIdRepository(ID uint64) (models.User, error) {
 	return user, nil
 
 }
+
+func (repository user) DeleteUserByIdRepository(ID uint64) (bool, error) {
+
+	stmt, err := repository.db.Prepare("DELETE FROM users WHERE id = ?")
+	if err != nil {
+		return false, err
+	}
+	defer stmt.Close()
+
+	result, err := stmt.Exec(ID)
+	if err != nil {
+		return false, err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+
+	if rowsAffected == 0 {
+		return false, fmt.Errorf("nenhum usuário com ID %d foi encontrado para deletar", ID)
+	}
+
+	return true, nil
+
+}

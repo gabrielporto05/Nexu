@@ -55,7 +55,7 @@ func CreateUserController(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responses.JSON(w, http.StatusCreated, user)
+	responses.JSON(w, http.StatusCreated, "User criado com sucesso", user)
 
 }
 
@@ -81,7 +81,7 @@ func GetUsersByNameOrNickController(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responses.JSON(w, http.StatusOK, users)
+	responses.JSON(w, http.StatusOK, "Users encontrados com sucesso", users)
 
 }
 
@@ -113,7 +113,7 @@ func GetUsersByIdController(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responses.JSON(w, http.StatusOK, user)
+	responses.JSON(w, http.StatusOK, "User encontrado com sucesso", user)
 
 }
 
@@ -128,7 +128,30 @@ func UpdateUserByIdController(w http.ResponseWriter, r *http.Request) {
 // DeleteUserByIdController deleta um usuário
 func DeleteUserByIdController(w http.ResponseWriter, r *http.Request) {
 
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("DeleteUserByIdController!"))
+	params := mux.Vars(r)
+	id, err := strconv.ParseUint(params["userId"], 10, 64)
+	if err != nil {
+		responses.Erro(w, http.StatusBadRequest, err)
+
+		return
+	}
+
+	db, err := db.ConnectionDB()
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+
+		return
+	}
+	defer db.Close()
+
+	repository := repositorys.UsersRopository(db)
+
+	if _, err := repository.DeleteUserByIdRepository(id); err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, "User deletado com sucesso", nil)
 
 }
