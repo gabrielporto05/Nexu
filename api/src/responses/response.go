@@ -6,9 +6,9 @@ import (
 	"net/http"
 )
 
-// JSON retorna uma resposta JSON para a requisição
 // JSON retorna uma resposta JSON com mensagem e dados
 func JSON(w http.ResponseWriter, statusCode int, message string, data interface{}) {
+
 	w.WriteHeader(statusCode)
 
 	response := struct {
@@ -22,13 +22,16 @@ func JSON(w http.ResponseWriter, statusCode int, message string, data interface{
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		log.Fatal(err)
 	}
+
 }
 
 // Erro retorna um erro em formato JSON com mensagem e detalhes
 func Erro(w http.ResponseWriter, statusCode int, err error) {
+
 	JSON(w, statusCode, "Erro ao processar requisição", struct {
 		Error string `json:"error"`
 	}{
 		Error: err.Error(),
 	})
+
 }

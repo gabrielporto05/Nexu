@@ -89,7 +89,7 @@ func GetUsersByNameOrNickController(w http.ResponseWriter, r *http.Request) {
 func GetUsersByIdController(w http.ResponseWriter, r *http.Request) {
 
 	params := mux.Vars(r)
-	id, err := strconv.ParseUint(params["userId"], 10, 64)
+	ID, err := strconv.ParseUint(params["userId"], 10, 64)
 	if err != nil {
 		responses.Erro(w, http.StatusBadRequest, err)
 
@@ -106,7 +106,7 @@ func GetUsersByIdController(w http.ResponseWriter, r *http.Request) {
 
 	repository := repositorys.UsersRopository(db)
 
-	user, err := repository.GetUserByIdRepository(id)
+	user, err := repository.GetUserByIdRepository(ID)
 	if err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
 
@@ -129,7 +129,7 @@ func UpdateUserByIdController(w http.ResponseWriter, r *http.Request) {
 func DeleteUserByIdController(w http.ResponseWriter, r *http.Request) {
 
 	params := mux.Vars(r)
-	id, err := strconv.ParseUint(params["userId"], 10, 64)
+	ID, err := strconv.ParseUint(params["userId"], 10, 64)
 	if err != nil {
 		responses.Erro(w, http.StatusBadRequest, err)
 
@@ -146,7 +146,7 @@ func DeleteUserByIdController(w http.ResponseWriter, r *http.Request) {
 
 	repository := repositorys.UsersRopository(db)
 
-	if _, err := repository.DeleteUserByIdRepository(id); err != nil {
+	if _, err := repository.DeleteUserByIdRepository(ID); err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
 
 		return
