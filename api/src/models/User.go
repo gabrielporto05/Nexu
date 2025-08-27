@@ -4,6 +4,8 @@ import (
 	"errors"
 	"strings"
 	"time"
+
+	"github.com/badoux/checkmail"
 )
 
 // User representa um usuário da aplicação
@@ -59,6 +61,9 @@ func (user *User) validation(stage string) error {
 		}
 		if !strings.Contains(user.Email, "@") || !strings.Contains(user.Email, ".") {
 			return errors.New("o campo email inválido")
+		}
+		if err := checkmail.ValidateFormat(user.Email); err != nil {
+			return errors.New("campo email inválido")
 		}
 
 		// Validation password
