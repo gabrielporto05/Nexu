@@ -1,6 +1,7 @@
 package models
 
 import (
+	"api/src/secret"
 	"errors"
 	"strings"
 	"time"
@@ -28,7 +29,9 @@ func (user *User) Prepare(stage string) error {
 		return err
 	}
 
-	user.format()
+	if err := user.format(stage); err != nil {
+		return err
+	}
 
 	return nil
 
@@ -86,11 +89,24 @@ func (user *User) validation(stage string) error {
 }
 
 // Format remove os espaços em branco dos campos
-func (user *User) format() {
+func (user *User) format(stage string) error {
 
 	user.Name = strings.TrimSpace(user.Name)
 	user.Nick = strings.TrimSpace(user.Nick)
 	user.Email = strings.TrimSpace(user.Email)
+
+	if stage == "create" {
+
+		hash, err := secret.Hash(user.Password)
+		if err != nil {
+			return err
+		}
+
+		user.Password = string(hash)
+
+	}
+
+	return nil
 
 }
 
