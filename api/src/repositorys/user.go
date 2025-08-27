@@ -37,6 +37,7 @@ func (repository user) CreateUserRepository(user models.User) (uint64, error) {
 
 }
 
+// GetUsersByNameOrNickRepository busca usuários pelo nome ou nick no banco de dados
 func (repository user) GetUsersByNameOrNickRepository(nameOrNick string) ([]models.User, error) {
 
 	nameOrNick = fmt.Sprintf("%%%s%%", nameOrNick)
@@ -75,6 +76,7 @@ func (repository user) GetUsersByNameOrNickRepository(nameOrNick string) ([]mode
 
 }
 
+// GetUserByIdRepository busca um usuário pelo ID no banco de dados
 func (repository user) GetUserByIdRepository(ID uint64) (models.User, error) {
 
 	stmt, err := repository.db.Prepare("SELECT id, name, nick, email, created_at FROM users WHERE id = ?")
@@ -108,6 +110,28 @@ func (repository user) GetUserByIdRepository(ID uint64) (models.User, error) {
 
 }
 
+// UpdateUserRepository atualiza um usuário no banco de dados
+func (repository user) UpdateUserRepository(ID uint64, user models.User) (models.User, error) {
+
+	if _, err := repository.GetUserByIdRepository(ID); err != nil {
+		return models.User{}, err
+	}
+
+	stmt, err := repository.db.Prepare("UPDATE users SET name = ?, nick = ? WHERE id = ?")
+	if err != nil {
+		return models.User{}, err
+	}
+	defer stmt.Close()
+
+	if _, err := stmt.Exec(user.Name, user.Nick, ID); err != nil {
+		return models.User{}, err
+	}
+
+	return repository.GetUserByIdRepository(ID)
+
+}
+
+// DeleteUserByIdRepository deleta um usuário do banco de dados
 func (repository user) DeleteUserByIdRepository(ID uint64) (bool, error) {
 
 	stmt, err := repository.db.Prepare("DELETE FROM users WHERE id = ?")

@@ -20,9 +20,9 @@ type User struct {
 type Users []User
 
 // Prepare formatar o usuário
-func (user *User) Prepare() error {
+func (user *User) Prepare(stage string) error {
 
-	if err := user.validation(); err != nil {
+	if err := user.validation(stage); err != nil {
 		return err
 	}
 
@@ -33,7 +33,7 @@ func (user *User) Prepare() error {
 }
 
 // Validation verifica se os campos do usuário estão preenchidos
-func (user *User) validation() error {
+func (user *User) validation(stage string) error {
 
 	// Validation name
 	if user.Name == "" {
@@ -51,26 +51,30 @@ func (user *User) validation() error {
 		return errors.New("o campo nick deve ter no mínimo 3 caracteres")
 	}
 
-	// Validation email
-	if user.Email == "" {
-		return errors.New("o campo email é obrigatório")
-	}
-	if !strings.Contains(user.Email, "@") || !strings.Contains(user.Email, ".") {
-		return errors.New("o campo email inválido")
-	}
+	if stage == "create" {
 
-	// Validation password
-	if user.Password == "" {
-		return errors.New("o campo password é obrigatório")
-	}
-	if len(user.Password) < 8 {
-		return errors.New("a senha deve ter no mínimo 8 caracteres")
-	}
-	if !containsLetter(user.Password) {
-		return errors.New("a senha deve conter pelo menos uma letra")
-	}
-	if !containsNumber(user.Password) {
-		return errors.New("a senha deve conter pelo menos um número")
+		// Validation email
+		if user.Email == "" {
+			return errors.New("o campo email é obrigatório")
+		}
+		if !strings.Contains(user.Email, "@") || !strings.Contains(user.Email, ".") {
+			return errors.New("o campo email inválido")
+		}
+
+		// Validation password
+		if user.Password == "" {
+			return errors.New("o campo password é obrigatório")
+		}
+		if len(user.Password) < 8 {
+			return errors.New("a senha deve ter no mínimo 8 caracteres")
+		}
+		if !containsLetter(user.Password) {
+			return errors.New("a senha deve conter pelo menos uma letra")
+		}
+		if !containsNumber(user.Password) {
+			return errors.New("a senha deve conter pelo menos um número")
+		}
+
 	}
 
 	return nil

@@ -32,7 +32,7 @@ func CreateUserController(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = user.Prepare(); err != nil {
+	if err = user.Prepare("create"); err != nil {
 		responses.Erro(w, http.StatusBadRequest, err)
 
 		return
@@ -120,8 +120,53 @@ func GetUsersByIdController(w http.ResponseWriter, r *http.Request) {
 // UpdateUserByIdController atualiza um usuário
 func UpdateUserByIdController(w http.ResponseWriter, r *http.Request) {
 
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("UpdateUserByIdController!"))
+	params := mux.Vars(r)
+	ID, err := strconv.ParseUint(params["userId"], 10, 64)
+	if err != nil {
+		responses.Erro(w, http.StatusBadRequest, err)
+
+		return
+	}
+
+	bodyRequest, err := io.ReadAll(r.Body)
+	if err != nil {
+		responses.Erro(w, http.StatusUnprocessableEntity, err)
+
+		return
+	}
+
+	var user models.User
+
+	if err := json.Unmarshal(bodyRequest, &user); err != nil {
+		responses.Erro(w, http.StatusBadRequest, err)
+
+		return
+	}
+
+	if err = user.Prepare("update"); err != nil {
+		responses.Erro(w, http.StatusBadRequest, err)
+
+		return
+	}
+
+	db, err := db.ConnectionDB()
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+
+		return
+	}
+	defer db.Close()
+
+	repository := repositorys.UsersRopository(db)
+
+	userResponse, err := repository.UpdateUserRepository(ID, user)
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, "User atualizado com sucesso", userResponse)
 
 }
 
