@@ -15,6 +15,8 @@ var (
 
 	// Port é a porta onde a api vai rodar
 	Port = 0
+
+	SecretKey []byte
 )
 
 // Loading vai inicialzar as variaveis de ambiente
@@ -36,5 +38,7 @@ func Loading() {
 		os.Getenv("DB_PASSWORD"),
 		os.Getenv("DB_NAME"),
 	)
+
+	SecretKey = []byte(os.Getenv("SECRET_KEY"))
 
 }

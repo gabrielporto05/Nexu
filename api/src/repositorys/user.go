@@ -110,6 +110,38 @@ func (repository user) GetUserByIdRepository(ID uint64) (models.User, error) {
 
 }
 
+// GetUserByIdRepository busca um usuário pelo ID no banco de dados
+func (repository user) GetUserByEmailRepository(email string) (models.User, error) {
+
+	stmt, err := repository.db.Prepare("SELECT id, email, password FROM users WHERE email = ?")
+	if err != nil {
+		return models.User{}, err
+	}
+	defer stmt.Close()
+
+	row, err := stmt.Query(email)
+	if err != nil {
+		return models.User{}, err
+	}
+	defer row.Close()
+
+	var user models.User
+	if row.Next() {
+		if err := row.Scan(
+			&user.ID,
+			&user.Email,
+			&user.Password,
+		); err != nil {
+			return models.User{}, err
+		}
+	} else {
+		return models.User{}, fmt.Errorf("user com email %s nao encontrado", email)
+	}
+
+	return user, nil
+
+}
+
 // UpdateUserRepository atualiza um usuário no banco de dados
 func (repository user) UpdateUserRepository(ID uint64, user models.User) (models.User, error) {
 
