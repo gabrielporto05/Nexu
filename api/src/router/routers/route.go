@@ -1,12 +1,13 @@
 package routers
 
 import (
+	"api/src/middlewares"
 	"net/http"
 
 	"github.com/gorilla/mux"
 )
 
-// Rota representa uma rota da API
+// Route representa uma rota da API
 type Route struct {
 	URI          string
 	Method       string
@@ -21,7 +22,17 @@ func Config(r *mux.Router) *mux.Router {
 	routers = append(routers, authRoutes...)
 
 	for _, route := range routers {
-		r.HandleFunc(route.URI, route.Func).Methods(route.Method)
+
+		if route.AuthRequired {
+			r.HandleFunc(
+				route.URI,
+				middlewares.Logger(middlewares.Authenticate(route.Func)),
+			).Methods(route.Method)
+
+			continue
+		}
+
+		r.HandleFunc(route.URI, middlewares.Logger(route.Func)).Methods(route.Method)
 	}
 
 	return r

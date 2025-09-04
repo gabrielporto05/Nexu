@@ -16,24 +16,24 @@ var userRoutes = []Route{
 		URI:          "/api/users",
 		Method:       http.MethodGet,
 		Func:         controllers.GetUsersByNameOrNickController,
-		AuthRequired: false,
+		AuthRequired: true,
 	},
 	{
 		URI:          "/api/users/{userId}",
 		Method:       http.MethodGet,
 		Func:         controllers.GetUsersByIdController,
-		AuthRequired: false,
+		AuthRequired: true,
 	},
 	{
 		URI:          "/api/users/{userId}",
 		Method:       http.MethodPut,
 		Func:         controllers.UpdateUserByIdController,
-		AuthRequired: false,
+		AuthRequired: true,
 	},
 	{
 		URI:          "/api/users/{userId}",
 		Method:       http.MethodDelete,
 		Func:         controllers.DeleteUserByIdController,
-		AuthRequired: false,
+		AuthRequired: true,
 	},
 }

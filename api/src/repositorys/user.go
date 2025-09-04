@@ -110,7 +110,7 @@ func (repository user) GetUserByIdRepository(ID uint64) (models.User, error) {
 
 }
 
-// GetUserByIdRepository busca um usuário pelo ID no banco de dados
+// GetUserByEmailRepository busca um usuário pelo email no banco de dados
 func (repository user) GetUserByEmailRepository(email string) (models.User, error) {
 
 	stmt, err := repository.db.Prepare("SELECT id, email, password FROM users WHERE email = ?")

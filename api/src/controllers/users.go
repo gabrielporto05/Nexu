@@ -1,11 +1,13 @@
 package controllers
 
 import (
+	"api/src/auth"
 	"api/src/db"
 	"api/src/models"
 	"api/src/repositorys"
 	"api/src/responses"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"strconv"
@@ -89,7 +91,7 @@ func GetUsersByNameOrNickController(w http.ResponseWriter, r *http.Request) {
 func GetUsersByIdController(w http.ResponseWriter, r *http.Request) {
 
 	params := mux.Vars(r)
-	ID, err := strconv.ParseUint(params["userId"], 10, 64)
+	userID, err := strconv.ParseUint(params["userId"], 10, 64)
 	if err != nil {
 		responses.Erro(w, http.StatusBadRequest, err)
 
@@ -106,7 +108,7 @@ func GetUsersByIdController(w http.ResponseWriter, r *http.Request) {
 
 	repository := repositorys.UsersRopository(db)
 
-	user, err := repository.GetUserByIdRepository(ID)
+	user, err := repository.GetUserByIdRepository(userID)
 	if err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
 
@@ -121,9 +123,22 @@ func GetUsersByIdController(w http.ResponseWriter, r *http.Request) {
 func UpdateUserByIdController(w http.ResponseWriter, r *http.Request) {
 
 	params := mux.Vars(r)
-	ID, err := strconv.ParseUint(params["userId"], 10, 64)
+	userID, err := strconv.ParseUint(params["userId"], 10, 64)
 	if err != nil {
 		responses.Erro(w, http.StatusBadRequest, err)
+
+		return
+	}
+
+	userIdToken, err := auth.ExtractUserIdToken(r)
+	if err != nil {
+		responses.Erro(w, http.StatusUnauthorized, err)
+
+		return
+	}
+
+	if userID != userIdToken {
+		responses.Erro(w, http.StatusForbidden, errors.New("vc não tem permissão para atualizar outro user"))
 
 		return
 	}
@@ -159,7 +174,7 @@ func UpdateUserByIdController(w http.ResponseWriter, r *http.Request) {
 
 	repository := repositorys.UsersRopository(db)
 
-	userResponse, err := repository.UpdateUserRepository(ID, user)
+	userResponse, err := repository.UpdateUserRepository(userID, user)
 	if err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
 
@@ -174,9 +189,22 @@ func UpdateUserByIdController(w http.ResponseWriter, r *http.Request) {
 func DeleteUserByIdController(w http.ResponseWriter, r *http.Request) {
 
 	params := mux.Vars(r)
-	ID, err := strconv.ParseUint(params["userId"], 10, 64)
+	userID, err := strconv.ParseUint(params["userId"], 10, 64)
 	if err != nil {
 		responses.Erro(w, http.StatusBadRequest, err)
+
+		return
+	}
+
+	userIdToken, err := auth.ExtractUserIdToken(r)
+	if err != nil {
+		responses.Erro(w, http.StatusUnauthorized, err)
+
+		return
+	}
+
+	if userID != userIdToken {
+		responses.Erro(w, http.StatusForbidden, errors.New("vc não tem permissão para deletar outro user"))
 
 		return
 	}
@@ -191,7 +219,7 @@ func DeleteUserByIdController(w http.ResponseWriter, r *http.Request) {
 
 	repository := repositorys.UsersRopository(db)
 
-	if _, err := repository.DeleteUserByIdRepository(ID); err != nil {
+	if _, err := repository.DeleteUserByIdRepository(userID); err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
 
 		return
