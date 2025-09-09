@@ -3,7 +3,7 @@ package controllers
 import (
 	"api/src/auth"
 	"api/src/db"
-	"api/src/repositorys"
+	"api/src/repositories"
 	"api/src/responses"
 	"errors"
 	"net/http"
@@ -44,7 +44,7 @@ func FollowUser(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	repository := repositorys.FollowersUsersRopository(db)
+	repository := repositories.FollowersUsersRopository(db)
 
 	if err := repository.FollowUserRopository(userID, followID); err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
@@ -83,7 +83,7 @@ func UnfollowUser(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	repository := repositorys.FollowersUsersRopository(db)
+	repository := repositories.FollowersUsersRopository(db)
 
 	if err := repository.UnfollowUserRepository(userID, followerID); err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
@@ -91,4 +91,60 @@ func UnfollowUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responses.JSON(w, http.StatusOK, "Unfollow concluído com sucesso", nil)
+}
+
+// GetFollowersController busca os seguidores de um user
+func GetFollowersController(w http.ResponseWriter, r *http.Request) {
+
+	params := mux.Vars(r)
+	userID, err := strconv.ParseUint(params["userId"], 10, 64)
+	if err != nil {
+		responses.Erro(w, http.StatusBadRequest, err)
+		return
+	}
+
+	db, err := db.ConnectionDB()
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.FollowersUsersRopository(db)
+
+	users, err := repository.FollowersUserRepository(userID)
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, "Followers listado com sucesso", users)
+}
+
+// GetFollowingController busca os users que um user segue
+func GetFollowingController(w http.ResponseWriter, r *http.Request) {
+
+	params := mux.Vars(r)
+	userID, err := strconv.ParseUint(params["userId"], 10, 64)
+	if err != nil {
+		responses.Erro(w, http.StatusBadRequest, err)
+		return
+	}
+
+	db, err := db.ConnectionDB()
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.FollowersUsersRopository(db)
+
+	users, err := repository.FollowingUserRepository(userID)
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, "Following listado com sucesso", users)
 }

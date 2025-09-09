@@ -4,7 +4,7 @@ import (
 	"api/src/auth"
 	"api/src/db"
 	"api/src/models"
-	"api/src/repositorys"
+	"api/src/repositories"
 	"api/src/responses"
 	"encoding/json"
 	"errors"
@@ -48,7 +48,7 @@ func CreateUserController(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	repository := repositorys.UsersRopository(db)
+	repository := repositories.UsersRopository(db)
 
 	user.ID, err = repository.CreateUserRepository(user)
 	if err != nil {
@@ -74,7 +74,7 @@ func GetUsersByNameOrNickController(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	repository := repositorys.UsersRopository(db)
+	repository := repositories.UsersRopository(db)
 
 	users, err := repository.GetUsersByNameOrNickRepository(nameOrNick)
 	if err != nil {
@@ -106,7 +106,7 @@ func GetUsersByIdController(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	repository := repositorys.UsersRopository(db)
+	repository := repositories.UsersRopository(db)
 
 	user, err := repository.GetUserByIdRepository(userID)
 	if err != nil {
@@ -172,7 +172,7 @@ func UpdateUserByIdController(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	repository := repositorys.UsersRopository(db)
+	repository := repositories.UsersRopository(db)
 
 	userResponse, err := repository.UpdateUserRepository(userID, user)
 	if err != nil {
@@ -217,7 +217,7 @@ func DeleteUserByIdController(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	repository := repositorys.UsersRopository(db)
+	repository := repositories.UsersRopository(db)
 
 	if _, err := repository.DeleteUserByIdRepository(userID); err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)

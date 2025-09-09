@@ -4,7 +4,7 @@ import (
 	"api/src/auth"
 	"api/src/db"
 	"api/src/models"
-	"api/src/repositorys"
+	"api/src/repositories"
 	"api/src/responses"
 	"api/src/secret"
 	"encoding/json"
@@ -38,7 +38,7 @@ func AuthLoginController(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	repository := repositorys.UsersRopository(db)
+	repository := repositories.UsersRopository(db)
 
 	userResponse, err := repository.GetUserByEmailRepository(user.Email)
 	if err != nil {
