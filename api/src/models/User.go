@@ -22,6 +22,12 @@ type User struct {
 // Users representa uma lista de usuários
 type Users []User
 
+// UserUpdatePassword representa uma atualização de senha
+type UserUpdatePassword struct {
+	CurrentPassword string `json:"current_password"`
+	NewPassword     string `json:"new_password"`
+}
+
 // Prepare formatar o usuário
 func (user *User) Prepare(stage string) error {
 

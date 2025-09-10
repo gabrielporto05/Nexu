@@ -31,6 +31,12 @@ var userRoutes = []Route{
 		AuthRequired: true,
 	},
 	{
+		URI:          "/api/users/{userId}/update-password",
+		Method:       http.MethodPatch,
+		Func:         controllers.UpdateUserPasswordByIdController,
+		AuthRequired: true,
+	},
+	{
 		URI:          "/api/users/{userId}",
 		Method:       http.MethodDelete,
 		Func:         controllers.DeleteUserByIdController,

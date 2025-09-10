@@ -142,6 +142,33 @@ func (repository user) GetUserByEmailRepository(email string) (models.User, erro
 
 }
 
+// GetUserPasswordByIdRepository busca a senha de um usuário pelo ID
+func (repository user) GetUserPasswordByIdRepository(ID uint64) (string, error) {
+
+	stmt, err := repository.db.Prepare("SELECT password FROM users WHERE id = ?")
+	if err != nil {
+		return "", err
+	}
+	defer stmt.Close()
+
+	row, err := stmt.Query(ID)
+	if err != nil {
+		return "", err
+	}
+	defer row.Close()
+
+	var password string
+	if row.Next() {
+		if err := row.Scan(&password); err != nil {
+			return "", err
+		}
+	} else {
+		return "", fmt.Errorf("user com ID %d nao encontrado", ID)
+	}
+
+	return password, nil
+}
+
 // UpdateUserRepository atualiza um usuário no banco de dados
 func (repository user) UpdateUserRepository(ID uint64, user models.User) (models.User, error) {
 
@@ -160,6 +187,23 @@ func (repository user) UpdateUserRepository(ID uint64, user models.User) (models
 	}
 
 	return repository.GetUserByIdRepository(ID)
+
+}
+
+// UpdateUserPasswordRepository atualiza a senha de um usuário
+func (repository user) UpdateUserPasswordRepository(userID uint64, passwordHash string) error {
+
+	stmt, err := repository.db.Prepare("UPDATE users SET password = ? WHERE id = ?")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	if _, err := stmt.Exec(passwordHash, userID); err != nil {
+		return err
+	}
+
+	return nil
 
 }
 
