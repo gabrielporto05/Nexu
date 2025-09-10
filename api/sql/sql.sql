@@ -2,6 +2,8 @@ CREATE DATABASE IF NOT EXISTS devbook;
 
 USE devbook;
 
+DROP TABLE IF EXISTS posts;
+DROP TABLE IF EXISTS followers;
 DROP TABLE IF EXISTS users;
 
 CREATE TABLE users(
@@ -12,8 +14,6 @@ CREATE TABLE users(
     password VARCHAR(100) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP()
 ) ENGINE=INNODB;
-
-DROP TABLE IF EXISTS followers;
 
 CREATE TABLE followers(
     user_id int NOT NULL,
@@ -30,3 +30,17 @@ CREATE TABLE followers(
 
     PRIMARY KEY(user_id, follower_id)
 ) ENGINE=INNODB; 
+
+CREATE TABLE posts(
+    id int AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(100) NOT NULL,
+    description VARCHAR(500) NOT NULL,
+
+    author_id int NOT NULL,
+    FOREIGN KEY (author_id) 
+    REFERENCES users(id) 
+    ON DELETE CASCADE,
+
+    likes int DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP()
+) ENGINE=INNODB;

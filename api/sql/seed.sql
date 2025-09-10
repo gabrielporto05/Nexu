@@ -12,3 +12,15 @@ INSERT INTO followers(user_id, follower_id) VALUES
 (3, 4),
 (4, 2),
 (4, 1);
+
+INSERT INTO posts(title, description, author_id, likes) VALUES
+("Post 1", "Post 1 description", 1, 4),
+("Post 2", "Post 2 description", 1, 2),
+("Post 3", "Post 3 description", 1, 3),
+("Post 4", "Post 4 description", 2, 0),
+("Post 5", "Post 5 description", 2, 5),
+("Post 6", "Post 6 description", 2, 1),
+("Post 7", "Post 7 description", 4, 7),
+("Post 8", "Post 8 description", 4, 3),
+("Post 9", "Post 9 description", 5, 10),
+("Post 10", "Post 10 description", 3, 3);
