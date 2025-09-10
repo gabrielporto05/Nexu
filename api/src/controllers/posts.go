@@ -1,14 +1,70 @@
 package controllers
 
 import (
+	"api/src/auth"
+	"api/src/db"
+	"api/src/models"
+	"api/src/repositories"
 	"api/src/responses"
+	"encoding/json"
+	"io"
 	"net/http"
+	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 // CreatePostController cria um post
 func CreatePostController(w http.ResponseWriter, r *http.Request) {
 
-	responses.JSON(w, http.StatusCreated, "Post criado com sucesso", nil)
+	userIdToken, err := auth.ExtractUserIdToken(r)
+	if err != nil {
+		responses.Erro(w, http.StatusUnauthorized, err)
+
+		return
+	}
+
+	bodyRequest, err := io.ReadAll(r.Body)
+	if err != nil {
+		responses.Erro(w, http.StatusUnprocessableEntity, err)
+
+		return
+	}
+
+	var post models.Post
+
+	post.AuthorID = userIdToken
+
+	if err := json.Unmarshal(bodyRequest, &post); err != nil {
+		responses.Erro(w, http.StatusBadRequest, err)
+
+		return
+	}
+
+	if err := post.Prepare(); err != nil {
+		responses.Erro(w, http.StatusBadRequest, err)
+
+		return
+	}
+
+	db, err := db.ConnectionDB()
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.PostsRopository(db)
+
+	post.ID, err = repository.CreatePostRepository(post)
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+
+		return
+	}
+
+	responses.JSON(w, http.StatusCreated, "Post criado com sucesso", post)
 
 }
 
@@ -21,7 +77,32 @@ func GetAllPostsController(w http.ResponseWriter, r *http.Request) {
 // GetPostByIdController busca um post
 func GetPostByIdController(w http.ResponseWriter, r *http.Request) {
 
-	responses.JSON(w, http.StatusOK, "Post encontrado com sucesso", nil)
+	params := mux.Vars(r)
+	postID, err := strconv.ParseUint(params["postId"], 10, 64)
+	if err != nil {
+		responses.Erro(w, http.StatusBadRequest, err)
+
+		return
+	}
+
+	db, err := db.ConnectionDB()
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.PostsRopository(db)
+
+	post, err := repository.GetPostByIdRepository(postID)
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, "Post encontrado com sucesso", post)
 
 }
 
