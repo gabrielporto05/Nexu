@@ -25,6 +25,12 @@ var postRoutes = []Route{
 		AuthRequired: true,
 	},
 	{
+		URI:          "/api/users/{userId}/posts",
+		Method:       http.MethodGet,
+		Func:         controllers.GetAllPostsUserByIdController,
+		AuthRequired: true,
+	},
+	{
 		URI:          "/api/posts/{postId}",
 		Method:       http.MethodPut,
 		Func:         controllers.UpdatePostByIdController,
@@ -38,13 +44,13 @@ var postRoutes = []Route{
 	},
 	{
 		URI:          "/api/posts/{postId}/like",
-		Method:       http.MethodPost,
+		Method:       http.MethodPatch,
 		Func:         controllers.LikePostController,
 		AuthRequired: true,
 	},
 	{
 		URI:          "/api/posts/{postId}/unlike",
-		Method:       http.MethodPost,
+		Method:       http.MethodPatch,
 		Func:         controllers.UnlikePostController,
 		AuthRequired: true,
 	},
