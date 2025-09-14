@@ -1,6 +1,6 @@
-# 📘 DevBook - Mini Rede Social em Go
+# 📘 Nexu - Mini Rede Social em Go
 
-DevBook é uma aplicação backend desenvolvida em Go que simula uma rede social minimalista. Usuários podem se registrar, seguir uns aos outros, atualizar seus dados, e futuramente poderão publicar conteúdos e interagir com publicações de outros usuários.
+Nexu é uma aplicação backend desenvolvida em Go que simula uma rede social minimalista. Usuários podem se registrar, seguir uns aos outros, atualizar seus dados, e futuramente poderão publicar conteúdos e interagir com publicações de outros usuários.
 
 ---
 
