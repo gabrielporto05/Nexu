@@ -1,3 +1,4 @@
+
 INSERT INTO users(name, nick, email, password) VALUES
 ("Chines Porto", "chines05", "chines@email.com", "$2a$10$G9CVffPs9x2MSd66TYNWoeOJOSQN9zlPg/76mIM5V1T/K10FQ1OxK"),
 ("Gabriel Martins", "gabriel", "gabriel@email.com", "$2a$10$G9CVffPs9x2MSd66TYNWoeOJOSQN9zlPg/76mIM5V1T/K10FQ1OxK"),
