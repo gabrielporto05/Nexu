@@ -1,0 +1,4 @@
+export const NexuApenasSemFundoLogo = require('../../public/NexuApenasSemFundo.png')
+export const NexuApenasLogo = require('../../public/NexuApenas.png')
+export const NexuLogo = require('../../public/Nexu.png')
+export const NexuSemFundoLogo = require('../../public/NexuSemFundo.png')
