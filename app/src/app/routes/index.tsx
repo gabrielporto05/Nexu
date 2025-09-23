@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import LoginPage from 'src/screens/Login'
 import RegisterPage from 'src/screens/Register'
 import NexuPage from 'src/screens/Nexu'
-// import ForgotPassword from "src/pages/ForgotPassword";
+import ForgotPasswordPage from 'src/screens/ForgotPassword'
 
 const Stack = createNativeStackNavigator()
 
@@ -15,8 +15,8 @@ const Routes = () => {
       <Stack.Screen name='Nexu' component={NexuPage} />
       <Stack.Screen name='Login' component={LoginPage} />
       <Stack.Screen name='Register' component={RegisterPage} />
+      <Stack.Screen name='ForgotPassword' component={ForgotPasswordPage} />
       {/* <Stack.Screen name="AppTabs" component={AppTabs} /> */}
-      {/* <Stack.Screen name="ForgotPassword" component={ForgotPassword} /> */}
     </Stack.Navigator>
   )
 }
