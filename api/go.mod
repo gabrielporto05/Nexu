@@ -14,5 +14,6 @@ require (
 	github.com/badoux/checkmail v1.2.4 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/go-sql-driver/mysql v1.9.3 // indirect
+	github.com/rs/cors v1.11.1 // indirect
 	golang.org/x/crypto v0.41.0 // indirect
 )

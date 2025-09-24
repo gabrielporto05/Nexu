@@ -15,7 +15,7 @@ var authRoutes = []Route{
 	{
 		URI:          "/api/auth/register",
 		Method:       http.MethodPost,
-		Func:         controllers.AuthRegisterController,
+		Func:         controllers.CreateUserController,
 		AuthRequired: false,
 	},
 }
