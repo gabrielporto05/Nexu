@@ -8,6 +8,9 @@ import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { RootStackParamList } from 'src/utils/types'
 import { Ionicons } from '@expo/vector-icons'
+import Toast from 'react-native-toast-message'
+import { Login } from 'src/services/apiAuth'
+import { getErrorMessage } from 'src/utils/errorHandler'
 
 const LoginPage = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
@@ -25,8 +28,22 @@ const LoginPage = () => {
     formState: { errors }
   } = form
 
-  const onSubmit = (data: LoginSchemaType) => {
-    console.log(data)
+  const onSubmit = async (data: LoginSchemaType) => {
+    try {
+      const { message } = await Login(data)
+
+      Toast.show({
+        type: 'success',
+        text1: message
+      })
+
+      navigation.navigate('Home')
+    } catch (error: any) {
+      Toast.show({
+        type: 'error',
+        text1: getErrorMessage(error, 'Erro ao logar')
+      })
+    }
   }
 
   return (

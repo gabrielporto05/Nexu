@@ -5,6 +5,7 @@ import LoginPage from 'src/screens/Login'
 import RegisterPage from 'src/screens/Register'
 import NexuPage from 'src/screens/Nexu'
 import ForgotPasswordPage from 'src/screens/ForgotPassword'
+import HomePage from 'src/screens/Home'
 
 const Stack = createNativeStackNavigator()
 
@@ -16,6 +17,7 @@ const Routes = () => {
       <Stack.Screen name='Login' component={LoginPage} />
       <Stack.Screen name='Register' component={RegisterPage} />
       <Stack.Screen name='ForgotPassword' component={ForgotPasswordPage} />
+      <Stack.Screen name='Home' component={HomePage} />
       {/* <Stack.Screen name="AppTabs" component={AppTabs} /> */}
     </Stack.Navigator>
   )
