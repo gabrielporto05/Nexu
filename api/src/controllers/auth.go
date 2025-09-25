@@ -13,6 +13,35 @@ import (
 	"net/http"
 )
 
+func GetProfileController(w http.ResponseWriter, r *http.Request) {
+
+	userID, err := auth.ExtractUserIdToken(r)
+	if err != nil {
+		responses.Erro(w, http.StatusUnauthorized, err)
+
+		return
+	}
+
+	db, err := db.ConnectionDB()
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.UsersRopository(db)
+
+	user, err := repository.GetUserByIdRepository(userID)
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, "Perfil encontrado com sucesso", user)
+}
+
 func AuthLoginController(w http.ResponseWriter, r *http.Request) {
 
 	bodyRequest, err := io.ReadAll(r.Body)
