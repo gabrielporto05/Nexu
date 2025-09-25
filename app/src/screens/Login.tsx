@@ -3,7 +3,6 @@ import { LoginSchema, LoginSchemaType } from 'src/schemas/authSchema'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { TextInput, Button } from 'react-native-paper'
-import { NexuApenasSemFundoPretaLogo } from 'src/utils/imgs'
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { RootStackParamList } from 'src/utils/types'
@@ -11,6 +10,7 @@ import { Ionicons } from '@expo/vector-icons'
 import Toast from 'react-native-toast-message'
 import { Login } from 'src/services/apiAuth'
 import { getErrorMessage } from 'src/utils/errorHandler'
+import { NexuApenasSemFundoPretaLogo } from 'src/utils/imgs'
 
 const LoginPage = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
@@ -38,10 +38,10 @@ const LoginPage = () => {
       })
 
       navigation.navigate('Home')
-    } catch (error: any) {
+    } catch (err) {
       Toast.show({
         type: 'error',
-        text1: getErrorMessage(error, 'Erro ao logar')
+        text1: getErrorMessage(err, 'Erro ao logar')
       })
     }
   }

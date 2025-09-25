@@ -1,3 +1,3 @@
-export const getErrorMessage = (error: any, fallbackMessage: string = 'Erro inesperado. Tente novamente.'): string => {
-  return error?.response?.data?.data?.error || error?.response?.data?.message || fallbackMessage
+export const getErrorMessage = (err, fallbackMessage: string = 'Erro inesperado. Tente novamente.'): string => {
+  return err?.response?.data?.data?.error || err?.response?.data?.message || fallbackMessage
 }

@@ -3,13 +3,13 @@ import { RegisterSchema, RegisterSchemaType } from 'src/schemas/authSchema'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { TextInput, Button } from 'react-native-paper'
-import { NexuApenasSemFundoPretaLogo } from 'src/utils/imgs'
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { RootStackParamList } from 'src/utils/types'
 import Toast from 'react-native-toast-message'
 import { Register } from 'src/services/apiAuth'
 import { getErrorMessage } from 'src/utils/errorHandler'
+import { NexuApenasSemFundoPretaLogo } from 'src/utils/imgs'
 
 const RegisterPage = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
@@ -40,10 +40,10 @@ const RegisterPage = () => {
       })
 
       navigation.navigate('Login')
-    } catch (error: any) {
+    } catch (err) {
       Toast.show({
         type: 'error',
-        text1: getErrorMessage(error, 'Erro ao registrar')
+        text1: getErrorMessage(err, 'Erro ao registrar')
       })
     }
   }
@@ -71,12 +71,12 @@ const RegisterPage = () => {
                       field === 'email'
                         ? 'chines@email.com'
                         : field.includes('password')
-                        ? '********'
-                        : field.includes('name')
-                        ? 'Chines Porto'
-                        : field.includes('nick')
-                        ? 'chines05'
-                        : ''
+                          ? '********'
+                          : field.includes('name')
+                            ? 'Chines Porto'
+                            : field.includes('nick')
+                              ? 'chines05'
+                              : ''
                     }
                     mode='outlined'
                     value={value}

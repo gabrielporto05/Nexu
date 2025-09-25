@@ -1,24 +1,34 @@
 import { Image, StyleSheet, View } from 'react-native'
-import { NexuApenasSemFundoLogo } from 'src/utils/imgs'
 import { useNavigation } from '@react-navigation/native'
 import { useEffect } from 'react'
 import { RootStackParamList } from 'src/utils/types'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import { useAuth } from 'src/hooks/useAuth'
+import { NexuApenasSemFundoLogo } from 'src/utils/imgs'
 
 const NexuPage = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
+  const { isAuthenticated, loading } = useAuth()
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      navigation.navigate('Login')
-    }, 2000)
+    if (!loading) {
+      if (isAuthenticated) {
+        navigation.navigate('Home')
 
-    return () => clearTimeout(timer)
-  }, [])
+        return
+      }
+
+      const timer = setTimeout(() => {
+        navigation.navigate('Login')
+      }, 2000)
+
+      return () => clearTimeout(timer)
+    }
+  }, [isAuthenticated, loading])
 
   return (
     <View style={styles.container}>
-      <Image source={NexuApenasSemFundoLogo} style={styles.logo} resizeMode='contain' />
+      <Image source={NexuApenasSemFundoLogo} style={styles.logo} />
     </View>
   )
 }
