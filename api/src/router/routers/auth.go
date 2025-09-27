@@ -24,4 +24,10 @@ var authRoutes = []Route{
 		Func:         controllers.CreateUserController,
 		AuthRequired: false,
 	},
+	{
+		URI:          "/api/auth/forgot-password",
+		Method:       http.MethodPost,
+		Func:         controllers.ForgotPasswordController,
+		AuthRequired: false,
+	},
 }

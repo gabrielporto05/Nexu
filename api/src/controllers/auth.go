@@ -7,6 +7,7 @@ import (
 	"api/src/repositories"
 	"api/src/responses"
 	"api/src/secret"
+	"api/src/utils"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -93,8 +94,56 @@ func AuthLoginController(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func AuthRegisterController(w http.ResponseWriter, r *http.Request) {
+// ForgotPasswordController envia uma nova senha para o email do usuário
+func ForgotPasswordController(w http.ResponseWriter, r *http.Request) {
+	bodyRequest, err := io.ReadAll(r.Body)
+	if err != nil {
+		responses.Erro(w, http.StatusUnprocessableEntity, err)
+		return
+	}
 
-	responses.JSON(w, http.StatusOK, "Registrado com sucesso", nil)
+	var body struct {
+		Email string `json:"email"`
+	}
 
+	if err := json.Unmarshal(bodyRequest, &body); err != nil {
+		responses.Erro(w, http.StatusBadRequest, err)
+		return
+	}
+
+	db, err := db.ConnectionDB()
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.UsersRopository(db)
+
+	user, err := repository.GetUserByEmailRepository(body.Email)
+	if err != nil {
+		responses.Erro(w, http.StatusNotFound, fmt.Errorf("email não encontrado"))
+		return
+	}
+
+	novaSenha := utils.GenerateRandomPassword(10)
+	hash, err := secret.Hash(novaSenha)
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	err = repository.UpdateUserPasswordRepository(user.ID, string(hash))
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	err = utils.SendEmail(body.Email, "Recuperação de senha", novaSenha)
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, "Nova senha enviada para seu email", nil)
 }

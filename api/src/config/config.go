@@ -17,6 +17,9 @@ var (
 	Port = 0
 
 	SecretKey []byte
+
+	MyEmail         = ""
+	MyEmailPassowrd = ""
 )
 
 // Loading vai inicialzar as variaveis de ambiente
@@ -40,5 +43,8 @@ func Loading() {
 	)
 
 	SecretKey = []byte(os.Getenv("SECRET_KEY"))
+
+	MyEmail = os.Getenv("MY_EMAIL")
+	MyEmailPassowrd = os.Getenv("MY_EMAIL_PASSWORD")
 
 }
