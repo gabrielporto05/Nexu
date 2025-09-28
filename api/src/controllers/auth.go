@@ -94,6 +94,50 @@ func AuthLoginController(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func RegisterUserController(w http.ResponseWriter, r *http.Request) {
+
+	bodyRequest, err := io.ReadAll(r.Body)
+	if err != nil {
+		responses.Erro(w, http.StatusUnprocessableEntity, err)
+
+		return
+	}
+
+	var user models.User
+
+	if err := json.Unmarshal(bodyRequest, &user); err != nil {
+		responses.Erro(w, http.StatusBadRequest, err)
+
+		return
+	}
+
+	if err = user.Prepare("create"); err != nil {
+		responses.Erro(w, http.StatusBadRequest, err)
+
+		return
+	}
+
+	db, err := db.ConnectionDB()
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.UsersRopository(db)
+
+	user.ID, err = repository.CreateUserRepository(user)
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+
+		return
+	}
+
+	responses.JSON(w, http.StatusCreated, "Usuario registrado com sucesso", user)
+
+}
+
 // ForgotPasswordController envia uma nova senha para o email do usuário
 func ForgotPasswordController(w http.ResponseWriter, r *http.Request) {
 	bodyRequest, err := io.ReadAll(r.Body)

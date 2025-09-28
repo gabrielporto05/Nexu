@@ -17,51 +17,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// CreateUserController cria um usuário
-func CreateUserController(w http.ResponseWriter, r *http.Request) {
-
-	bodyRequest, err := io.ReadAll(r.Body)
-	if err != nil {
-		responses.Erro(w, http.StatusUnprocessableEntity, err)
-
-		return
-	}
-
-	var user models.User
-
-	if err := json.Unmarshal(bodyRequest, &user); err != nil {
-		responses.Erro(w, http.StatusBadRequest, err)
-
-		return
-	}
-
-	if err = user.Prepare("create"); err != nil {
-		responses.Erro(w, http.StatusBadRequest, err)
-
-		return
-	}
-
-	db, err := db.ConnectionDB()
-	if err != nil {
-		responses.Erro(w, http.StatusInternalServerError, err)
-
-		return
-	}
-	defer db.Close()
-
-	repository := repositories.UsersRopository(db)
-
-	user.ID, err = repository.CreateUserRepository(user)
-	if err != nil {
-		responses.Erro(w, http.StatusInternalServerError, err)
-
-		return
-	}
-
-	responses.JSON(w, http.StatusCreated, "Usuario criado com sucesso", user)
-
-}
-
 // GetUsersController busca todos os usuários por name or nick
 func GetUsersByNameOrNickController(w http.ResponseWriter, r *http.Request) {
 

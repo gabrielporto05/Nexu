@@ -8,12 +8,6 @@ import (
 var userRoutes = []Route{
 	{
 		URI:          "/api/users",
-		Method:       http.MethodPost,
-		Func:         controllers.CreateUserController,
-		AuthRequired: false,
-	},
-	{
-		URI:          "/api/users",
 		Method:       http.MethodGet,
 		Func:         controllers.GetUsersByNameOrNickController,
 		AuthRequired: true,
