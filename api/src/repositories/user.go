@@ -42,7 +42,7 @@ func (repository user) GetUsersByNameOrNickRepository(nameOrNick string) ([]mode
 
 	nameOrNick = fmt.Sprintf("%%%s%%", nameOrNick)
 
-	stmt, err := repository.db.Prepare("SELECT id, name, nick, email, created_at FROM users WHERE name LIKE ? OR nick LIKE ?")
+	stmt, err := repository.db.Prepare("SELECT id, name, nick, email, avatar created_at FROM users WHERE name LIKE ? OR nick LIKE ?")
 	if err != nil {
 		return nil, err
 	}
@@ -64,6 +64,7 @@ func (repository user) GetUsersByNameOrNickRepository(nameOrNick string) ([]mode
 			&user.Name,
 			&user.Nick,
 			&user.Email,
+			&user.Avatar,
 			&user.CreatedAt,
 		); err != nil {
 			return nil, err
@@ -79,7 +80,7 @@ func (repository user) GetUsersByNameOrNickRepository(nameOrNick string) ([]mode
 // GetUserByIdRepository busca um usuário pelo ID no banco de dados
 func (repository user) GetUserByIdRepository(ID uint64) (models.User, error) {
 
-	stmt, err := repository.db.Prepare("SELECT id, name, nick, email, created_at FROM users WHERE id = ?")
+	stmt, err := repository.db.Prepare("SELECT id, name, nick, email, avatar, created_at FROM users WHERE id = ?")
 	if err != nil {
 		return models.User{}, err
 	}
@@ -98,6 +99,7 @@ func (repository user) GetUserByIdRepository(ID uint64) (models.User, error) {
 			&user.Name,
 			&user.Nick,
 			&user.Email,
+			&user.Avatar,
 			&user.CreatedAt,
 		); err != nil {
 			return models.User{}, err
@@ -204,6 +206,21 @@ func (repository user) UpdateUserPasswordRepository(userID uint64, passwordHash 
 	}
 
 	return nil
+
+}
+
+// UpdateUserAvatarRepository atualiza o avatar de um usuário
+func (repository user) UpdateUserAvatarRepository(ID uint64, avatarPath string) error {
+
+	stmt, err := repository.db.Prepare("UPDATE users SET avatar = ? WHERE id = ?")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(avatarPath, ID)
+
+	return err
 
 }
 

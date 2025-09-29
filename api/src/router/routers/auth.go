@@ -7,12 +7,6 @@ import (
 
 var authRoutes = []Route{
 	{
-		URI:          "/api/auth/profile",
-		Method:       http.MethodGet,
-		Func:         controllers.GetProfileController,
-		AuthRequired: true,
-	},
-	{
 		URI:          "/api/auth/login",
 		Method:       http.MethodPost,
 		Func:         controllers.AuthLoginController,
