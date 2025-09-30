@@ -11,6 +11,7 @@ import (
 	"os"
 )
 
+// GetProfileController busca o perfil
 func GetProfileController(w http.ResponseWriter, r *http.Request) {
 
 	userID, err := auth.ExtractUserIdToken(r)
@@ -50,6 +51,25 @@ func UploadProfileAvatarController(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	db, err := db.ConnectionDB()
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.UsersRopository(db)
+	user, err := repository.GetUserByIdRepository(userID)
+	if err != nil {
+		responses.Erro(w, http.StatusNotFound, err)
+		return
+	}
+
+	if user.Avatar != "" {
+		oldPath := "uploads/avatars/" + user.Avatar
+		os.Remove(oldPath)
+	}
+
 	file, header, err := r.FormFile("avatar")
 	if err != nil {
 		responses.Erro(w, http.StatusBadRequest, err)
@@ -68,15 +88,7 @@ func UploadProfileAvatarController(w http.ResponseWriter, r *http.Request) {
 	defer out.Close()
 	io.Copy(out, file)
 
-	db, err := db.ConnectionDB()
-	if err != nil {
-		responses.Erro(w, http.StatusInternalServerError, err)
-		return
-	}
-	defer db.Close()
-
-	repository := repositories.UsersRopository(db)
-	err = repository.UpdateUserAvatarRepository(userID, path)
+	err = repository.UpdateUserAvatarRepository(userID, filename)
 	if err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
 		return
