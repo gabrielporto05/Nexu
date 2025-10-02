@@ -1,19 +1,17 @@
-import { Image, StyleSheet, Text, View } from 'react-native'
+import { Image, StyleSheet, View } from 'react-native'
 import { LoginSchema, LoginSchemaType } from 'src/schemas/authSchema'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { TextInput, Button } from 'react-native-paper'
-import { useNavigation } from '@react-navigation/native'
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { RootStackParamList } from 'src/utils/types'
+import { TextInput, Button, Text } from 'react-native-paper'
 import { Ionicons } from '@expo/vector-icons'
 import Toast from 'react-native-toast-message'
 import { Login } from 'src/services/apiAuth'
 import { getErrorMessage } from 'src/utils/errorHandler'
-import { NexuApenasSemFundoPretaLogo } from 'src/utils/imgs'
+import { useRouter } from 'expo-router'
 
 const LoginPage = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
+  const router = useRouter()
+
   const form = useForm<LoginSchemaType>({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
@@ -37,7 +35,7 @@ const LoginPage = () => {
         text1: message
       })
 
-      navigation.navigate('Home')
+      router.replace('/home')
     } catch (err) {
       Toast.show({
         type: 'error',
@@ -48,7 +46,7 @@ const LoginPage = () => {
 
   return (
     <View style={styles.container}>
-      <Image source={NexuApenasSemFundoPretaLogo} style={styles.logo} />
+      <Image source={require('../assets/NexuApenasSemFundoPreta.png')} style={styles.logo} />
       <View style={styles.containerForm}>
         <Text style={styles.title}>
           Entre <br /> com suas credenciais!
@@ -102,7 +100,7 @@ const LoginPage = () => {
         <View style={{ alignItems: 'flex-end', marginTop: 10 }}>
           <Text
             style={{ color: 'blue', textDecorationLine: 'underline' }}
-            onPress={() => navigation.navigate('ForgotPassword')}
+            onPress={() => router.push('/forgot-password')}
           >
             Esqueci minha senha
           </Text>
@@ -163,10 +161,7 @@ const LoginPage = () => {
         <View style={{ alignItems: 'center', marginTop: 50 }}>
           <Text style={{ fontSize: 16 }}>
             Não possui uma conta?{' '}
-            <Text
-              style={{ color: 'blue', textDecorationLine: 'underline' }}
-              onPress={() => navigation.navigate('Register')}
-            >
+            <Text style={{ color: 'blue', textDecorationLine: 'underline' }} onPress={() => router.push('/register')}>
               Registre-se
             </Text>
           </Text>
