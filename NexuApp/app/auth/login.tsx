@@ -7,12 +7,14 @@ import Toast from 'react-native-toast-message'
 import { Login } from 'src/services/apiAuth'
 import { getErrorMessage } from 'src/utils/errorHandler'
 import { useRouter } from 'expo-router'
-import TextNexu from 'src/components/TextNexu'
-import TextInputNexu from 'src/components/TextInputNexu'
-import ButtonNexu from 'src/components/ButtonNexu'
+import TextNexu from 'src/components/ui/TextNexu'
+import TextInputNexu from 'src/components/ui/TextInputNexu'
+import ButtonNexu from 'src/components/ui/ButtonNexu'
+import { useAuth } from 'src/context/AuthContext'
 
 const LoginPage = () => {
   const router = useRouter()
+  const { signIn } = useAuth()
 
   const form = useForm<LoginSchemaType>({
     resolver: zodResolver(LoginSchema),
@@ -30,11 +32,11 @@ const LoginPage = () => {
 
   const onSubmit = async (data: LoginSchemaType) => {
     try {
-      const { message } = await Login(data)
+      const message = await signIn(data)
 
       Toast.show({
         type: 'success',
-        text1: message
+        text1: message!
       })
 
       router.replace('/home')

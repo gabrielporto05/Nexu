@@ -5,8 +5,6 @@ import { setToken } from 'src/utils/token'
 const Login = async (payload: LoginSchemaType) => {
   const response = await api.post('/auth/login', payload)
 
-  await setToken(response.data.data)
-
   return response.data
 }
 

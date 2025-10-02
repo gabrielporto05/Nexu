@@ -1,5 +1,5 @@
 import { View } from 'react-native'
-import TextNexu from 'src/components/TextNexu'
+import TextNexu from 'src/components/ui/TextNexu'
 
 const ForgotPasswordPage = () => {
   return (

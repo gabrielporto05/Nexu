@@ -10,6 +10,7 @@ import {
   SpaceGrotesk_700Bold
 } from '@expo-google-fonts/space-grotesk'
 import { ToastWrapper } from 'src/utils/toast'
+import { AuthProvider } from 'src/context/AuthContext'
 
 export default function Layout() {
   const [fontsLoaded, fontError] = useFonts({
@@ -28,11 +29,13 @@ export default function Layout() {
 
   return (
     <SafeAreaProvider>
-      <PaperProvider>
-        <StatusBar />
-        <Slot />
-        <ToastWrapper />
-      </PaperProvider>
+      <AuthProvider>
+        <PaperProvider>
+          <StatusBar />
+          <Slot />
+          <ToastWrapper />
+        </PaperProvider>
+      </AuthProvider>
     </SafeAreaProvider>
   )
 }
