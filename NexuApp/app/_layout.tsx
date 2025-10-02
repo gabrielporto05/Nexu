@@ -2,9 +2,7 @@ import { Slot } from 'expo-router'
 import { Provider as PaperProvider } from 'react-native-paper'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
-import { useColorScheme, View, Text } from 'react-native'
-import theme from 'src/theme/theme'
-
+import { View, ActivityIndicator } from 'react-native'
 import {
   useFonts,
   SpaceGrotesk_400Regular,
@@ -13,35 +11,24 @@ import {
 } from '@expo-google-fonts/space-grotesk'
 
 export default function Layout() {
-  const colorScheme = useColorScheme()
-
   const [fontsLoaded, fontError] = useFonts({
     SpaceGrotesk_400Regular,
     SpaceGrotesk_500Medium,
     SpaceGrotesk_700Bold
   })
 
-  console.log('Fonts loaded:', fontsLoaded)
-  console.log('Font error:', fontError)
-
-  if (fontError) {
-    console.error('Error loading fonts:', fontError)
-  }
-
-  if (!fontsLoaded) {
+  if (!fontsLoaded && !fontError) {
     return (
-      <SafeAreaProvider>
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Text>Carregando fontes...</Text>
-        </View>
-      </SafeAreaProvider>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size='large' />
+      </View>
     )
   }
 
   return (
     <SafeAreaProvider>
-      <PaperProvider theme={theme[colorScheme || 'light']}>
-        <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+      <PaperProvider>
+        <StatusBar />
         <Slot />
       </PaperProvider>
     </SafeAreaProvider>

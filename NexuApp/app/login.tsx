@@ -2,12 +2,14 @@ import { Image, StyleSheet, View } from 'react-native'
 import { LoginSchema, LoginSchemaType } from 'src/schemas/authSchema'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { TextInput, Button, Text } from 'react-native-paper'
 import { Ionicons } from '@expo/vector-icons'
 import Toast from 'react-native-toast-message'
 import { Login } from 'src/services/apiAuth'
 import { getErrorMessage } from 'src/utils/errorHandler'
 import { useRouter } from 'expo-router'
+import TextNexu from 'src/components/TextNexu'
+import TextInputNexu from 'src/components/TextInputNexu'
+import ButtonNexu from 'src/components/ButtonNexu'
 
 const LoginPage = () => {
   const router = useRouter()
@@ -45,85 +47,132 @@ const LoginPage = () => {
   }
 
   return (
-    <View style={styles.container}>
-      <Image source={require('../assets/NexuApenasSemFundoPreta.png')} style={styles.logo} />
-      <View style={styles.containerForm}>
-        <Text style={styles.title}>
-          Entre <br /> com suas credenciais!
-        </Text>
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: '#fff',
+        padding: 24,
+        justifyContent: 'center'
+      }}
+    >
+      <Image
+        source={require('../assets/NexuApenasSemFundoPreta.png')}
+        style={{ width: 200, height: 200, alignSelf: 'center' }}
+      />
+      <View
+        style={{
+          flex: 1
+        }}
+      >
+        <TextNexu
+          style={{
+            fontSize: 28,
+            fontWeight: 'bold',
+            color: '#000',
+            marginBottom: 32,
+            textAlign: 'center'
+          }}
+        >
+          Entre <TextNexu>com suas credenciais!</TextNexu>
+        </TextNexu>
 
         <View style={{ gap: 16 }}>
           <View>
-            <Text style={styles.inputLabel}>Email</Text>
+            <TextNexu style={{ fontSize: 16, fontWeight: 'bold', color: '#000' }}>Email</TextNexu>
             <Controller
               control={control}
               name='email'
               render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
+                <TextInputNexu
                   placeholder='chines@email.com'
                   mode='outlined'
                   value={value}
                   onBlur={onBlur}
                   onChangeText={onChange}
                   error={!!errors.email}
-                  style={styles.input}
+                  style={{
+                    marginBottom: 5,
+                    backgroundColor: '#ffffff0'
+                  }}
                   keyboardType='email-address'
                   autoCapitalize='none'
                 />
               )}
             />
-            {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}
+            {errors.email && (
+              <TextNexu
+                style={{
+                  color: '#FF6B6B',
+                  marginBottom: 8,
+                  marginLeft: 4
+                }}
+              >
+                {errors.email.message}
+              </TextNexu>
+            )}
           </View>
 
           <View>
-            <Text style={styles.inputLabel}>Password</Text>
+            <TextNexu style={{ fontSize: 16, fontWeight: 'bold', color: '#000' }}>Password</TextNexu>
             <Controller
               control={control}
               name='password'
               render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
+                <TextInputNexu
                   placeholder='********'
                   mode='outlined'
                   value={value}
                   onBlur={onBlur}
                   onChangeText={onChange}
                   error={!!errors.password}
-                  style={styles.input}
+                  style={{
+                    marginBottom: 5,
+                    backgroundColor: '#ffffff0'
+                  }}
                   secureTextEntry={true}
                 />
               )}
             />
-            {errors.password && <Text style={styles.error}>{errors.password.message}</Text>}
+            {errors.password && (
+              <TextNexu
+                style={{
+                  color: '#FF6B6B',
+                  marginBottom: 8,
+                  marginLeft: 4
+                }}
+              >
+                {errors.password.message}
+              </TextNexu>
+            )}
           </View>
         </View>
 
         <View style={{ alignItems: 'flex-end', marginTop: 10 }}>
-          <Text
+          <TextNexu
             style={{ color: 'blue', textDecorationLine: 'underline' }}
             onPress={() => router.push('/forgot-password')}
           >
             Esqueci minha senha
-          </Text>
+          </TextNexu>
         </View>
 
-        <Button
+        <ButtonNexu
           buttonColor='#855CF8'
-          mode='contained'
           onPress={handleSubmit(onSubmit)}
-          style={{ marginVertical: 50, paddingVertical: 8 }}
+          style={{ marginVertical: 30, paddingVertical: 8 }}
         >
-          <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#fff' }}>Entrar</Text>
-        </Button>
+          <TextNexu style={{ fontSize: 30, fontWeight: 'bold', color: '#fff' }}>Entrar</TextNexu>
+        </ButtonNexu>
 
         <View style={{ alignItems: 'center' }}>
-          <Text style={{ fontSize: 16 }}>-Ou entre com-</Text>
+          <TextNexu style={{ fontSize: 16 }}>-Ou entre com-</TextNexu>
         </View>
 
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 50 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 30 }}>
           <View
             style={{
-              height: 100,
-              width: 100,
+              height: 80,
+              width: 80,
               boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',
               borderRadius: 10,
               justifyContent: 'center',
@@ -134,8 +183,8 @@ const LoginPage = () => {
           </View>
           <View
             style={{
-              height: 100,
-              width: 100,
+              height: 80,
+              width: 80,
               boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',
               borderRadius: 10,
               justifyContent: 'center',
@@ -146,8 +195,8 @@ const LoginPage = () => {
           </View>
           <View
             style={{
-              height: 100,
-              width: 100,
+              height: 80,
+              width: 80,
               boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',
               borderRadius: 10,
               justifyContent: 'center',
@@ -159,12 +208,15 @@ const LoginPage = () => {
         </View>
 
         <View style={{ alignItems: 'center', marginTop: 50 }}>
-          <Text style={{ fontSize: 16 }}>
+          <TextNexu style={{ fontSize: 16 }}>
             Não possui uma conta?{' '}
-            <Text style={{ color: 'blue', textDecorationLine: 'underline' }} onPress={() => router.push('/register')}>
+            <TextNexu
+              style={{ color: 'blue', textDecorationLine: 'underline' }}
+              onPress={() => router.push('/register')}
+            >
               Registre-se
-            </Text>
-          </Text>
+            </TextNexu>
+          </TextNexu>
         </View>
       </View>
     </View>
@@ -172,36 +224,11 @@ const LoginPage = () => {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    padding: 24,
-    justifyContent: 'center'
-  },
-  logo: {
-    width: 200,
-    height: 200,
-    alignSelf: 'center'
-  },
-  containerForm: {
-    flex: 1
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#000',
-    marginBottom: 32,
-    textAlign: 'center'
-  },
-  inputLabel: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#000'
-  },
-  input: {
-    marginBottom: 5,
-    backgroundColor: '#ffffff0'
-  },
+  logo: {},
+  containerForm: {},
+  title: {},
+  inputLabel: {},
+  input: {},
   error: {
     color: '#FF6B6B',
     marginBottom: 8,
