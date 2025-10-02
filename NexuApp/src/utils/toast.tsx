@@ -5,13 +5,13 @@ import { Ionicons } from '@expo/vector-icons'
 import { colors } from './colors'
 
 export const toastConfig = {
-  success: ({ text1 }) => (
+  success: ({ text1 }: { text1: string }) => (
     <View style={styles.toastSuccess}>
       <Ionicons name='checkmark-circle' size={24} color='white' />
       <Text style={styles.toastText}>{text1}</Text>
     </View>
   ),
-  error: ({ text1 }) => (
+  error: ({ text1 }: { text1: string }) => (
     <View style={styles.toastError}>
       <Ionicons name='alert-circle' size={24} color='white' />
       <Text style={styles.toastText}>{text1}</Text>
@@ -55,5 +55,6 @@ const styles = StyleSheet.create({
 })
 
 export const ToastWrapper = () => {
+  // @ts-ignore
   return <Toast config={toastConfig} />
 }

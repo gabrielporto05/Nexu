@@ -55,10 +55,7 @@ const LoginPage = () => {
         justifyContent: 'center'
       }}
     >
-      <Image
-        source={require('../assets/NexuApenasSemFundoPreta.png')}
-        style={{ width: 200, height: 200, alignSelf: 'center' }}
-      />
+      <Image source={require('../../assets/NexuApenasSemFundoPreta.png')} style={{ alignSelf: 'center', flex: 0.4 }} />
       <View
         style={{
           flex: 1
@@ -78,7 +75,7 @@ const LoginPage = () => {
 
         <View style={{ gap: 16 }}>
           <View>
-            <TextNexu style={{ fontSize: 16, fontWeight: 'bold', color: '#000' }}>Email</TextNexu>
+            <TextNexu style={{ fontSize: 18, fontWeight: 'bold', color: '#000' }}>Email</TextNexu>
             <Controller
               control={control}
               name='email'
@@ -113,7 +110,7 @@ const LoginPage = () => {
           </View>
 
           <View>
-            <TextNexu style={{ fontSize: 16, fontWeight: 'bold', color: '#000' }}>Password</TextNexu>
+            <TextNexu style={{ fontSize: 18, fontWeight: 'bold', color: '#000' }}>Password</TextNexu>
             <Controller
               control={control}
               name='password'
@@ -148,10 +145,7 @@ const LoginPage = () => {
         </View>
 
         <View style={{ alignItems: 'flex-end', marginTop: 10 }}>
-          <TextNexu
-            style={{ color: 'blue', textDecorationLine: 'underline' }}
-            onPress={() => router.push('/forgot-password')}
-          >
+          <TextNexu style={{ color: 'blue', fontSize: 16 }} onPress={() => router.push('/auth/forgot-password')}>
             Esqueci minha senha
           </TextNexu>
         </View>
@@ -165,7 +159,7 @@ const LoginPage = () => {
         </ButtonNexu>
 
         <View style={{ alignItems: 'center' }}>
-          <TextNexu style={{ fontSize: 16 }}>-Ou entre com-</TextNexu>
+          <TextNexu style={{ fontSize: 18 }}>-Ou entre com-</TextNexu>
         </View>
 
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 30 }}>
@@ -179,7 +173,7 @@ const LoginPage = () => {
               alignItems: 'center'
             }}
           >
-            <Ionicons name='logo-google' size={50} />
+            <Ionicons name='logo-google' size={40} />
           </View>
           <View
             style={{
@@ -191,7 +185,7 @@ const LoginPage = () => {
               alignItems: 'center'
             }}
           >
-            <Ionicons name='logo-github' size={50} />
+            <Ionicons name='logo-github' size={40} />
           </View>
           <View
             style={{
@@ -203,17 +197,14 @@ const LoginPage = () => {
               alignItems: 'center'
             }}
           >
-            <Ionicons name='logo-facebook' size={50} />
+            <Ionicons name='logo-facebook' size={40} />
           </View>
         </View>
 
         <View style={{ alignItems: 'center', marginTop: 50 }}>
           <TextNexu style={{ fontSize: 16 }}>
             Não possui uma conta?{' '}
-            <TextNexu
-              style={{ color: 'blue', textDecorationLine: 'underline' }}
-              onPress={() => router.push('/register')}
-            >
+            <TextNexu style={{ color: 'blue' }} onPress={() => router.push('/auth/register')}>
               Registre-se
             </TextNexu>
           </TextNexu>

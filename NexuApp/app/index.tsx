@@ -5,7 +5,7 @@ import { router } from 'expo-router'
 export default function IndexPage() {
   useEffect(() => {
     const timer = setTimeout(() => {
-      router.replace('/login')
+      router.replace('/auth/login')
     }, 2000)
     return () => clearTimeout(timer)
   }, [])

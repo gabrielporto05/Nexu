@@ -9,6 +9,7 @@ import {
   SpaceGrotesk_500Medium,
   SpaceGrotesk_700Bold
 } from '@expo-google-fonts/space-grotesk'
+import { ToastWrapper } from 'src/utils/toast'
 
 export default function Layout() {
   const [fontsLoaded, fontError] = useFonts({
@@ -30,6 +31,7 @@ export default function Layout() {
       <PaperProvider>
         <StatusBar />
         <Slot />
+        <ToastWrapper />
       </PaperProvider>
     </SafeAreaProvider>
   )
