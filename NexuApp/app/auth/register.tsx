@@ -1,4 +1,4 @@
-import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native'
+import { Image, KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Toast from 'react-native-toast-message'
@@ -44,8 +44,6 @@ const RegisterPage = () => {
         type: 'success',
         text1: message || 'Conta criada com sucesso!'
       })
-
-      router.replace('/auth/login')
     } catch (err) {
       Toast.show({
         type: 'error',
