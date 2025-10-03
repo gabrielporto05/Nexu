@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { getToken, setToken, deleteToken } from 'src/utils/token'
 import { fetchUserProfile } from 'src/services/apiProfile'
-import { LoginSchemaType } from 'src/schemas/authSchema'
-import { Login } from 'src/services/apiAuth'
+import { LoginSchemaType, RegisterSchemaType } from 'src/schemas/authSchema'
+import { Login, Register } from 'src/services/apiAuth'
 import { useRouter } from 'expo-router'
 import { UserType } from 'src/utils/types'
 
@@ -10,6 +10,7 @@ type AuthContextType = {
   user: UserType | null
   loading: boolean
   signIn: (data: LoginSchemaType) => Promise<string>
+  singUp: (data: RegisterSchemaType) => Promise<string>
   signOut: () => Promise<void>
 }
 
@@ -65,5 +66,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     router.replace('/auth/login')
   }
 
-  return <AuthContext.Provider value={{ user, loading, signIn, signOut }}>{children}</AuthContext.Provider>
+  const singUp = async (data: RegisterSchemaType): Promise<string> => {
+    const response = await Register(data)
+    await loadUser()
+
+    router.replace('/auth/login')
+
+    return response.message
+  }
+
+  return <AuthContext.Provider value={{ user, loading, signIn, singUp, signOut }}>{children}</AuthContext.Provider>
 }
