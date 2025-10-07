@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { getToken, setToken, deleteToken } from 'src/utils/token'
 import { fetchUserProfile } from 'src/services/apiProfile'
-import { LoginSchemaType, RegisterSchemaType } from 'src/schemas/authSchema'
-import { Login, Register } from 'src/services/apiAuth'
+import { ForgotPasswordSchemaType, LoginSchemaType, RegisterSchemaType } from 'src/schemas/authSchema'
+import { ForgotPassword, Login, Register } from 'src/services/apiAuth'
 import { useRouter } from 'expo-router'
 import { UserType } from 'src/utils/types'
 
@@ -12,6 +12,7 @@ type AuthContextType = {
   signIn: (data: LoginSchemaType) => Promise<string>
   singUp: (data: RegisterSchemaType) => Promise<string>
   signOut: () => Promise<void>
+  forgotPassword: (data: ForgotPasswordSchemaType) => Promise<string>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -75,5 +76,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return response.message
   }
 
-  return <AuthContext.Provider value={{ user, loading, signIn, singUp, signOut }}>{children}</AuthContext.Provider>
+  const forgotPassword = async (data: ForgotPasswordSchemaType): Promise<string> => {
+    const response = await ForgotPassword(data)
+
+    return response.message
+  }
+
+  return (
+    <AuthContext.Provider value={{ user, loading, signIn, singUp, signOut, forgotPassword }}>
+      {children}
+    </AuthContext.Provider>
+  )
 }

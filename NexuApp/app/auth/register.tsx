@@ -79,9 +79,9 @@ const RegisterPage = () => {
         <View>
           <Image
             source={require('../../assets/NexuApenasSemFundoPreta.png')}
-            style={{ alignSelf: 'center', flex: 0.4 }}
+            style={{ alignSelf: 'center', width: '100%', height: 150 }}
           />
-          <View style={{ flex: 1.2 }}>
+          <View>
             <TextNexu style={{ fontSize: 40, fontWeight: 'bold', color: '#000', textAlign: 'center' }}>
               Registre-se
             </TextNexu>
@@ -89,7 +89,7 @@ const RegisterPage = () => {
               Crie sua conta agora!
             </TextNexu>
 
-            <View style={{ gap: 16 }}>
+            <View>
               {fields.map(field => (
                 <View key={field.name}>
                   <TextNexu style={{ fontSize: 22, fontWeight: 'bold', color: '#000' }}>{field.label}</TextNexu>

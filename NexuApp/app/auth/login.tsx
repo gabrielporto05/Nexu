@@ -64,13 +64,9 @@ const LoginPage = () => {
         <View>
           <Image
             source={require('../../assets/NexuApenasSemFundoPreta.png')}
-            style={{ alignSelf: 'center', flex: 0.4 }}
+            style={{ alignSelf: 'center', width: '100%', height: 150 }}
           />
-          <View
-            style={{
-              flex: 0.7
-            }}
-          >
+          <View>
             <View>
               <TextNexu
                 style={{
@@ -83,11 +79,11 @@ const LoginPage = () => {
                 Entre
               </TextNexu>
               <TextNexu style={{ fontSize: 30, color: '#000', marginBottom: 32, textAlign: 'center' }}>
-                com suas credenciais!
+                Com suas credenciais!
               </TextNexu>
             </View>
 
-            <View style={{ gap: 16 }}>
+            <View>
               <View>
                 <TextNexu style={{ fontSize: 22, fontWeight: 'bold', color: '#000' }}>Email</TextNexu>
                 <Controller

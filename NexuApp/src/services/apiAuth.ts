@@ -1,6 +1,5 @@
-import { LoginSchemaType, RegisterSchemaType } from 'src/schemas/authSchema'
+import { ForgotPasswordSchemaType, LoginSchemaType, RegisterSchemaType } from 'src/schemas/authSchema'
 import { api } from 'src/services/api'
-import { setToken } from 'src/utils/token'
 
 const Login = async (payload: LoginSchemaType) => {
   const response = await api.post('/auth/login', payload)
@@ -14,4 +13,10 @@ const Register = async (payload: RegisterSchemaType) => {
   return response.data
 }
 
-export { Login, Register }
+const ForgotPassword = async (payload: ForgotPasswordSchemaType) => {
+  const response = await api.post('/auth/forgot-password', payload)
+
+  return response.data
+}
+
+export { Login, Register, ForgotPassword }
