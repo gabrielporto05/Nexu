@@ -1,10 +1,10 @@
 import AuthGuard from 'src/components/guard/AuthGuard'
-import { Slot } from 'expo-router'
+import { Stack } from 'expo-router'
 
 export default function HomeLayout() {
   return (
     <AuthGuard>
-      <Slot />
+      <Stack screenOptions={{ headerShown: false }} />
     </AuthGuard>
   )
 }

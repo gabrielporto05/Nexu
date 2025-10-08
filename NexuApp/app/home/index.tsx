@@ -1,20 +1,37 @@
-import { useAuth } from 'src/context/AuthContext'
-import TextNexu from 'src/components/ui/TextNexu'
-import { Image, View } from 'react-native'
+// app/home/index.tsx
+import { useState } from 'react'
+import { View } from 'react-native'
+import FeedPage from 'src/screens/home/feed'
+import SearchPage from 'src/screens/home/search'
+import ChatPage from 'src/screens/home/chat'
+import ProfilePage from 'src/screens/home/profile'
+import CustomTabBar, { TabEnum } from 'src/components/navigation/BottomTabNavigator'
+import CreatPostPage from 'src/screens/home/creat-post'
 
 export default function HomePage() {
-  const { user } = useAuth()
+  const [activeTab, setActiveTab] = useState<TabEnum>(TabEnum.FEED)
 
-  if (!user) return null
+  const renderScreen = () => {
+    switch (activeTab) {
+      case TabEnum.FEED:
+        return <FeedPage />
+      case TabEnum.SEARCH:
+        return <SearchPage />
+      case TabEnum.CREATE_POST:
+        return <CreatPostPage />
+      case TabEnum.CHAT:
+        return <ChatPage />
+      case TabEnum.PERFIL:
+        return <ProfilePage />
+      default:
+        return null
+    }
+  }
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Image
-        source={{ uri: `${process.env.EXPO_PUBLIC_API_URL_UPLOADS}/avatars/${user.avatar}` }}
-        style={{ width: 200, height: 200, marginBottom: 20 }}
-      />
-
-      <TextNexu>Bem-vindo, {user.name}</TextNexu>
+    <View style={{ flex: 1 }}>
+      <View style={{ flex: 1 }}>{renderScreen()}</View>
+      <CustomTabBar activeTab={activeTab} setActiveTab={setActiveTab} />
     </View>
   )
 }
