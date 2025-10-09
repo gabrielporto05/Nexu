@@ -1,16 +1,16 @@
-import { Slot } from 'expo-router'
-import { Provider as PaperProvider } from 'react-native-paper'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
-import { StatusBar } from 'expo-status-bar'
+import { Provider as PaperProvider } from 'react-native-paper'
 import { View, ActivityIndicator } from 'react-native'
+import { AuthProvider } from 'src/context/AuthContext'
+import { ToastWrapper } from 'src/utils/toast'
+import { StatusBar } from 'expo-status-bar'
+import { Slot } from 'expo-router'
 import {
   useFonts,
   SpaceGrotesk_400Regular,
   SpaceGrotesk_500Medium,
   SpaceGrotesk_700Bold
 } from '@expo-google-fonts/space-grotesk'
-import { ToastWrapper } from 'src/utils/toast'
-import { AuthProvider } from 'src/context/AuthContext'
 
 export default function Layout() {
   const [fontsLoaded, fontError] = useFonts({

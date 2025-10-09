@@ -1,12 +1,11 @@
-// app/home/index.tsx
-import { useState } from 'react'
-import { View } from 'react-native'
-import FeedPage from 'src/screens/home/feed'
-import SearchPage from 'src/screens/home/search'
-import ChatPage from 'src/screens/home/chat'
-import ProfilePage from 'src/screens/home/profile'
 import CustomTabBar, { TabEnum } from 'src/components/navigation/BottomTabNavigator'
 import CreatPostPage from 'src/screens/home/creat-post'
+import ProfilePage from 'src/screens/home/profile'
+import SearchPage from 'src/screens/home/search'
+import ChatPage from 'src/screens/home/chat'
+import FeedPage from 'src/screens/home/feed'
+import { View } from 'react-native'
+import { useState } from 'react'
 
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState<TabEnum>(TabEnum.FEED)
