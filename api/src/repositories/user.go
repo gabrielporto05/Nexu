@@ -42,7 +42,7 @@ func (repository user) GetUsersByNameOrNickRepository(nameOrNick string) ([]mode
 
 	nameOrNick = fmt.Sprintf("%%%s%%", nameOrNick)
 
-	stmt, err := repository.db.Prepare("SELECT id, name, nick, email, avatar created_at FROM users WHERE name LIKE ? OR nick LIKE ?")
+	stmt, err := repository.db.Prepare("SELECT id, name, nick, email, avatar, created_at FROM users WHERE name LIKE ? OR nick LIKE ?")
 	if err != nil {
 		return nil, err
 	}
