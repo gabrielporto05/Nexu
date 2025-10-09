@@ -16,3 +16,8 @@ export type PostType = {
   author_id: string
   created_at: string
 }
+
+export type GetUsersResponse = {
+  message: string
+  data: UserType[]
+}
