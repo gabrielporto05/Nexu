@@ -1,5 +1,5 @@
 export type UserType = {
-  id: string
+  id: number
   name: string
   nick: string
   email: string
@@ -13,11 +13,26 @@ export type PostType = {
   description: string
   image?: string
   likes: number
-  author_id: string
+  user: UserType
   created_at: string
 }
 
 export type GetUsersResponse = {
   message: string
   data: UserType[]
+}
+
+export type GetUserResponse = {
+  message: string
+  data: UserType
+}
+
+export type GetPostsResponse = {
+  message: string
+  data: PostType[]
+}
+
+export type GetPostResponse = {
+  message: string
+  data: PostType
 }

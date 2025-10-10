@@ -4,9 +4,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import TextNexu from 'src/components/ui/TextNexu'
 import { TextInputNexu } from 'src/components/ui/TextInputNexu'
 import { Card } from 'react-native-paper'
-import { GetUsersByNameOrNick } from 'src/services/apiUser'
+import { getUsersByNameOrNick } from 'src/services/apiUser'
 import { UserType } from 'src/utils/types'
 import { useDebounce } from 'src/hooks/useDebounce'
+import Toast from 'react-native-toast-message'
+import { getErrorMessage } from 'src/utils/errorHandler'
 const SearchPage = () => {
   const { top } = useSafeAreaInsets()
   const [search, setSearch] = useState('')
@@ -18,10 +20,13 @@ const SearchPage = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const { data } = await GetUsersByNameOrNick(debouncedSearch)
+        const { data } = await getUsersByNameOrNick(debouncedSearch)
         setUsers(Array.isArray(data) ? data : [])
-      } catch (error) {
-        console.log(error)
+      } catch (err) {
+        Toast.show({
+          type: 'error',
+          text1: getErrorMessage(err, 'Erro ao buscar posts')
+        })
       }
     }
 

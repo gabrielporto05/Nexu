@@ -1,10 +1,16 @@
 import { api } from 'src/services/api'
-import { GetUsersResponse } from 'src/utils/types'
+import { GetUserResponse, GetUsersResponse } from 'src/utils/types'
 
-const GetUsersByNameOrNick = async (payload: string) => {
+const getUsersByNameOrNick = async (payload: string) => {
   const response = await api.get<GetUsersResponse>(`/users?nameOrNick=${payload}`)
 
   return response.data
 }
 
-export { GetUsersByNameOrNick }
+const getUserById = async (user: string) => {
+  const response = await api.get<GetUserResponse>(`/users/${user}`)
+
+  return response.data
+}
+
+export { getUsersByNameOrNick, getUserById }
