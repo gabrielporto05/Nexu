@@ -38,39 +38,48 @@ func (repository post) CreatePostRepository(post models.Post) (uint64, error) {
 func (repository post) GetPostsRepository(userID uint64) (models.Posts, error) {
 
 	stmt, err := repository.db.Prepare(`
-		SELECT DISTINCT p.*, u.nick 
-		FROM posts p
-		INNER JOIN users u ON u.id = p.author_id
-		LEFT JOIN followers f ON f.user_id = p.author_id
-		WHERE p.author_id = ? OR f.follower_id = ?
-		ORDER BY 1 DESC
-	`)
+        SELECT DISTINCT p.id, p.title, p.description, p.author_id, p.likes, p.created_at, u.name, u.nick, u.avatar 
+        FROM posts p
+        INNER JOIN users u ON u.id = p.author_id
+        LEFT JOIN followers f ON f.user_id = p.author_id
+        WHERE p.author_id = ? OR f.follower_id = ?
+        ORDER BY p.created_at DESC
+    `)
 	if err != nil {
 		return models.Posts{}, err
 	}
 	defer stmt.Close()
 
-	row, err := stmt.Query(userID, userID)
+	rows, err := stmt.Query(userID, userID)
 	if err != nil {
 		return models.Posts{}, err
 	}
-	defer row.Close()
+	defer rows.Close()
 
 	var posts models.Posts
 
-	for row.Next() {
+	for rows.Next() {
 		var post models.Post
+		var name, nick, avatar string
 
-		if err := row.Scan(
+		if err := rows.Scan(
 			&post.ID,
 			&post.Title,
 			&post.Description,
 			&post.AuthorID,
 			&post.Likes,
 			&post.CreatedAt,
-			&post.AuthorNick,
+			&name,
+			&nick,
+			&avatar,
 		); err != nil {
 			return models.Posts{}, err
+		}
+
+		post.Author = models.UserSummary{
+			Name:   name,
+			Nick:   nick,
+			Avatar: avatar,
 		}
 
 		posts = append(posts, post)
@@ -83,7 +92,7 @@ func (repository post) GetPostsRepository(userID uint64) (models.Posts, error) {
 func (repository post) GetPostByIdRepository(postID uint64) (models.Post, error) {
 
 	stmt, err := repository.db.Prepare(`
-		SELECT p.*, u.nick FROM posts p
+		SELECT p.*, u.name, u.nick, u.avatar FROM posts p
 		INNER JOIN users u 
 		ON u.id = p.author_id 
 		WHERE p.id = ?
@@ -101,6 +110,8 @@ func (repository post) GetPostByIdRepository(postID uint64) (models.Post, error)
 
 	var post models.Post
 	for row.Next() {
+		var name, nick, avatar string
+
 		if err := row.Scan(
 			&post.ID,
 			&post.Title,
@@ -108,10 +119,19 @@ func (repository post) GetPostByIdRepository(postID uint64) (models.Post, error)
 			&post.AuthorID,
 			&post.Likes,
 			&post.CreatedAt,
-			&post.AuthorNick,
+			&name,
+			&nick,
+			&avatar,
 		); err != nil {
 			return models.Post{}, err
 		}
+
+		post.Author = models.UserSummary{
+			Name:   name,
+			Nick:   nick,
+			Avatar: avatar,
+		}
+
 	}
 
 	return post, nil
@@ -122,7 +142,7 @@ func (repository post) GetPostByIdRepository(postID uint64) (models.Post, error)
 func (repository post) GetAllPostsByIdRepository(userID uint64) (models.Posts, error) {
 
 	stmt, err := repository.db.Prepare(`
-		SELECT DISTINCT p.*, u.nick 
+		SELECT DISTINCT p.*, u.name, u.nick, u.avatar 
 		FROM posts p
 		INNER JOIN users u ON u.id = p.author_id
 		WHERE p.author_id = ? 
@@ -143,6 +163,7 @@ func (repository post) GetAllPostsByIdRepository(userID uint64) (models.Posts, e
 
 	for row.Next() {
 		var post models.Post
+		var name, nick, avatar string
 
 		if err := row.Scan(
 			&post.ID,
@@ -151,9 +172,17 @@ func (repository post) GetAllPostsByIdRepository(userID uint64) (models.Posts, e
 			&post.AuthorID,
 			&post.Likes,
 			&post.CreatedAt,
-			&post.AuthorNick,
+			&nick,
+			&name,
+			&avatar,
 		); err != nil {
 			return models.Posts{}, err
+		}
+
+		post.Author = models.UserSummary{
+			Name:   name,
+			Nick:   nick,
+			Avatar: avatar,
 		}
 
 		posts = append(posts, post)
