@@ -11,6 +11,7 @@ type Post struct {
 	ID          uint64      `json:"id,omitempty"`
 	Title       string      `json:"title,omitempty"`
 	Description string      `json:"description,omitempty"`
+	Image       string      `json:"image,omitempty"`
 	AuthorID    uint64      `json:"author_id,omitempty"`
 	Likes       uint64      `json:"likes"`
 	CreatedAt   time.Time   `json:"created_at,omitempty"`

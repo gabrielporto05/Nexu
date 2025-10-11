@@ -8,8 +8,10 @@ import (
 	"api/src/responses"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/gorilla/mux"
@@ -25,28 +27,46 @@ func CreatePostController(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	bodyRequest, err := io.ReadAll(r.Body)
+	err = r.ParseMultipartForm(10 << 20)
 	if err != nil {
-		responses.Erro(w, http.StatusUnprocessableEntity, err)
-
+		responses.Erro(w, http.StatusBadRequest, err)
 		return
 	}
 
 	var post models.Post
 
+	post.Title = r.FormValue("title")
+	post.Description = r.FormValue("description")
 	post.AuthorID = userIdToken
-
-	if err := json.Unmarshal(bodyRequest, &post); err != nil {
-		responses.Erro(w, http.StatusBadRequest, err)
-
-		return
-	}
 
 	if err := post.Prepare(); err != nil {
 		responses.Erro(w, http.StatusBadRequest, err)
 
 		return
 	}
+
+	if post.Image != "" {
+		oldPath := "uploads/images_posts/" + post.Image
+		os.Remove(oldPath)
+	}
+
+	file, header, err := r.FormFile("image")
+	if err != nil {
+		responses.Erro(w, http.StatusBadRequest, err)
+		return
+	}
+	defer file.Close()
+
+	filename := fmt.Sprintf("post_%d_%s", post.ID, header.Filename)
+	path := "uploads/images_posts/" + filename
+
+	out, err := os.Create(path)
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer out.Close()
+	io.Copy(out, file)
 
 	db, err := db.ConnectionDB()
 	if err != nil {
@@ -65,7 +85,19 @@ func CreatePostController(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responses.JSON(w, http.StatusCreated, "Post criado com sucesso", post)
+	if err := repository.UpdatePostImageRepository(post.ID, filename); err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+
+		return
+	}
+
+	fullPost, err := repository.GetPostByIdRepository(post.ID)
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	responses.JSON(w, http.StatusCreated, "Post criado com sucesso", fullPost)
 
 }
 
@@ -224,7 +256,30 @@ func UpdatePostByIdController(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	post, err := repository.UpdatePostByIdRepository(postRequest.Title, postRequest.Description, postID)
+	if postRequest.Image != "" {
+		oldPath := "uploads/images_posts/" + postRequest.Image
+		os.Remove(oldPath)
+	}
+
+	file, header, err := r.FormFile("image")
+	if err != nil {
+		responses.Erro(w, http.StatusBadRequest, err)
+		return
+	}
+	defer file.Close()
+
+	filename := fmt.Sprintf("post_%d_%s", postRequest.ID, header.Filename)
+	path := "uploads/images_posts/" + filename
+
+	out, err := os.Create(path)
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer out.Close()
+	io.Copy(out, file)
+
+	post, err := repository.UpdatePostByIdRepository(postRequest.Title, postRequest.Description, filename, postID)
 	if err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
 		return

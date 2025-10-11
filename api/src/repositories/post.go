@@ -38,7 +38,7 @@ func (repository post) CreatePostRepository(post models.Post) (uint64, error) {
 func (repository post) GetPostsRepository(userID uint64) (models.Posts, error) {
 
 	stmt, err := repository.db.Prepare(`
-        SELECT DISTINCT p.id, p.title, p.description, p.author_id, p.likes, p.created_at, u.name, u.nick, u.avatar 
+        SELECT DISTINCT p.id, p.title, p.description, p.image, p.author_id, p.likes, p.created_at, u.name, u.nick, u.avatar 
         FROM posts p
         INNER JOIN users u ON u.id = p.author_id
         LEFT JOIN followers f ON f.user_id = p.author_id
@@ -66,6 +66,7 @@ func (repository post) GetPostsRepository(userID uint64) (models.Posts, error) {
 			&post.ID,
 			&post.Title,
 			&post.Description,
+			&post.Image,
 			&post.AuthorID,
 			&post.Likes,
 			&post.CreatedAt,
@@ -116,6 +117,7 @@ func (repository post) GetPostByIdRepository(postID uint64) (models.Post, error)
 			&post.ID,
 			&post.Title,
 			&post.Description,
+			&post.Image,
 			&post.AuthorID,
 			&post.Likes,
 			&post.CreatedAt,
@@ -169,6 +171,7 @@ func (repository post) GetAllPostsByIdRepository(userID uint64) (models.Posts, e
 			&post.ID,
 			&post.Title,
 			&post.Description,
+			&post.Image,
 			&post.AuthorID,
 			&post.Likes,
 			&post.CreatedAt,
@@ -192,19 +195,31 @@ func (repository post) GetAllPostsByIdRepository(userID uint64) (models.Posts, e
 }
 
 // UpdatePostByIdRepository atualiza um post
-func (repository post) UpdatePostByIdRepository(title, description string, postID uint64) (models.Post, error) {
+func (repository post) UpdatePostByIdRepository(title, description, imagePath string, postID uint64) (models.Post, error) {
 
-	stmt, err := repository.db.Prepare("UPDATE posts SET title = ?, description = ? WHERE id = ?")
+	stmt, err := repository.db.Prepare("UPDATE posts SET title = ?, description = ?, image = ? WHERE id = ?")
 	if err != nil {
 		return models.Post{}, err
 	}
 	defer stmt.Close()
 
-	if _, err := stmt.Exec(title, description, postID); err != nil {
+	if _, err := stmt.Exec(title, description, imagePath, postID); err != nil {
 		return models.Post{}, err
 	}
 
 	return repository.GetPostByIdRepository(postID)
+}
+
+// UpdatePostImageRepository atualiza só a image de um post (novo método)
+func (repository post) UpdatePostImageRepository(postID uint64, imageFilename string) error {
+	stmt, err := repository.db.Prepare("UPDATE posts SET image = ? WHERE id = ?")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(imageFilename, postID)
+	return err
 }
 
 // DeletePostByIdRepository deleta um post

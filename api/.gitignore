@@ -1,3 +1,4 @@
 .env
 
 uploads/avatars/*
+uploads/images_posts/*
