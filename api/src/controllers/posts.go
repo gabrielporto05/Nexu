@@ -45,6 +45,23 @@ func CreatePostController(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	db, err := db.ConnectionDB()
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.PostsRopository(db)
+
+	post.ID, err = repository.CreatePostRepository(post)
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+
+		return
+	}
+
 	if post.Image != "" {
 		oldPath := "uploads/images_posts/" + post.Image
 		os.Remove(oldPath)
@@ -67,23 +84,6 @@ func CreatePostController(w http.ResponseWriter, r *http.Request) {
 	}
 	defer out.Close()
 	io.Copy(out, file)
-
-	db, err := db.ConnectionDB()
-	if err != nil {
-		responses.Erro(w, http.StatusInternalServerError, err)
-
-		return
-	}
-	defer db.Close()
-
-	repository := repositories.PostsRopository(db)
-
-	post.ID, err = repository.CreatePostRepository(post)
-	if err != nil {
-		responses.Erro(w, http.StatusInternalServerError, err)
-
-		return
-	}
 
 	if err := repository.UpdatePostImageRepository(post.ID, filename); err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
