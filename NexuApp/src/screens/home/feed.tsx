@@ -1,22 +1,28 @@
-import { useEffect, useState } from 'react'
-import { ScrollView, View, Image } from 'react-native'
+import { useEffect, useRef, useState } from 'react'
+import { ScrollView, View, Image, NativeSyntheticEvent, NativeScrollEvent } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAuth } from 'src/context/AuthContext'
 import TextNexu from 'src/components/ui/TextNexu'
 import { PostType } from 'src/utils/types'
 import { Ionicons } from '@expo/vector-icons'
-import { GetAllPosts } from 'src/services/apiPosts'
+import { getAllPosts } from 'src/services/apiPosts'
+import { ActivityIndicator } from 'react-native'
 import Toast from 'react-native-toast-message'
 import { getErrorMessage } from 'src/utils/errorHandler'
 
-const FeedPage = () => {
+type FeedPageProps = {
+  setShowTabBar: (value: boolean) => void
+}
+
+const FeedPage = ({ setShowTabBar }: FeedPageProps) => {
   const { top } = useSafeAreaInsets()
   const { user } = useAuth()
 
   const [posts, setPosts] = useState<PostType[]>([])
   const [sortBy, setSortBy] = useState<'likes' | 'date'>('date')
-
   const [expandedPosts, setExpandedPosts] = useState<Record<number, boolean>>({})
+
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
   const toggleExpand = (postId: number) => {
     setExpandedPosts(prev => ({
@@ -25,35 +31,64 @@ const FeedPage = () => {
     }))
   }
 
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const { data } = await GetAllPosts()
-        setPosts(data)
-      } catch (err) {
-        Toast.show({
-          type: 'error',
-          text1: getErrorMessage(err, 'Erro ao buscar posts')
-        })
-      }
+  const lastScrollY = useRef(0)
+
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const currentY = event.nativeEvent.contentOffset.y
+    const deltaY = currentY - lastScrollY.current
+
+    if (Math.abs(deltaY) < 2) return
+
+    if (deltaY > 0) {
+      setShowTabBar(false)
+    } else {
+      setShowTabBar(true)
     }
 
+    lastScrollY.current = currentY
+  }
+
+  const fetchPosts = async () => {
+    setIsRefreshing(true)
+    try {
+      const { data } = await getAllPosts()
+      setPosts(data)
+    } catch (err) {
+      Toast.show({
+        type: 'error',
+        text1: getErrorMessage(err, 'Erro ao buscar posts')
+      })
+    } finally {
+      setIsRefreshing(false)
+    }
+  }
+
+  useEffect(() => {
     fetchPosts()
   }, [])
 
   if (!user) return null
 
   return (
-    <ScrollView style={{ flex: 1, marginTop: top }} keyboardShouldPersistTaps='handled'>
+    <ScrollView
+      style={{ flex: 1, marginTop: top }}
+      keyboardShouldPersistTaps='handled'
+      onScroll={handleScroll}
+      scrollEventThrottle={16}
+    >
       <View style={{ padding: 20 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
           <TextNexu variant='headlineLarge' style={{ fontWeight: 'bold' }}>
             Home
           </TextNexu>
-          <Ionicons name='refresh-outline' size={28} color='#855CF8' />
+          {isRefreshing ? (
+            <ActivityIndicator size={24} color='#855CF8' />
+          ) : (
+            <Ionicons onPress={fetchPosts} name='refresh-outline' size={28} color='#855CF8' />
+          )}
         </View>
 
-        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 12, marginBottom: 20 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 12 }}>
           <TextNexu
             style={{ color: sortBy === 'date' ? '#855CF8' : '#999' }}
             onPress={() => setSortBy('date')}
@@ -87,12 +122,19 @@ const FeedPage = () => {
                 key={post.id}
                 style={{
                   backgroundColor: '#f5f5f5',
-                  marginBottom: 20,
                   borderBottomWidth: 1,
                   borderBottomColor: '#855CF8'
                 }}
               >
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12, paddingHorizontal: 12 }}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    marginBottom: 12,
+                    paddingHorizontal: 12,
+                    paddingTop: 12
+                  }}
+                >
                   <Image
                     source={{ uri: `${process.env.EXPO_PUBLIC_API_URL_UPLOADS}/avatars/${post.user.avatar}` }}
                     style={{ width: 40, height: 40, borderRadius: 20, marginRight: 10 }}
@@ -110,10 +152,10 @@ const FeedPage = () => {
 
                 <Image
                   source={{ uri: `${process.env.EXPO_PUBLIC_API_URL_UPLOADS}/images_posts/${post.image}` }}
-                  style={{ width: '100%', height: 200, borderRadius: 12, marginBottom: 12 }}
+                  style={{ width: '100%', height: 200, marginBottom: 12 }}
                   resizeMode='cover'
                 />
-                <View style={{ padding: 12 }}>
+                <View style={{ paddingHorizontal: 12, marginBottom: 12 }}>
                   <TextNexu variant='titleLarge' style={{ fontWeight: 'bold', marginBottom: 4 }}>
                     {post.title}
                   </TextNexu>
@@ -124,7 +166,7 @@ const FeedPage = () => {
                   </TextNexu>
                   {post.description.length > 130 && (
                     <TextNexu
-                      variant='bodySmall'
+                      variant='bodyMedium'
                       style={{ color: '#855CF8', marginBottom: 8 }}
                       onPress={() => toggleExpand(post.id)}
                     >
@@ -132,9 +174,12 @@ const FeedPage = () => {
                     </TextNexu>
                   )}
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <TextNexu variant='bodyLarge' style={{ color: '#855CF8' }}>
-                      {post.likes} likes
-                    </TextNexu>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                      <Ionicons name='heart-outline' size={24} color='#855CF8' />
+                      <TextNexu variant='bodyLarge' style={{ color: '#855CF8' }}>
+                        {post.likes} likes
+                      </TextNexu>
+                    </View>
                     <TextNexu variant='bodySmall' style={{ color: '#777' }}>
                       {new Date(post.created_at).toLocaleDateString('pt-BR', {
                         day: '2-digit',

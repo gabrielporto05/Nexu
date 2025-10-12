@@ -13,6 +13,7 @@ export type PostType = {
   description: string
   image?: string
   likes: number
+  author_id: number
   user: UserType
   created_at: string
 }
