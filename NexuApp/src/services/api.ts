@@ -1,5 +1,6 @@
 import axios from 'axios'
-import { getToken } from 'src/utils/token'
+import { getToken, deleteToken } from 'src/utils/token'
+import { router } from 'expo-router'
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8080/api'
 
@@ -16,6 +17,22 @@ api.interceptors.request.use(async config => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
-
   return config
 })
+
+api.interceptors.response.use(
+  response => {
+    return response
+  },
+  async error => {
+    if (error.response?.status === 401) {
+      await deleteToken()
+
+      setTimeout(() => {
+        router.replace('/auth/login')
+      }, 0)
+    }
+
+    return Promise.reject(error)
+  }
+)

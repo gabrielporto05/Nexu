@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { ScrollView, View, Image } from 'react-native'
+import { useEffect, useRef, useState } from 'react'
+import { ScrollView, View, Image, NativeSyntheticEvent, NativeScrollEvent } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import TextNexu from 'src/components/ui/TextNexu'
 import { TextInputNexu } from 'src/components/ui/TextInputNexu'
@@ -9,11 +9,26 @@ import { UserType } from 'src/utils/types'
 import { useDebounce } from 'src/hooks/useDebounce'
 import Toast from 'react-native-toast-message'
 import { getErrorMessage } from 'src/utils/errorHandler'
-const SearchPage = () => {
+import { useProfileNavigation } from 'src/context/ProfileNavigationContext'
+import { TabEnum } from 'src/components/navigation/BottomTabNavigator'
+
+type SearchPageProps = {
+  handleScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
+  setActiveTab: (tab: TabEnum) => void
+}
+
+const SearchPage = ({ handleScroll, setActiveTab }: SearchPageProps) => {
   const { top } = useSafeAreaInsets()
   const [search, setSearch] = useState('')
-
   const [users, setUsers] = useState<UserType[]>([])
+
+  const { navigateToProfile } = useProfileNavigation()
+
+  const handleUserPress = (userId: number) => {
+    navigateToProfile(userId)
+
+    setActiveTab(TabEnum.PERFIL)
+  }
 
   const debouncedSearch = useDebounce(search, 500)
 
@@ -25,14 +40,13 @@ const SearchPage = () => {
       } catch (err) {
         Toast.show({
           type: 'error',
-          text1: getErrorMessage(err, 'Erro ao buscar posts')
+          text1: getErrorMessage(err, 'Erro ao buscar usuários')
         })
       }
     }
 
     if (debouncedSearch.trim().length > 0) {
       fetchUsers()
-
       return
     }
 
@@ -40,7 +54,12 @@ const SearchPage = () => {
   }, [debouncedSearch])
 
   return (
-    <ScrollView style={{ flex: 1, padding: 20, marginTop: top }} keyboardShouldPersistTaps='handled'>
+    <ScrollView
+      onScroll={handleScroll}
+      style={{ flex: 1, padding: 20, marginTop: top }}
+      keyboardShouldPersistTaps='handled'
+      scrollEventThrottle={16}
+    >
       <TextNexu variant='headlineLarge' style={{ fontWeight: 'bold', marginBottom: 20 }}>
         Buscar
       </TextNexu>
@@ -69,6 +88,7 @@ const SearchPage = () => {
             marginBottom: 12,
             backgroundColor: '#D9D9D9'
           }}
+          onPress={() => handleUserPress(user.id)}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Image

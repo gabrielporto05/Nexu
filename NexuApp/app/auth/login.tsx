@@ -21,8 +21,8 @@ const LoginPage = () => {
   const form = useForm<LoginSchemaType>({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
-      email: '',
-      password: ''
+      email: `${process.env.EXPO_PUBLIC_EMAIL_LOGIN}`,
+      password: `${process.env.EXPO_PUBLIC_PASSWORD_LOGIN}`
     }
   })
 

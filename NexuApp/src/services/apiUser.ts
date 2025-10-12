@@ -7,7 +7,7 @@ const getUsersByNameOrNick = async (payload: string) => {
   return response.data
 }
 
-const getUserById = async (user: string) => {
+const getUserById = async (user: number) => {
   const response = await api.get<GetUserResponse>(`/users/${user}`)
 
   return response.data

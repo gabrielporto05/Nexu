@@ -11,10 +11,10 @@ import Toast from 'react-native-toast-message'
 import { getErrorMessage } from 'src/utils/errorHandler'
 
 type FeedPageProps = {
-  setShowTabBar: (value: boolean) => void
+  handleScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
 }
 
-const FeedPage = ({ setShowTabBar }: FeedPageProps) => {
+const FeedPage = ({ handleScroll }: FeedPageProps) => {
   const { top } = useSafeAreaInsets()
   const { user } = useAuth()
 
@@ -29,23 +29,6 @@ const FeedPage = ({ setShowTabBar }: FeedPageProps) => {
       ...prev,
       [postId]: !prev[postId]
     }))
-  }
-
-  const lastScrollY = useRef(0)
-
-  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const currentY = event.nativeEvent.contentOffset.y
-    const deltaY = currentY - lastScrollY.current
-
-    if (Math.abs(deltaY) < 2) return
-
-    if (deltaY > 0) {
-      setShowTabBar(false)
-    } else {
-      setShowTabBar(true)
-    }
-
-    lastScrollY.current = currentY
   }
 
   const fetchPosts = async () => {

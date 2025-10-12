@@ -1,24 +1,32 @@
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Image, ScrollView, View } from 'react-native'
+import { Image, NativeScrollEvent, NativeSyntheticEvent, ScrollView, View } from 'react-native'
 import TextNexu from 'src/components/ui/TextNexu'
 import { useAuth } from 'src/context/AuthContext'
 import { Ionicons } from '@expo/vector-icons'
-import { PostType } from 'src/utils/types'
-import { useEffect, useState } from 'react'
+import { PostType, UserType } from 'src/utils/types'
+import { useEffect, useRef, useState } from 'react'
 import { router } from 'expo-router'
 import { getAllPostsUserById } from 'src/services/apiPosts'
 import Toast from 'react-native-toast-message'
 import { getErrorMessage } from 'src/utils/errorHandler'
+import { getUserById } from 'src/services/apiUser'
+import { useProfileNavigation } from 'src/context/ProfileNavigationContext'
+import { ActivityIndicator } from 'react-native-paper'
 
-const ProfilePage = () => {
+type ProfilePageProps = {
+  handleScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
+}
+
+const ProfilePage = ({ handleScroll }: ProfilePageProps) => {
   const { top } = useSafeAreaInsets()
   const { user } = useAuth()
+  const { currentProfileId, isViewingOtherProfile } = useProfileNavigation()
 
-  if (!user) return null
+  const targetUserId = isViewingOtherProfile ? currentProfileId : user?.id
 
+  const [profileUser, setProfileUser] = useState<UserType | null>(null)
   const [sortBy, setSortBy] = useState<'likes' | 'date'>('date')
   const [posts, setPosts] = useState<PostType[]>([])
-
   const [expandedPosts, setExpandedPosts] = useState<Record<number, boolean>>({})
 
   const toggleExpand = (postId: number) => {
@@ -29,45 +37,79 @@ const ProfilePage = () => {
   }
 
   useEffect(() => {
-    const fetchPosts = async () => {
+    const fetchProfile = async () => {
+      if (!targetUserId) {
+        console.log('TargetUserId é null/undefined')
+        return
+      }
+
       try {
-        const { data } = await getAllPostsUserById(user.id)
-        setPosts(data)
+        const [userData, postsData] = await Promise.all([getUserById(targetUserId), getAllPostsUserById(targetUserId)])
+
+        console.log('Dados recebidos:', {
+          userData: userData.data,
+          postsCount: postsData.data.length
+        })
+
+        setProfileUser(userData.data)
+        setPosts(postsData.data)
       } catch (err) {
+        console.error('Erro ao buscar perfil:', err)
         Toast.show({
           type: 'error',
-          text1: getErrorMessage(err, 'Erro ao buscar posts')
+          text1: getErrorMessage(err, 'Erro ao carregar perfil')
         })
       }
     }
 
-    fetchPosts()
-  }, [])
+    fetchProfile()
+  }, [targetUserId])
+
+  if (!profileUser || !user) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: top }}>
+        <ActivityIndicator size='large' />
+      </View>
+    )
+  }
 
   return (
-    <ScrollView style={{ flex: 1, marginTop: top }}>
+    <ScrollView
+      style={{ flex: 1, marginTop: top }}
+      keyboardShouldPersistTaps='handled'
+      onScroll={handleScroll}
+      scrollEventThrottle={16}
+    >
       <View style={{ padding: 20 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-          <TextNexu variant='headlineLarge' style={{ fontWeight: 'bold' }}>
-            Perfil
-          </TextNexu>
-          <Ionicons
-            onPress={() => router.push('/home/perfil/config-perfil')}
-            name='settings-outline'
-            size={30}
-            color='black'
-          />
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            {isViewingOtherProfile && (
+              <Ionicons name='arrow-back' size={24} color='black' onPress={() => router.back()} />
+            )}
+            <TextNexu variant='headlineLarge' style={{ fontWeight: 'bold' }}>
+              {isViewingOtherProfile ? 'Perfil' : 'Meu Perfil'}
+            </TextNexu>
+          </View>
+
+          {!isViewingOtherProfile && (
+            <Ionicons
+              onPress={() => router.push('/home/perfil/config-perfil')}
+              name='settings-outline'
+              size={30}
+              color='black'
+            />
+          )}
         </View>
         <Image
-          source={{ uri: `${process.env.EXPO_PUBLIC_API_URL_UPLOADS}/avatars/${user.avatar}` }}
+          source={{ uri: `${process.env.EXPO_PUBLIC_API_URL_UPLOADS}/avatars/${profileUser.avatar}` }}
           style={{ width: 130, height: 130, borderRadius: 100, alignSelf: 'center' }}
           resizeMode='cover'
         />
         <View style={{ alignItems: 'center', marginTop: 20, gap: 5 }}>
           <TextNexu variant='titleLarge' style={{ fontWeight: 'bold' }}>
-            {user.name}
+            {profileUser.name}
           </TextNexu>
-          <TextNexu variant='titleLarge'>@{user.nick}</TextNexu>
+          <TextNexu variant='titleLarge'>@{profileUser.nick}</TextNexu>
         </View>
         <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: 30 }}>
           <View style={{ alignItems: 'center' }}>
@@ -98,7 +140,7 @@ const ProfilePage = () => {
       </View>
       <View style={{ marginTop: 40 }}>
         <TextNexu variant='titleLarge' style={{ fontWeight: 'bold', marginLeft: 20 }}>
-          Meus Posts
+          {isViewingOtherProfile ? 'Posts' : 'Meus posts'}
         </TextNexu>
 
         <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 12, padding: 20 }}>
