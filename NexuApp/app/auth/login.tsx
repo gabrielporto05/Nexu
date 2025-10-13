@@ -34,13 +34,7 @@ const LoginPage = () => {
 
   const onSubmit = async (data: LoginSchemaType) => {
     try {
-      const message = await signIn(data)
-
-      Toast.show({
-        type: 'success',
-        text1: message!
-      })
-
+      await signIn(data)
       router.replace('/home')
     } catch (err) {
       Toast.show({

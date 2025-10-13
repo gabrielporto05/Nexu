@@ -1,11 +1,12 @@
 import { useAuth } from 'src/context/AuthContext'
 import TextNexu from 'src/components/ui/TextNexu'
 import { Image, View } from 'react-native'
+import Loading from 'src/components/Loanding'
 
 const CreatPostPage = () => {
   const { user } = useAuth()
 
-  if (!user) return null
+  if (!user) return <Loading />
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>

@@ -1,8 +1,8 @@
 import { useAuth } from 'src/context/AuthContext'
 import TextNexu from 'src/components/ui/TextNexu'
 import { Image, NativeScrollEvent, NativeSyntheticEvent, ScrollView, View } from 'react-native'
-import { useRef } from 'react'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import Loading from 'src/components/Loanding'
 
 type ChatPageProps = {
   handleScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
@@ -12,7 +12,7 @@ const ChatPage = ({ handleScroll }: ChatPageProps) => {
   const { top } = useSafeAreaInsets()
   const { user } = useAuth()
 
-  if (!user) return null
+  if (!user) return <Loading />
 
   return (
     <ScrollView

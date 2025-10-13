@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons'
 import { useAuth } from 'src/context/AuthContext'
 import TextNexu from 'src/components/ui/TextNexu'
 import { router } from 'expo-router'
+import Loading from 'src/components/Loanding'
 
 type ConfigOptionsType = {
   label: string
@@ -45,7 +46,7 @@ const ConfigPerfilPage = () => {
   const { top } = useSafeAreaInsets()
   const { user, signOut } = useAuth()
 
-  if (!user) return null
+  if (!user) return <Loading />
 
   return (
     <ScrollView style={{ flex: 1, marginTop: top }}>

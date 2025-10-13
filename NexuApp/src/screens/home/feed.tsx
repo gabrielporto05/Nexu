@@ -9,6 +9,7 @@ import { getAllPosts } from 'src/services/apiPosts'
 import { ActivityIndicator } from 'react-native'
 import Toast from 'react-native-toast-message'
 import { getErrorMessage } from 'src/utils/errorHandler'
+import Loading from 'src/components/Loanding'
 
 type FeedPageProps = {
   handleScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
@@ -50,7 +51,7 @@ const FeedPage = ({ handleScroll }: FeedPageProps) => {
     fetchPosts()
   }, [])
 
-  if (!user) return null
+  if (!user || isRefreshing) return <Loading />
 
   return (
     <ScrollView
@@ -67,7 +68,15 @@ const FeedPage = ({ handleScroll }: FeedPageProps) => {
           {isRefreshing ? (
             <ActivityIndicator size={24} color='#855CF8' />
           ) : (
-            <Ionicons onPress={fetchPosts} name='refresh-outline' size={28} color='#855CF8' />
+            <Ionicons
+              onPress={() => {
+                fetchPosts()
+                setSortBy('date')
+              }}
+              name='refresh-outline'
+              size={28}
+              color='#855CF8'
+            />
           )}
         </View>
 
