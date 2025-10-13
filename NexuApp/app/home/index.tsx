@@ -1,13 +1,13 @@
 import CustomTabBar, { TabEnum } from 'src/components/navigation/BottomTabNavigator'
+import { NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
+import { useProfileNavigation } from 'src/context/ProfileNavigationContext'
 import CreatPostPage from 'src/screens/home/creat-post'
 import * as Animatable from 'react-native-animatable'
 import ProfilePage from 'src/screens/home/profile'
 import SearchPage from 'src/screens/home/search'
-import ChatPage from 'src/screens/home/chat'
+import ChatsPage from 'src/screens/home/chats'
 import FeedPage from 'src/screens/home/feed'
-import { NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
 import { useRef, useState } from 'react'
-import { useProfileNavigation } from 'src/context/ProfileNavigationContext'
 
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState<TabEnum>(TabEnum.FEED)
@@ -53,7 +53,7 @@ export default function HomePage() {
       case TabEnum.CREATE_POST:
         return <CreatPostPage />
       case TabEnum.CHAT:
-        return <ChatPage handleScroll={handleScroll} />
+        return <ChatsPage handleScroll={handleScroll} />
       case TabEnum.PERFIL:
         return <ProfilePage handleScroll={handleScroll} />
       default:

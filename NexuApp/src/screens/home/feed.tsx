@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { ScrollView, View, Image, NativeSyntheticEvent, NativeScrollEvent } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAuth } from 'src/context/AuthContext'
@@ -32,7 +32,7 @@ const FeedPage = ({ handleScroll }: FeedPageProps) => {
     }))
   }
 
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
     setIsRefreshing(true)
     try {
       const { data } = await getAllPosts()
@@ -45,7 +45,7 @@ const FeedPage = ({ handleScroll }: FeedPageProps) => {
     } finally {
       setIsRefreshing(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
     fetchPosts()
