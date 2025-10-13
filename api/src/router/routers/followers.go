@@ -19,6 +19,12 @@ var followersRoutes = []Route{
 		AuthRequired: true,
 	},
 	{
+		URI:          "/api/users/{userId}/connections",
+		Method:       http.MethodGet,
+		Func:         controllers.GetUserConnectionsController,
+		AuthRequired: true,
+	},
+	{
 		URI:          "/api/users/{userId}/followers",
 		Method:       http.MethodGet,
 		Func:         controllers.GetFollowersController,

@@ -41,11 +41,42 @@ func (repository user) UnfollowUserRepository(userID, followerID uint64) error {
 	return nil
 }
 
+// ConnectionsUserRepository retorna todos os usuários conectados (seguidores + seguindo) sem duplicação
+func (repository user) ConnectionsUserRepository(userID uint64) (models.Users, error) {
+
+	unique := make(map[uint64]bool)
+	var connections models.Users
+
+	followers, err := repository.FollowersUserRepository(userID)
+	if err != nil {
+		return nil, err
+	}
+	for _, user := range followers {
+		if !unique[user.ID] {
+			unique[user.ID] = true
+			connections = append(connections, user)
+		}
+	}
+
+	following, err := repository.FollowingUserRepository(userID)
+	if err != nil {
+		return nil, err
+	}
+	for _, user := range following {
+		if !unique[user.ID] {
+			unique[user.ID] = true
+			connections = append(connections, user)
+		}
+	}
+
+	return connections, nil
+}
+
 // FollowersUserRepository busca os seguidores de um user
 func (repository user) FollowersUserRepository(userID uint64) (models.Users, error) {
 
 	rows, err := repository.db.Query(`
-		SELECT u.id, u.name, u.nick, u.email, u.created_at FROM users u
+		SELECT u.id, u.name, u.nick, u.email, u.avatar, u.created_at FROM users u
 		INNER JOIN followers f
 		ON u.id = f.follower_id
 		WHERE f.user_id = ?
@@ -64,6 +95,7 @@ func (repository user) FollowersUserRepository(userID uint64) (models.Users, err
 			&user.Name,
 			&user.Nick,
 			&user.Email,
+			&user.Avatar,
 			&user.CreatedAt,
 		); err != nil {
 			return nil, err
@@ -79,7 +111,7 @@ func (repository user) FollowersUserRepository(userID uint64) (models.Users, err
 func (repository user) FollowingUserRepository(userID uint64) (models.Users, error) {
 
 	rows, err := repository.db.Query(`
-		SELECT u.id, u.name, u.nick, u.email, u.created_at FROM users u
+		SELECT u.id, u.name, u.nick, u.email, u.avatar, u.created_at FROM users u
 		INNER JOIN followers f
 		ON u.id = f.user_id
 		WHERE f.follower_id = ?
@@ -98,6 +130,7 @@ func (repository user) FollowingUserRepository(userID uint64) (models.Users, err
 			&user.Name,
 			&user.Nick,
 			&user.Email,
+			&user.Avatar,
 			&user.CreatedAt,
 		); err != nil {
 			return nil, err

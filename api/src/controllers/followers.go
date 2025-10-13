@@ -93,6 +93,48 @@ func UnfollowUser(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusOK, "Unfollow concluído com sucesso", nil)
 }
 
+// GetUserConnectionsController busca as conexões de um user
+func GetUserConnectionsController(w http.ResponseWriter, r *http.Request) {
+
+	userIdToken, err := auth.ExtractUserIdToken(r)
+	if err != nil {
+		responses.Erro(w, http.StatusUnauthorized, err)
+
+		return
+	}
+
+	params := mux.Vars(r)
+	userID, err := strconv.ParseUint(params["userId"], 10, 64)
+	if err != nil {
+		responses.Erro(w, http.StatusBadRequest, err)
+
+		return
+	}
+
+	if userIdToken != userID {
+		responses.Erro(w, http.StatusForbidden, errors.New("não é possível ver as conexões de outro usuario"))
+
+		return
+	}
+
+	db, err := db.ConnectionDB()
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.FollowersUsersRopository(db)
+
+	connections, err := repository.ConnectionsUserRepository(userIdToken)
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, "Conexões listadas com sucesso", connections)
+}
+
 // GetFollowersController busca os seguidores de um user
 func GetFollowersController(w http.ResponseWriter, r *http.Request) {
 
