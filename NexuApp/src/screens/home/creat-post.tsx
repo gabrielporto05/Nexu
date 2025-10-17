@@ -1,23 +1,185 @@
+import { useState } from 'react'
+import { View, Image, ScrollView, Platform, KeyboardAvoidingView, TouchableOpacity } from 'react-native'
+import { useForm, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as ImagePicker from 'expo-image-picker'
+import Toast from 'react-native-toast-message'
 import { useAuth } from 'src/context/AuthContext'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import TextNexu from 'src/components/ui/TextNexu'
-import { Image, View } from 'react-native'
+import ButtonNexu from 'src/components/ui/ButtonNexu'
+import { TextInputNexu } from 'src/components/ui/TextInputNexu'
 import Loading from 'src/components/Loanding'
+import { PostSchema, PostSchemaType } from 'src/schemas/postSchema'
+import { Ionicons } from '@expo/vector-icons'
+import { createPost } from 'src/services/apiPosts'
+import { router } from 'expo-router'
 
 const CreatPostPage = () => {
   const { user } = useAuth()
+  const { top } = useSafeAreaInsets()
+  const [imageUri, setImageUri] = useState<string | null>(null)
+
+  const form = useForm<PostSchemaType>({
+    resolver: zodResolver(PostSchema),
+    defaultValues: {
+      title: '',
+      description: ''
+    }
+  })
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors }
+  } = form
+
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 1
+    })
+
+    if (!result.canceled && result.assets.length > 0) {
+      setImageUri(result.assets[0].uri)
+    }
+  }
+
+  const onSubmit = async (data: PostSchemaType) => {
+    try {
+      if (!imageUri) {
+        Toast.show({ type: 'error', text1: 'Selecione uma imagem antes de publicar.' })
+        return
+      }
+
+      const formData = new FormData()
+      formData.append('title', data.title)
+      formData.append('description', data.description)
+
+      const filename = imageUri.split('/').pop() || 'image.jpg'
+      const match = /\.(\w+)$/.exec(filename)
+      const ext = match ? match[1] : 'jpg'
+      const mimeType = `image/${ext}`
+
+      if (Platform.OS === 'web') {
+        const response = await fetch(imageUri)
+        const blob = await response.blob()
+        formData.append('image', new File([blob], filename, { type: mimeType }))
+      } else {
+        formData.append('image', {
+          uri: imageUri,
+          name: filename,
+          type: mimeType
+        } as any)
+      }
+
+      await createPost(formData)
+
+      Toast.show({ type: 'success', text1: 'Post criado com sucesso!' })
+      router.push('/home')
+    } catch (err) {
+      console.error('Erro ao criar post:', err)
+      Toast.show({ type: 'error', text1: 'Erro ao criar post' })
+    }
+  }
 
   if (!user) return <Loading />
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Image
-        source={{ uri: `${process.env.EXPO_PUBLIC_API_URL_UPLOADS}/avatars/${user.avatar}` }}
-        style={{ width: 200, height: 200, marginBottom: 20 }}
-      />
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <ScrollView
+        style={{ flex: 1, marginTop: top, paddingHorizontal: 20 }}
+        contentContainerStyle={{ paddingBottom: 40 }}
+        keyboardShouldPersistTaps='handled'
+      >
+        <TextNexu style={{ fontSize: 28, fontWeight: 'bold', marginVertical: 20 }}>Novo Post</TextNexu>
 
-      <TextNexu variant='titleLarge'>CreatPostPage</TextNexu>
-      <TextNexu>Bem-vindo, {user.name}</TextNexu>
-    </View>
+        <View style={{ marginBottom: 20 }}>
+          <TextNexu style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 6 }}>Título</TextNexu>
+          <Controller
+            control={control}
+            name='title'
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInputNexu
+                placeholder='Digite o título do post'
+                mode='outlined'
+                value={value}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                error={!!errors.title}
+                style={{ backgroundColor: '#fff' }}
+              />
+            )}
+          />
+          {errors.title && <TextNexu style={{ color: '#FF6B6B', marginTop: 4 }}>{errors.title.message}</TextNexu>}
+        </View>
+
+        <View style={{ marginBottom: 20 }}>
+          <TextNexu style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 6 }}>Descrição</TextNexu>
+          <Controller
+            control={control}
+            name='description'
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInputNexu
+                placeholder='Escreva sua descrição aqui...'
+                mode='outlined'
+                value={value}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                error={!!errors.description}
+                numberOfLines={5}
+                multiline
+                style={{ backgroundColor: '#fff' }}
+              />
+            )}
+          />
+          {errors.description && (
+            <TextNexu style={{ color: '#FF6B6B', marginTop: 4 }}>{errors.description.message}</TextNexu>
+          )}
+        </View>
+
+        <View style={{ marginBottom: 30 }}>
+          <TextNexu style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>Imagem</TextNexu>
+          <TouchableOpacity
+            onPress={pickImage}
+            style={{
+              backgroundColor: '#eee',
+              borderRadius: 12,
+              minHeight: 300,
+              width: '100%',
+              justifyContent: 'center',
+              alignItems: 'center',
+              overflow: 'hidden'
+            }}
+            activeOpacity={0.8}
+          >
+            {imageUri ? (
+              <Image
+                source={{ uri: imageUri }}
+                style={{
+                  width: '100%',
+                  aspectRatio: 1.1,
+                  borderRadius: 12
+                }}
+                resizeMode='cover'
+              />
+            ) : (
+              <View style={{ alignItems: 'center' }}>
+                <Ionicons name='image' size={32} color='#999' />
+                <TextNexu style={{ fontSize: 16, color: '#999', marginTop: 8 }}>
+                  Toque para selecionar uma imagem
+                </TextNexu>
+              </View>
+            )}
+          </TouchableOpacity>
+        </View>
+
+        {/* Botão abaixo da imagem */}
+        <ButtonNexu buttonColor='#855CF8' onPress={handleSubmit(onSubmit)} style={{ paddingVertical: 12 }}>
+          <TextNexu style={{ fontSize: 20, fontWeight: 'bold', color: '#fff' }}>Publicar</TextNexu>
+        </ButtonNexu>
+      </ScrollView>
+    </KeyboardAvoidingView>
   )
 }
 

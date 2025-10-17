@@ -1,6 +1,16 @@
 import { api } from 'src/services/api'
 import { GetPostsResponse } from 'src/utils/types'
 
+const createPost = async (payload: FormData) => {
+  const response = await api.post('/posts', payload, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+
+  return response.data
+}
+
 const getAllPosts = async () => {
   const response = await api.get<GetPostsResponse>('/posts')
 
@@ -13,4 +23,4 @@ const getAllPostsUserById = async (user: number) => {
   return response.data
 }
 
-export { getAllPostsUserById, getAllPosts }
+export { createPost, getAllPostsUserById, getAllPosts }

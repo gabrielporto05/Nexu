@@ -1,5 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ScrollView, View, Image, NativeSyntheticEvent, NativeScrollEvent } from 'react-native'
+import {
+  ScrollView,
+  View,
+  Image,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
+  TouchableOpacity,
+  Pressable
+} from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAuth } from 'src/context/AuthContext'
 import TextNexu from 'src/components/ui/TextNexu'
@@ -10,6 +18,7 @@ import { ActivityIndicator } from 'react-native'
 import Toast from 'react-native-toast-message'
 import { getErrorMessage } from 'src/utils/errorHandler'
 import Loading from 'src/components/Loanding'
+import { Modal } from 'react-native'
 
 type FeedPageProps = {
   handleScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
@@ -24,6 +33,8 @@ const FeedPage = ({ handleScroll }: FeedPageProps) => {
   const [expandedPosts, setExpandedPosts] = useState<Record<number, boolean>>({})
 
   const [isRefreshing, setIsRefreshing] = useState(false)
+
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
 
   const toggleExpand = (postId: number) => {
     setExpandedPosts(prev => ({
@@ -142,11 +153,25 @@ const FeedPage = ({ handleScroll }: FeedPageProps) => {
                   </View>
                 </View>
 
-                <Image
-                  source={{ uri: `${process.env.EXPO_PUBLIC_API_URL_UPLOADS}/images_posts/${post.image}` }}
-                  style={{ width: '100%', height: 200, marginBottom: 12 }}
-                  resizeMode='cover'
-                />
+                {post.image && (
+                  <TouchableOpacity
+                    activeOpacity={0.9}
+                    onPress={() =>
+                      setSelectedImage(`${process.env.EXPO_PUBLIC_API_URL_UPLOADS}/images_posts/${post.image}`)
+                    }
+                  >
+                    <Image
+                      source={{ uri: `${process.env.EXPO_PUBLIC_API_URL_UPLOADS}/images_posts/${post.image}` }}
+                      style={{
+                        width: '100%',
+                        aspectRatio: 1.1,
+                        marginBottom: 12
+                      }}
+                      resizeMode='cover'
+                    />
+                  </TouchableOpacity>
+                )}
+
                 <View style={{ paddingHorizontal: 12, marginBottom: 12 }}>
                   <TextNexu variant='titleLarge' style={{ fontWeight: 'bold', marginBottom: 4 }}>
                     {post.title}
@@ -185,6 +210,38 @@ const FeedPage = ({ handleScroll }: FeedPageProps) => {
             )
           })
       )}
+
+      <Modal visible={!!selectedImage} transparent animationType='fade' onRequestClose={() => setSelectedImage(null)}>
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: 'rgba(0,0,0,0.9)',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: 20
+          }}
+        >
+          <TouchableOpacity
+            onPress={() => setSelectedImage(null)}
+            style={{
+              position: 'absolute',
+              top: 40,
+              right: 30,
+              zIndex: 10,
+              backgroundColor: 'rgba(255,255,255,0.1)',
+              padding: 8,
+              borderRadius: 20
+            }}
+            activeOpacity={0.7}
+          >
+            <Ionicons name='close' size={28} color='#fff' />
+          </TouchableOpacity>
+
+          {selectedImage && (
+            <Image source={{ uri: selectedImage }} style={{ width: '100%', height: '100%', resizeMode: 'contain' }} />
+          )}
+        </View>
+      </Modal>
     </ScrollView>
   )
 }
