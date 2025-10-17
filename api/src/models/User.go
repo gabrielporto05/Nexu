@@ -11,12 +11,17 @@ import (
 
 // User representa um usuário da aplicação
 type User struct {
-	ID        uint64    `json:"id,omitempty"`
-	Name      string    `json:"name,omitempty"`
-	Nick      string    `json:"nick,omitempty"`
-	Email     string    `json:"email,omitempty"`
-	Password  string    `json:"password,omitempty"`
-	Avatar    string    `json:"avatar,omitempty"`
+	ID             uint64 `json:"id,omitempty"`
+	Name           string `json:"name,omitempty"`
+	Nick           string `json:"nick,omitempty"`
+	Email          string `json:"email,omitempty"`
+	Password       string `json:"password,omitempty"`
+	Avatar         string `json:"avatar,omitempty"`
+	FollowersCount uint64 `json:"followersCount"`
+	FollowingCount uint64 `json:"followingCount"`
+	PostsCount     uint64 `json:"postsCount"`
+	LikesCount     uint64 `json:"likesCount"`
+
 	CreatedAt time.Time `json:"created_at,omitempty"`
 }
 

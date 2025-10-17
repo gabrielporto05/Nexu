@@ -79,7 +79,6 @@ func (repository user) GetUsersByNameOrNickRepository(nameOrNick string) ([]mode
 
 // GetUserByIdRepository busca um usuário pelo ID no banco de dados
 func (repository user) GetUserByIdRepository(ID uint64) (models.User, error) {
-
 	stmt, err := repository.db.Prepare("SELECT id, name, nick, email, avatar, created_at FROM users WHERE id = ?")
 	if err != nil {
 		return models.User{}, err
@@ -108,8 +107,27 @@ func (repository user) GetUserByIdRepository(ID uint64) (models.User, error) {
 		return models.User{}, fmt.Errorf("user com ID %d não encontrado", ID)
 	}
 
-	return user, nil
+	err = repository.db.QueryRow("SELECT COUNT(*) FROM followers WHERE user_id = ?", ID).Scan(&user.FollowersCount)
+	if err != nil {
+		return models.User{}, err
+	}
 
+	err = repository.db.QueryRow("SELECT COUNT(*) FROM followers WHERE follower_id = ?", ID).Scan(&user.FollowingCount)
+	if err != nil {
+		return models.User{}, err
+	}
+
+	err = repository.db.QueryRow("SELECT COUNT(*) FROM posts WHERE author_id = ?", ID).Scan(&user.PostsCount)
+	if err != nil {
+		return models.User{}, err
+	}
+
+	err = repository.db.QueryRow("SELECT COUNT(*) FROM post_likes WHERE user_id = ?", ID).Scan(&user.LikesCount)
+	if err != nil {
+		return models.User{}, err
+	}
+
+	return user, nil
 }
 
 // GetUserByEmailRepository busca um usuário pelo email no banco de dados

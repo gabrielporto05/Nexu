@@ -14,6 +14,7 @@ type Post struct {
 	Image       string      `json:"image,omitempty"`
 	AuthorID    uint64      `json:"author_id,omitempty"`
 	Likes       uint64      `json:"likes"`
+	LikedByUser bool        `json:"likedByUser"`
 	CreatedAt   time.Time   `json:"created_at,omitempty"`
 	Author      UserSummary `json:"user"`
 }

@@ -88,6 +88,12 @@ func (repository post) GetPostsRepository(userID uint64) (models.Posts, error) {
 		}
 		post.Likes = likes
 
+		liked, err := repository.HasUserLikedPost(post.ID, userID)
+		if err != nil {
+			return models.Posts{}, err
+		}
+		post.LikedByUser = liked
+
 		posts = append(posts, post)
 	}
 
