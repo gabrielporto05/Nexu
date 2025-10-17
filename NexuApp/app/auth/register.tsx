@@ -110,8 +110,8 @@ const RegisterPage = () => {
                           field.name === 'password'
                             ? !showPassword
                             : field.name === 'confirm_password'
-                            ? !showConfirmPassword
-                            : false
+                              ? !showConfirmPassword
+                              : false
                         }
                         right={
                           (field.name === 'password' || field.name === 'confirm_password') && (
@@ -122,8 +122,8 @@ const RegisterPage = () => {
                                     ? 'eye-off'
                                     : 'eye'
                                   : showConfirmPassword
-                                  ? 'eye-off'
-                                  : 'eye'
+                                    ? 'eye-off'
+                                    : 'eye'
                               }
                               onPress={() =>
                                 field.name === 'password'

@@ -6,7 +6,8 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@expo-google-fonts/space-grotesk": "^0.4.1",
@@ -22,6 +23,7 @@
     "expo-router": "~6.0.10",
     "expo-secure-store": "^15.0.7",
     "expo-status-bar": "~3.0.8",
+    "prettier": "^3.6.2",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-hook-form": "^7.63.0",

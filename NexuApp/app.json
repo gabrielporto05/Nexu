@@ -8,9 +8,7 @@
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "scheme": "NexuApp",
-    "assets": [
-      "./assets/fonts/"
-    ],
+    "assets": ["./assets/fonts/"],
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -31,9 +29,6 @@
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
-    "plugins": [
-      "expo-router",
-      "expo-font"
-    ]
+    "plugins": ["expo-router", "expo-font"]
   }
 }

@@ -6,18 +6,17 @@ import { useAuth } from 'src/context/AuthContext'
 export default function IndexPage() {
   const { user } = useAuth()
 
- useEffect(() => {
-  const timer = setTimeout(() => {
-    const getRedirectPath = () => {
-      return user ? '/home' : '/auth/login'
-    }
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const getRedirectPath = () => {
+        return user ? '/home' : '/auth/login'
+      }
 
-    router.replace(getRedirectPath())
-  }, 2000)
+      router.replace(getRedirectPath())
+    }, 2000)
 
-  return () => clearTimeout(timer)
-}, [user])
-
+    return () => clearTimeout(timer)
+  }, [user])
 
   return (
     <View style={styles.container}>
