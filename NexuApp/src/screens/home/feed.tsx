@@ -1,23 +1,15 @@
-import { useCallback, useEffect, useState } from 'react'
-import {
-  ScrollView,
-  View,
-  Image,
-  NativeSyntheticEvent,
-  NativeScrollEvent,
-  TouchableOpacity,
-  Pressable
-} from 'react-native'
+import { ScrollView, View, Image, NativeSyntheticEvent, NativeScrollEvent, TouchableOpacity } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useAuth } from 'src/context/AuthContext'
-import TextNexu from 'src/components/ui/TextNexu'
-import { PostType } from 'src/utils/types'
-import { Ionicons } from '@expo/vector-icons'
+import { getErrorMessage } from 'src/utils/errorHandler'
+import { useCallback, useEffect, useState } from 'react'
 import { getAllPosts } from 'src/services/apiPosts'
+import TextNexu from 'src/components/ui/TextNexu'
+import { useAuth } from 'src/context/AuthContext'
 import { ActivityIndicator } from 'react-native'
 import Toast from 'react-native-toast-message'
-import { getErrorMessage } from 'src/utils/errorHandler'
+import { Ionicons } from '@expo/vector-icons'
 import Loading from 'src/components/Loanding'
+import { PostType } from 'src/utils/types'
 import { Modal } from 'react-native'
 
 type FeedPageProps = {
@@ -109,10 +101,16 @@ const FeedPage = ({ handleScroll }: FeedPageProps) => {
         </View>
       </View>
 
-      {posts.length === 0 ? (
-        <TextNexu variant='bodyLarge' style={{ textAlign: 'center', color: '#999', marginTop: 40 }}>
-          Nenhum post disponível no momento.
-        </TextNexu>
+      {!posts || posts.length === 0 ? (
+        <View style={{ height: '100%', padding: 20, alignItems: 'center', justifyContent: 'center', marginTop: 40 }}>
+          <Ionicons name='chatbubble-ellipses-outline' size={48} style={{ marginBottom: 12 }} />
+          <TextNexu variant='titleLarge' style={{ textAlign: 'center' }}>
+            Ainda não há nenhum post publicado.
+          </TextNexu>
+          <TextNexu variant='bodyLarge' style={{ textAlign: 'center', marginTop: 4 }}>
+            Toque no botão de atualizar para tentar novamente.
+          </TextNexu>
+        </View>
       ) : (
         [...posts]
           .sort((a, b) => {

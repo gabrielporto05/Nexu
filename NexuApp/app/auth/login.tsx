@@ -1,16 +1,16 @@
 import { Image, View, KeyboardAvoidingView, Platform, ScrollView } from 'react-native'
 import { LoginSchema, LoginSchemaType } from 'src/schemas/authSchema'
+import { TextInputNexu } from 'src/components/ui/TextInputNexu'
+import { getErrorMessage } from 'src/utils/errorHandler'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Ionicons } from '@expo/vector-icons'
-import Toast from 'react-native-toast-message'
-import { getErrorMessage } from 'src/utils/errorHandler'
-import { useRouter } from 'expo-router'
-import TextNexu from 'src/components/ui/TextNexu'
 import ButtonNexu from 'src/components/ui/ButtonNexu'
+import TextNexu from 'src/components/ui/TextNexu'
 import { useAuth } from 'src/context/AuthContext'
+import Toast from 'react-native-toast-message'
+import { Ionicons } from '@expo/vector-icons'
+import { useRouter } from 'expo-router'
 import { useState } from 'react'
-import { TextInputNexu } from 'src/components/ui/TextInputNexu'
 
 const LoginPage = () => {
   const router = useRouter()

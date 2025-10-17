@@ -14,6 +14,7 @@ import { PostSchema, PostSchemaType } from 'src/schemas/postSchema'
 import { Ionicons } from '@expo/vector-icons'
 import { createPost } from 'src/services/apiPosts'
 import { router } from 'expo-router'
+import { getErrorMessage } from 'src/utils/errorHandler'
 
 const CreatPostPage = () => {
   const { user } = useAuth()
@@ -79,7 +80,7 @@ const CreatPostPage = () => {
       router.push('/home')
     } catch (err) {
       console.error('Erro ao criar post:', err)
-      Toast.show({ type: 'error', text1: 'Erro ao criar post' })
+      Toast.show({ type: 'error', text1: getErrorMessage(err, 'Erro ao criar post') })
     }
   }
 
@@ -129,7 +130,7 @@ const CreatPostPage = () => {
                 error={!!errors.description}
                 numberOfLines={5}
                 multiline
-                style={{ backgroundColor: '#fff' }}
+                style={{ backgroundColor: '#fff', paddingTop: 12 }}
               />
             )}
           />

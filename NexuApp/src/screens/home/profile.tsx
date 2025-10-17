@@ -1,17 +1,17 @@
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Image, NativeScrollEvent, NativeSyntheticEvent, ScrollView, View } from 'react-native'
+import { useProfileNavigation } from 'src/context/ProfileNavigationContext'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { getAllPostsUserById } from 'src/services/apiPosts'
+import { getErrorMessage } from 'src/utils/errorHandler'
+import { PostType, UserType } from 'src/utils/types'
+import { getUserById } from 'src/services/apiUser'
 import TextNexu from 'src/components/ui/TextNexu'
 import { useAuth } from 'src/context/AuthContext'
-import { Ionicons } from '@expo/vector-icons'
-import { PostType, UserType } from 'src/utils/types'
-import { useEffect, useRef, useState } from 'react'
-import { router } from 'expo-router'
-import { getAllPostsUserById } from 'src/services/apiPosts'
 import Toast from 'react-native-toast-message'
-import { getErrorMessage } from 'src/utils/errorHandler'
-import { getUserById } from 'src/services/apiUser'
-import { useProfileNavigation } from 'src/context/ProfileNavigationContext'
-import { ActivityIndicator } from 'react-native-paper'
+import { Ionicons } from '@expo/vector-icons'
+import Loading from 'src/components/Loanding'
+import { useEffect, useState } from 'react'
+import { router } from 'expo-router'
 
 type ProfilePageProps = {
   handleScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
@@ -38,18 +38,10 @@ const ProfilePage = ({ handleScroll }: ProfilePageProps) => {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      if (!targetUserId) {
-        console.log('TargetUserId é null/undefined')
-        return
-      }
+      if (!targetUserId) return
 
       try {
         const [userData, postsData] = await Promise.all([getUserById(targetUserId), getAllPostsUserById(targetUserId)])
-
-        console.log('Dados recebidos:', {
-          userData: userData.data,
-          postsCount: postsData.data.length
-        })
 
         setProfileUser(userData.data)
         setPosts(postsData.data)
@@ -65,13 +57,7 @@ const ProfilePage = ({ handleScroll }: ProfilePageProps) => {
     fetchProfile()
   }, [targetUserId])
 
-  if (!profileUser || !user) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: top }}>
-        <ActivityIndicator size='large' />
-      </View>
-    )
-  }
+  if (!profileUser || !user) return <Loading />
 
   return (
     <ScrollView
@@ -180,7 +166,11 @@ const ProfilePage = ({ handleScroll }: ProfilePageProps) => {
               >
                 <Image
                   source={{ uri: `${process.env.EXPO_PUBLIC_API_URL_UPLOADS}/images_posts/${post.image}` }}
-                  style={{ width: '100%', height: 200, marginBottom: 12 }}
+                  style={{
+                    width: '100%',
+                    aspectRatio: 1.1,
+                    marginBottom: 12
+                  }}
                   resizeMode='cover'
                 />
                 <View style={{ padding: 12 }}>
