@@ -38,7 +38,7 @@ func (repository post) CreatePostRepository(post models.Post) (uint64, error) {
 func (repository post) GetPostsRepository(userID uint64) (models.Posts, error) {
 
 	stmt, err := repository.db.Prepare(`
-        SELECT DISTINCT p.id, p.title, p.description, p.image, p.author_id, p.likes, p.created_at, u.name, u.nick, u.avatar 
+        SELECT DISTINCT p.id, p.title, p.description, p.image, p.author_id, p.created_at, u.name, u.nick, u.avatar 
         FROM posts p
         INNER JOIN users u ON u.id = p.author_id
         LEFT JOIN followers f ON f.user_id = p.author_id
@@ -68,7 +68,6 @@ func (repository post) GetPostsRepository(userID uint64) (models.Posts, error) {
 			&post.Description,
 			&post.Image,
 			&post.AuthorID,
-			&post.Likes,
 			&post.CreatedAt,
 			&name,
 			&nick,
@@ -82,6 +81,12 @@ func (repository post) GetPostsRepository(userID uint64) (models.Posts, error) {
 			Nick:   nick,
 			Avatar: avatar,
 		}
+
+		likes, err := repository.CountLikes(post.ID)
+		if err != nil {
+			return models.Posts{}, err
+		}
+		post.Likes = likes
 
 		posts = append(posts, post)
 	}
@@ -119,7 +124,6 @@ func (repository post) GetPostByIdRepository(postID uint64) (models.Post, error)
 			&post.Description,
 			&post.Image,
 			&post.AuthorID,
-			&post.Likes,
 			&post.CreatedAt,
 			&name,
 			&nick,
@@ -127,6 +131,12 @@ func (repository post) GetPostByIdRepository(postID uint64) (models.Post, error)
 		); err != nil {
 			return models.Post{}, err
 		}
+
+		likes, err := repository.CountLikes(post.ID)
+		if err != nil {
+			return models.Post{}, err
+		}
+		post.Likes = likes
 
 		post.Author = models.UserSummary{
 			Name:   name,
@@ -173,7 +183,6 @@ func (repository post) GetAllPostsByIdRepository(userID uint64) (models.Posts, e
 			&post.Description,
 			&post.Image,
 			&post.AuthorID,
-			&post.Likes,
 			&post.CreatedAt,
 			&nick,
 			&name,
@@ -187,6 +196,12 @@ func (repository post) GetAllPostsByIdRepository(userID uint64) (models.Posts, e
 			Nick:   nick,
 			Avatar: avatar,
 		}
+
+		likes, err := repository.CountLikes(post.ID)
+		if err != nil {
+			return models.Posts{}, err
+		}
+		post.Likes = likes
 
 		posts = append(posts, post)
 	}
@@ -238,41 +253,57 @@ func (repository post) DeletePostByIdRepository(postID uint64) error {
 	return nil
 }
 
-// LikePostRepository da like em um post
-func (repository post) LikePostRepository(postID uint64) error {
-
-	stmt, err := repository.db.Prepare("UPDATE posts SET likes = likes + 1 WHERE id = ?")
+// CreateLike registra um like único
+func (repository post) CreateLike(postID, userID uint64) error {
+	stmt, err := repository.db.Prepare("INSERT INTO post_likes (user_id, post_id) VALUES (?, ?)")
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	if _, err := stmt.Exec(postID); err != nil {
-		return err
-	}
-
-	return nil
+	_, err = stmt.Exec(userID, postID)
+	return err
 }
 
-// UnlikePostRepository da unlike em um post
-func (repository post) UnlikePostRepository(postID uint64) error {
-
-	stmt, err := repository.db.Prepare(`
-		UPDATE posts SET likes = 
-		CASE 
-			WHEN likes > 0 THEN likes - 1 
-			ELSE 0 
-		END
-	 	WHERE id = ?`,
-	)
+func (repository post) DeleteLike(postID, userID uint64) error {
+	stmt, err := repository.db.Prepare("DELETE FROM post_likes WHERE user_id = ? AND post_id = ?")
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	if _, err := stmt.Exec(postID); err != nil {
-		return err
-	}
+	_, err = stmt.Exec(userID, postID)
+	return err
+}
 
-	return nil
+func (repository post) HasUserLikedPost(postID, userID uint64) (bool, error) {
+	stmt, err := repository.db.Prepare("SELECT 1 FROM post_likes WHERE user_id = ? AND post_id = ? LIMIT 1")
+	if err != nil {
+		return false, err
+	}
+	defer stmt.Close()
+
+	row := stmt.QueryRow(userID, postID)
+	var exists int
+	err = row.Scan(&exists)
+	if err == sql.ErrNoRows {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+func (repository post) CountLikes(postID uint64) (uint64, error) {
+	stmt, err := repository.db.Prepare("SELECT COUNT(*) FROM post_likes WHERE post_id = ?")
+	if err != nil {
+		return 0, err
+	}
+	defer stmt.Close()
+
+	row := stmt.QueryRow(postID)
+	var count uint64
+	err = row.Scan(&count)
+	return count, err
 }

@@ -6,6 +6,7 @@ USE nexu;
 DROP TABLE IF EXISTS posts;
 DROP TABLE IF EXISTS followers;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS post_likes;
 
 CREATE TABLE users(
     id int AUTO_INCREMENT PRIMARY KEY,
@@ -44,6 +45,16 @@ CREATE TABLE posts(
     REFERENCES users(id) 
     ON DELETE CASCADE,
 
-    likes int DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP()
+) ENGINE=INNODB;
+
+CREATE TABLE post_likes (
+    user_id INT NOT NULL,
+    post_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
+
+    PRIMARY KEY (user_id, post_id),
+
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
 ) ENGINE=INNODB;

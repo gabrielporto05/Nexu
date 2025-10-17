@@ -15,7 +15,7 @@ INSERT INTO followers(user_id, follower_id) VALUES
 (4, 2),
 (4, 1);
 
-INSERT INTO posts(title, description, author_id, likes) VALUES
+INSERT INTO posts(title, description, author_id) VALUES
 ("📢 Oportunidade de Estágio em Desenvolvimento na Fleye! ", "📢 Oportunidade de Estágio em Desenvolvimento na Fleye! 
  Remunerado | 100% remoto
 
@@ -36,13 +36,34 @@ Estar cursando ensino superior em Ciência da Computação, Engenharia da Comput
 - Férias: 15 dias a cada 6 meses trabalhados, para curtir como quiser;
 = Ambiente colaborativo: faça parte de um time descontraído, engajado em se desenvolver e envolvido em muita troca de conhecimentos.
 
-➡️ Para se candidatar acesse este link: https://lnkd.in/d87Azp3p", 1, 4),
-("Post 2", "Post 2 description", 1, 2),
-("Post 3", "Post 3 description", 1, 3),
-("Post 4", "Post 4 description", 2, 0),
-("Post 5", "Post 5 description", 2, 5),
-("Post 6", "Post 6 description", 2, 1),
-("Post 7", "Post 7 description", 4, 7),
-("Post 8", "Post 8 description", 4, 3),
-("Post 9", "Post 9 description", 5, 10),
-("Post 10", "Post 10 description", 3, 3);
+➡️ Para se candidatar acesse este link: https://lnkd.in/d87Azp3p", 1),
+("Post 2", "Post 2 description", 1),
+("Post 3", "Post 3 description", 1),
+("Post 4", "Post 4 description", 2),
+("Post 5", "Post 5 description", 2),
+("Post 6", "Post 6 description", 2),
+("Post 7", "Post 7 description", 4),
+("Post 8", "Post 8 description", 4),
+("Post 9", "Post 9 description", 5),
+("Post 10", "Post 10 description", 3);
+
+INSERT INTO post_likes(user_id, post_id) VALUES
+(1, 2),
+(1, 3),
+(1, 5),
+(2, 1),
+(2, 3),
+(2, 6),
+(3, 1),
+(3, 4),
+(3, 5),
+(3, 9),
+(4, 1),
+(4, 7),
+(4, 8),
+(5, 1),
+(5, 2),
+(5, 3),
+(5, 5),
+(5, 9),
+(5, 10);

@@ -361,20 +361,19 @@ func LikePostController(w http.ResponseWriter, r *http.Request) {
 
 	repository := repositories.PostsRopository(db)
 
-	postDB, err := repository.GetPostByIdRepository(postID)
+	userID, _ := auth.ExtractUserIdToken(r)
+	alreadyLiked, err := repository.HasUserLikedPost(postID, userID)
+	if alreadyLiked {
+		responses.Erro(w, http.StatusConflict, errors.New("você já curtiu esse post"))
+		return
+	}
 	if err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	if postDB.ID == 0 {
-		responses.Erro(w, http.StatusNotFound, errors.New("post não encontrado"))
-		return
-	}
-
-	if err := repository.LikePostRepository(postID); err != nil {
+	if err = repository.CreateLike(postID, userID); err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
-
 		return
 	}
 
@@ -403,20 +402,19 @@ func UnlikePostController(w http.ResponseWriter, r *http.Request) {
 
 	repository := repositories.PostsRopository(db)
 
-	postDB, err := repository.GetPostByIdRepository(postID)
+	userID, _ := auth.ExtractUserIdToken(r)
+	alreadyLiked, err := repository.HasUserLikedPost(postID, userID)
+	if !alreadyLiked {
+		responses.Erro(w, http.StatusNotFound, errors.New("você ainda não curtiu esse post"))
+		return
+	}
 	if err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	if postDB.ID == 0 {
-		responses.Erro(w, http.StatusNotFound, errors.New("post não encontrado"))
-		return
-	}
-
-	if err := repository.UnlikePostRepository(postID); err != nil {
+	if err = repository.DeleteLike(postID, userID); err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
-
 		return
 	}
 
