@@ -100,25 +100,25 @@ const ProfilePage = ({ handleScroll }: ProfilePageProps) => {
         <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: 30 }}>
           <View style={{ alignItems: 'center' }}>
             <TextNexu variant='titleLarge' style={{ fontWeight: 'bold' }}>
-              12.938
+              {profileUser.followersCount}
             </TextNexu>
             <TextNexu variant='bodyLarge'>Seguidores</TextNexu>
           </View>
           <View style={{ alignItems: 'center' }}>
             <TextNexu variant='titleLarge' style={{ fontWeight: 'bold' }}>
-              875
+              {profileUser.followingCount}
             </TextNexu>
             <TextNexu variant='bodyLarge'>Seguindo</TextNexu>
           </View>
           <View style={{ alignItems: 'center' }}>
             <TextNexu variant='titleLarge' style={{ fontWeight: 'bold' }}>
-              2
+              {profileUser.postsCount}
             </TextNexu>
             <TextNexu variant='bodyLarge'>Posts</TextNexu>
           </View>
           <View style={{ alignItems: 'center' }}>
             <TextNexu variant='titleLarge' style={{ fontWeight: 'bold' }}>
-              87.124
+              {profileUser.likesCount}
             </TextNexu>
             <TextNexu variant='bodyLarge'>Likes</TextNexu>
           </View>
@@ -150,61 +150,70 @@ const ProfilePage = ({ handleScroll }: ProfilePageProps) => {
           </TextNexu>
         </View>
 
-        {[...posts]
-          .sort((a, b) => {
-            if (sortBy === 'likes') return b.likes - a.likes
-            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-          })
-          .map(post => {
-            const isExpanded = expandedPosts[post.id] === true
-            const isLong = post.description.length > 130
+        {!posts || posts.length === 0 ? (
+          <View style={{ padding: 20, alignItems: 'center', justifyContent: 'center', marginTop: 40 }}>
+            <Ionicons name='chatbubble-ellipses-outline' size={48} style={{ marginBottom: 12 }} />
+            <TextNexu variant='titleLarge' style={{ textAlign: 'center' }}>
+              Você ainda não possui nenhum post publicado
+            </TextNexu>
+          </View>
+        ) : (
+          [...posts]
+            .sort((a, b) => {
+              if (sortBy === 'likes') return b.likes - a.likes
+              return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+            })
+            .map(post => {
+              const isExpanded = expandedPosts[post.id] === true
+              const isLong = post.description.length > 130
 
-            return (
-              <View
-                key={post.id}
-                style={{ backgroundColor: '#f5f5f5', borderBottomWidth: 1, borderBottomColor: '#855CF8' }}
-              >
-                <Image
-                  source={{ uri: `${process.env.EXPO_PUBLIC_API_URL_UPLOADS}/images_posts/${post.image}` }}
-                  style={{
-                    width: '100%',
-                    aspectRatio: 1.1,
-                    marginBottom: 12
-                  }}
-                  resizeMode='cover'
-                />
-                <View style={{ padding: 12 }}>
-                  <TextNexu variant='titleLarge' style={{ fontWeight: 'bold', marginBottom: 4 }}>
-                    {post.title}
-                  </TextNexu>
-                  <TextNexu variant='bodyLarge' style={{ color: '#333', marginBottom: 8 }}>
-                    {isExpanded || !isLong ? post.description : `${post.description.slice(0, 130)}...`}
-                  </TextNexu>
-                  {isLong && (
-                    <TextNexu
-                      variant='bodyMedium'
-                      style={{ color: '#855CF8', marginBottom: 8 }}
-                      onPress={() => toggleExpand(post.id)}
-                    >
-                      {isExpanded ? 'ver menos' : 'ver mais'}
+              return (
+                <View
+                  key={post.id}
+                  style={{ backgroundColor: '#f5f5f5', borderBottomWidth: 1, borderBottomColor: '#855CF8' }}
+                >
+                  <Image
+                    source={{ uri: `${process.env.EXPO_PUBLIC_API_URL_UPLOADS}/images_posts/${post.image}` }}
+                    style={{
+                      width: '100%',
+                      aspectRatio: 1.1,
+                      marginBottom: 12
+                    }}
+                    resizeMode='cover'
+                  />
+                  <View style={{ padding: 12 }}>
+                    <TextNexu variant='titleLarge' style={{ fontWeight: 'bold', marginBottom: 4 }}>
+                      {post.title}
                     </TextNexu>
-                  )}
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <TextNexu variant='bodyLarge' style={{ color: '#855CF8' }}>
-                      {post.likes} likes
+                    <TextNexu variant='bodyLarge' style={{ color: '#333', marginBottom: 8 }}>
+                      {isExpanded || !isLong ? post.description : `${post.description.slice(0, 130)}...`}
                     </TextNexu>
-                    <TextNexu variant='bodySmall' style={{ color: '#777' }}>
-                      {new Date(post.created_at).toLocaleDateString('pt-BR', {
-                        day: '2-digit',
-                        month: 'short',
-                        year: 'numeric'
-                      })}
-                    </TextNexu>
+                    {isLong && (
+                      <TextNexu
+                        variant='bodyMedium'
+                        style={{ color: '#855CF8', marginBottom: 8 }}
+                        onPress={() => toggleExpand(post.id)}
+                      >
+                        {isExpanded ? 'ver menos' : 'ver mais'}
+                      </TextNexu>
+                    )}
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <TextNexu variant='bodyLarge' style={{ color: '#855CF8' }}>
+                        {post.likes} {post.likes === 1 ? 'like' : 'likes'}
+                      </TextNexu>
+                      <TextNexu variant='bodySmall' style={{ color: '#777' }}>
+                        {new Date(post.created_at).toLocaleDateString('pt-BR', {
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric'
+                        })}
+                      </TextNexu>
+                    </View>
                   </View>
                 </View>
-              </View>
-            )
-          })}
+              )
+            })
+        )}
       </View>
     </ScrollView>
   )

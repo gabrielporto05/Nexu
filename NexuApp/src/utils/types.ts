@@ -4,6 +4,10 @@ export type UserType = {
   nick: string
   email: string
   avatar?: string
+  followersCount: number
+  followingCount: number
+  postsCount: number
+  likesCount: number
   created_at: string
 }
 
@@ -13,6 +17,7 @@ export type PostType = {
   description: string
   image?: string
   likes: number
+  likedByUser: boolean
   author_id: number
   user: UserType
   created_at: string

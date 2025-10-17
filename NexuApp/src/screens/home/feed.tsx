@@ -11,6 +11,7 @@ import { Ionicons } from '@expo/vector-icons'
 import Loading from 'src/components/Loanding'
 import { PostType } from 'src/utils/types'
 import { Modal } from 'react-native'
+import { like, unlike } from 'src/services/apiLikes'
 
 type FeedPageProps = {
   handleScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
@@ -55,6 +56,23 @@ const FeedPage = ({ handleScroll }: FeedPageProps) => {
   }, [])
 
   if (!user || isRefreshing) return <Loading />
+
+  const handleLikeAndUnlike = async (post: PostType) => {
+    try {
+      if (post.likedByUser) {
+        await unlike(post.id)
+        post.likedByUser = false
+        post.likes -= 1
+      } else {
+        await like(post.id)
+        post.likedByUser = true
+        post.likes += 1
+      }
+      setPosts([...posts])
+    } catch (err) {
+      Toast.show({ type: 'error', text1: 'Erro ao curtir/descurtir post' })
+    }
+  }
 
   return (
     <ScrollView
@@ -190,9 +208,15 @@ const FeedPage = ({ handleScroll }: FeedPageProps) => {
                   )}
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                      <Ionicons name='heart-outline' size={24} color='#855CF8' />
+                      <TouchableOpacity onPress={() => handleLikeAndUnlike(post)} activeOpacity={0.7}>
+                        <Ionicons
+                          name={post.likedByUser ? 'heart' : 'heart-outline'}
+                          size={24}
+                          color={post.likedByUser ? '#855CF8' : '#999'}
+                        />
+                      </TouchableOpacity>
                       <TextNexu variant='bodyLarge' style={{ color: '#855CF8' }}>
-                        {post.likes} likes
+                        {post.likes} {post.likes === 1 ? 'like' : 'likes'}
                       </TextNexu>
                     </View>
                     <TextNexu variant='bodySmall' style={{ color: '#777' }}>
