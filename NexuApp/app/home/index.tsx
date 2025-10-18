@@ -63,7 +63,7 @@ export default function HomePage() {
 
   return (
     <View style={{ flex: 1 }}>
-      <View style={{ flex: 1 }}>{renderScreen()}</View>
+      <View style={{ flex: 1, backgroundColor: '#eeeeee' }}>{renderScreen()}</View>
       <Animatable.View
         animation={showTabBar ? 'fadeInUp' : 'fadeOutDown'}
         duration={300}

@@ -140,7 +140,7 @@ const FeedPage = ({ handleScroll }: FeedPageProps) => {
               <View
                 key={post.id}
                 style={{
-                  backgroundColor: '#f5f5f5',
+                  backgroundColor: '#eeeeee',
                   borderBottomWidth: 1,
                   borderBottomColor: '#855CF8'
                 }}

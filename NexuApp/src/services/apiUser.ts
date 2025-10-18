@@ -13,4 +13,8 @@ const getUserById = async (user: number) => {
   return response.data
 }
 
-export { getUsersByNameOrNick, getUserById }
+const updateUserInfo = async (name: string, nick: string, user: number) => {
+  await api.put(`/users/${user}`, { name, nick })
+}
+
+export { getUsersByNameOrNick, getUserById, updateUserInfo }

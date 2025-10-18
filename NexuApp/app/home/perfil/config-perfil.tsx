@@ -15,14 +15,9 @@ type ConfigOptionsType = {
 
 const configOptions: ConfigOptionsType[] = [
   {
-    label: 'Editar informações pessoais',
-    icon: 'create-outline',
-    route: '/home/edit-profile'
-  },
-  {
-    label: 'Alterar foto de perfil',
-    icon: 'image-outline',
-    route: '/home/change-avatar'
+    label: 'Atualizar perfil',
+    icon: 'person-outline',
+    route: '/home/perfil/update-profile'
   },
   {
     label: 'Alterar senha',

@@ -36,32 +36,32 @@ const ProfilePage = ({ handleScroll }: ProfilePageProps) => {
     }))
   }
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      if (!targetUserId) return
+  const fetchProfile = async () => {
+    if (!targetUserId) return
 
-      try {
-        const [userData, postsData] = await Promise.all([getUserById(targetUserId), getAllPostsUserById(targetUserId)])
+    try {
+      const [userData, postsData] = await Promise.all([getUserById(targetUserId), getAllPostsUserById(targetUserId)])
 
-        setProfileUser(userData.data)
-        setPosts(postsData.data)
-      } catch (err) {
-        console.error('Erro ao buscar perfil:', err)
-        Toast.show({
-          type: 'error',
-          text1: getErrorMessage(err, 'Erro ao carregar perfil')
-        })
-      }
+      setProfileUser(userData.data)
+      setPosts(postsData.data)
+    } catch (err) {
+      console.error('Erro ao buscar perfil:', err)
+      Toast.show({
+        type: 'error',
+        text1: getErrorMessage(err, 'Erro ao carregar perfil')
+      })
     }
+  }
 
+  useEffect(() => {
     fetchProfile()
-  }, [targetUserId])
+  }, [])
 
   if (!profileUser || !user) return <Loading />
 
   return (
     <ScrollView
-      style={{ flex: 1, marginTop: top }}
+      style={{ flex: 1, marginTop: top, marginBottom: 50 }}
       keyboardShouldPersistTaps='handled'
       onScroll={handleScroll}
       scrollEventThrottle={16}
@@ -97,7 +97,7 @@ const ProfilePage = ({ handleScroll }: ProfilePageProps) => {
           </TextNexu>
           <TextNexu variant='titleLarge'>@{profileUser.nick}</TextNexu>
         </View>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: 30 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: 20 }}>
           <View style={{ alignItems: 'center' }}>
             <TextNexu variant='titleLarge' style={{ fontWeight: 'bold' }}>
               {profileUser.followersCount}
@@ -124,7 +124,7 @@ const ProfilePage = ({ handleScroll }: ProfilePageProps) => {
           </View>
         </View>
       </View>
-      <View style={{ marginTop: 40 }}>
+      <View>
         <TextNexu variant='titleLarge' style={{ fontWeight: 'bold', marginLeft: 20 }}>
           {isViewingOtherProfile ? 'Posts' : 'Meus posts'}
         </TextNexu>

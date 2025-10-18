@@ -144,7 +144,7 @@ const CreatPostPage = () => {
           <TouchableOpacity
             onPress={pickImage}
             style={{
-              backgroundColor: '#eee',
+              backgroundColor: '#ccc9',
               borderRadius: 12,
               minHeight: 300,
               width: '100%',
@@ -166,10 +166,8 @@ const CreatPostPage = () => {
               />
             ) : (
               <View style={{ alignItems: 'center' }}>
-                <Ionicons name='image' size={32} color='#999' />
-                <TextNexu style={{ fontSize: 16, color: '#999', marginTop: 8 }}>
-                  Toque para selecionar uma imagem
-                </TextNexu>
+                <Ionicons name='image' size={32} />
+                <TextNexu style={{ fontSize: 16, marginTop: 8 }}>Toque para selecionar uma imagem</TextNexu>
               </View>
             )}
           </TouchableOpacity>

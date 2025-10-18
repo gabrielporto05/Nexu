@@ -10,4 +10,18 @@ const fetchUserProfile = async (token: string) => {
   return response.data
 }
 
-export { fetchUserProfile }
+const updateAvatar = async (image: FormData) => {
+  const response = await api.patch('/profile/me/avatar', image, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+
+  return response.data
+}
+
+const deleteAvatar = async () => {
+  await api.delete('/profile/me/avatar')
+}
+
+export { fetchUserProfile, updateAvatar, deleteAvatar }

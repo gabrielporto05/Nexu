@@ -8,6 +8,7 @@ import { UserType } from 'src/utils/types'
 
 type AuthContextType = {
   user: UserType | null
+  refreshUser: () => Promise<void>
   loading: boolean
   signIn: (data: LoginSchemaType) => Promise<string>
   singUp: (data: RegisterSchemaType) => Promise<string>
@@ -38,8 +39,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     try {
-      const profile = await fetchUserProfile(token)
-      setUser(profile.data)
+      const { data } = await fetchUserProfile(token)
+      setUser(data)
     } catch {
       await deleteToken()
       setUser(null)
@@ -83,7 +84,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, singUp, signOut, forgotPassword }}>
+    <AuthContext.Provider value={{ user, refreshUser: loadUser, loading, signIn, singUp, signOut, forgotPassword }}>
       {children}
     </AuthContext.Provider>
   )
