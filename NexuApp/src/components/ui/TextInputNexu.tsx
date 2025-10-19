@@ -8,6 +8,13 @@ export const TextInputNexu = (props: TextInputProps) => {
       style={[{ fontFamily: 'SpaceGrotesk_400Regular' }, props.style]}
       right={props.right}
       secureTextEntry={props.secureTextEntry}
+      theme={{
+        colors: {
+          primary: '#855CF8',
+          outline: '#ccc',
+          ...props.theme?.colors
+        }
+      }}
     />
   )
 }
