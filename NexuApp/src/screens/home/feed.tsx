@@ -2,6 +2,7 @@ import { ScrollView, View, Image, NativeSyntheticEvent, NativeScrollEvent, Touch
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { getErrorMessage } from 'src/utils/errorHandler'
 import { useCallback, useEffect, useState } from 'react'
+import { like, unlike } from 'src/services/apiLikes'
 import { getAllPosts } from 'src/services/apiPosts'
 import TextNexu from 'src/components/ui/TextNexu'
 import { useAuth } from 'src/context/AuthContext'
@@ -11,7 +12,6 @@ import { Ionicons } from '@expo/vector-icons'
 import Loading from 'src/components/Loanding'
 import { PostType } from 'src/utils/types'
 import { Modal } from 'react-native'
-import { like, unlike } from 'src/services/apiLikes'
 
 type FeedPageProps = {
   handleScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
