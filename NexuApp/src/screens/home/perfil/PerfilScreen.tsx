@@ -1,8 +1,8 @@
-import { Image, NativeScrollEvent, NativeSyntheticEvent, ScrollView, View } from 'react-native'
-import { useProfileNavigation } from 'src/context/ProfileNavigationContext'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { getAllPostsUserById } from 'src/services/apiPosts'
+import { router, useLocalSearchParams } from 'expo-router'
 import { getErrorMessage } from 'src/utils/errorHandler'
+import { Image, ScrollView, View } from 'react-native'
 import { PostType, UserType } from 'src/utils/types'
 import { getUserById } from 'src/services/apiUser'
 import TextNexu from 'src/components/ui/TextNexu'
@@ -11,18 +11,14 @@ import Toast from 'react-native-toast-message'
 import { Ionicons } from '@expo/vector-icons'
 import Loading from 'src/components/Loanding'
 import { useEffect, useState } from 'react'
-import { router } from 'expo-router'
 
-type ProfilePageProps = {
-  handleScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
-}
-
-const ProfilePage = ({ handleScroll }: ProfilePageProps) => {
+const PerfilScreen = () => {
   const { top } = useSafeAreaInsets()
   const { user } = useAuth()
-  const { currentProfileId, isViewingOtherProfile } = useProfileNavigation()
+  const { userId } = useLocalSearchParams()
 
-  const targetUserId = isViewingOtherProfile ? currentProfileId : user?.id
+  const targetUserId = userId ? Number(userId) : user?.id
+  const isViewingOtherProfile = userId && Number(userId) !== user?.id
 
   const [profileUser, setProfileUser] = useState<UserType | null>(null)
   const [sortBy, setSortBy] = useState<'likes' | 'date'>('date')
@@ -63,7 +59,6 @@ const ProfilePage = ({ handleScroll }: ProfilePageProps) => {
     <ScrollView
       style={{ flex: 1, marginTop: top, marginBottom: 50 }}
       keyboardShouldPersistTaps='handled'
-      onScroll={handleScroll}
       scrollEventThrottle={16}
     >
       <View style={{ padding: 20 }}>
@@ -219,4 +214,4 @@ const ProfilePage = ({ handleScroll }: ProfilePageProps) => {
   )
 }
 
-export default ProfilePage
+export default PerfilScreen

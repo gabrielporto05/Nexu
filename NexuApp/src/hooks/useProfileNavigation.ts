@@ -1,5 +1,5 @@
 import { useProfileNavigation as useProfileNavigationContext } from 'src/context/ProfileNavigationContext'
-import { TabEnum } from 'src/components/navigation/BottomTabNavigator'
+import { TabEnum } from 'src/components/navigation/FooterNavigation'
 
 export const useProfileNavigation = () => {
   const context = useProfileNavigationContext()

@@ -1,13 +1,12 @@
-import { ProfileNavigationProvider } from 'src/context/ProfileNavigationContext'
+import FooterNavitagion from 'src/components/navigation/FooterNavigation'
 import AuthGuard from 'src/components/guard/AuthGuard'
 import { Stack } from 'expo-router'
 
 export default function HomeLayout() {
   return (
-    <ProfileNavigationProvider>
-      <AuthGuard>
-        <Stack screenOptions={{ headerShown: false }} />
-      </AuthGuard>
-    </ProfileNavigationProvider>
+    <AuthGuard>
+      <Stack screenOptions={{ headerShown: false }} />
+      <FooterNavitagion />
+    </AuthGuard>
   )
 }

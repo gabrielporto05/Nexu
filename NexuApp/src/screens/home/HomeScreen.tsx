@@ -1,4 +1,4 @@
-import { ScrollView, View, Image, NativeSyntheticEvent, NativeScrollEvent, TouchableOpacity } from 'react-native'
+import { ScrollView, View, Image, TouchableOpacity } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { getErrorMessage } from 'src/utils/errorHandler'
 import { useCallback, useEffect, useState } from 'react'
@@ -13,11 +13,7 @@ import Loading from 'src/components/Loanding'
 import { PostType } from 'src/utils/types'
 import { Modal } from 'react-native'
 
-type FeedPageProps = {
-  handleScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
-}
-
-const FeedPage = ({ handleScroll }: FeedPageProps) => {
+const HomeScreen = () => {
   const { top } = useSafeAreaInsets()
   const { user } = useAuth()
 
@@ -75,12 +71,7 @@ const FeedPage = ({ handleScroll }: FeedPageProps) => {
   }
 
   return (
-    <ScrollView
-      style={{ flex: 1, marginTop: top }}
-      keyboardShouldPersistTaps='handled'
-      onScroll={handleScroll}
-      scrollEventThrottle={16}
-    >
+    <ScrollView style={{ flex: 1, marginTop: top }} keyboardShouldPersistTaps='handled' scrollEventThrottle={16}>
       <View style={{ padding: 20 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
           <TextNexu variant='headlineLarge' style={{ fontWeight: 'bold' }}>
@@ -268,4 +259,4 @@ const FeedPage = ({ handleScroll }: FeedPageProps) => {
   )
 }
 
-export default FeedPage
+export default HomeScreen

@@ -1,22 +1,22 @@
-import { useState } from 'react'
 import { View, Image, ScrollView, Platform, KeyboardAvoidingView, TouchableOpacity } from 'react-native'
+import { PostSchema, PostSchemaType } from 'src/schemas/postSchema'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { TextInputNexu } from 'src/components/ui/TextInputNexu'
+import { getErrorMessage } from 'src/utils/errorHandler'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import ButtonNexu from 'src/components/ui/ButtonNexu'
+import { createPost } from 'src/services/apiPosts'
+import { useAuth } from 'src/context/AuthContext'
+import TextNexu from 'src/components/ui/TextNexu'
 import * as ImagePicker from 'expo-image-picker'
 import Toast from 'react-native-toast-message'
-import { useAuth } from 'src/context/AuthContext'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import TextNexu from 'src/components/ui/TextNexu'
-import ButtonNexu from 'src/components/ui/ButtonNexu'
-import { TextInputNexu } from 'src/components/ui/TextInputNexu'
 import Loading from 'src/components/Loanding'
-import { PostSchema, PostSchemaType } from 'src/schemas/postSchema'
 import { Ionicons } from '@expo/vector-icons'
-import { createPost } from 'src/services/apiPosts'
 import { router } from 'expo-router'
-import { getErrorMessage } from 'src/utils/errorHandler'
+import { useState } from 'react'
 
-const CreatPostPage = () => {
+const CreatPostScreen = () => {
   const { user } = useAuth()
   const { top } = useSafeAreaInsets()
   const [imageUri, setImageUri] = useState<string | null>(null)
@@ -173,7 +173,6 @@ const CreatPostPage = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Botão abaixo da imagem */}
         <ButtonNexu buttonColor='#855CF8' onPress={handleSubmit(onSubmit)} style={{ paddingVertical: 12 }}>
           <TextNexu style={{ fontSize: 20, fontWeight: 'bold', color: '#fff' }}>Publicar</TextNexu>
         </ButtonNexu>
@@ -182,4 +181,4 @@ const CreatPostPage = () => {
   )
 }
 
-export default CreatPostPage
+export default CreatPostScreen
