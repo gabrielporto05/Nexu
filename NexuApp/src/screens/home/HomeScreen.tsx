@@ -1,4 +1,5 @@
 import { ScrollView, View, Image, TouchableOpacity } from 'react-native'
+import ImageExpandModal from 'src/components/modals/ImageExpandModal'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { getErrorMessage } from 'src/utils/errorHandler'
 import { useCallback, useEffect, useState } from 'react'
@@ -11,7 +12,6 @@ import Toast from 'react-native-toast-message'
 import { Ionicons } from '@expo/vector-icons'
 import Loading from 'src/components/Loanding'
 import { PostType } from 'src/utils/types'
-import { Modal } from 'react-native'
 
 const HomeScreen = () => {
   const { top } = useSafeAreaInsets()
@@ -22,15 +22,7 @@ const HomeScreen = () => {
   const [expandedPosts, setExpandedPosts] = useState<Record<number, boolean>>({})
 
   const [isRefreshing, setIsRefreshing] = useState(false)
-
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
-
-  const toggleExpand = (postId: number) => {
-    setExpandedPosts(prev => ({
-      ...prev,
-      [postId]: !prev[postId]
-    }))
-  }
 
   const fetchPosts = useCallback(async () => {
     setIsRefreshing(true)
@@ -114,7 +106,7 @@ const HomeScreen = () => {
         <View style={{ height: '100%', padding: 20, alignItems: 'center', justifyContent: 'center', marginTop: 40 }}>
           <Ionicons name='chatbubble-ellipses-outline' size={48} style={{ marginBottom: 12 }} />
           <TextNexu variant='titleLarge' style={{ textAlign: 'center' }}>
-            Ainda não há nenhum post publicado.
+            Ainda não há nenhum post publicado por vc ou suas conexões.
           </TextNexu>
           <TextNexu variant='bodyLarge' style={{ textAlign: 'center', marginTop: 4 }}>
             Toque no botão de atualizar para tentar novamente.
@@ -180,20 +172,33 @@ const HomeScreen = () => {
                 )}
 
                 <View style={{ paddingHorizontal: 12, marginBottom: 12 }}>
-                  <TextNexu variant='bodyLarge' style={{ color: '#333', marginBottom: 8 }}>
-                    {expandedPosts[post.id] || post.description.length <= 200
-                      ? post.description
-                      : `${post.description.slice(0, 130)}...`}
+                  <TextNexu
+                    variant='bodyLarge'
+                    style={{ color: '#333', marginBottom: 8 }}
+                    numberOfLines={expandedPosts[post.id] ? undefined : post.image ? 3 : 6}
+                    ellipsizeMode='tail'
+                    onTextLayout={e => {
+                      const maxLines = post.image ? 3 : 6
+                      const lines = e.nativeEvent.lines.length
+
+                      if (lines > maxLines && !expandedPosts[post.id]) {
+                        setExpandedPosts(prev => ({ ...prev, [post.id]: false }))
+                      }
+                    }}
+                  >
+                    {post.description}
                   </TextNexu>
-                  {post.description.length > 130 && (
-                    <TextNexu
-                      variant='bodyMedium'
-                      style={{ color: '#855CF8', marginBottom: 8 }}
-                      onPress={() => toggleExpand(post.id)}
+
+                  {(post.description.split('\n').length > (post.image ? 3 : 6) || post.description.length > 180) && (
+                    <TouchableOpacity
+                      onPress={() => setExpandedPosts(prev => ({ ...prev, [post.id]: !prev[post.id] }))}
                     >
-                      {expandedPosts[post.id] ? 'ver menos' : 'ver mais'}
-                    </TextNexu>
+                      <TextNexu style={{ color: '#855CF8', fontWeight: 'bold', marginBottom: 8 }}>
+                        {expandedPosts[post.id] ? 'ver menos' : 'ver mais'}
+                      </TextNexu>
+                    </TouchableOpacity>
                   )}
+
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                       <TouchableOpacity onPress={() => handleLikeAndUnlike(post)} activeOpacity={0.7}>
@@ -221,37 +226,7 @@ const HomeScreen = () => {
           })
       )}
 
-      <Modal visible={!!selectedImage} transparent animationType='fade' onRequestClose={() => setSelectedImage(null)}>
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: 'rgba(0,0,0,0.9)',
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: 20
-          }}
-        >
-          <TouchableOpacity
-            onPress={() => setSelectedImage(null)}
-            style={{
-              position: 'absolute',
-              top: 40,
-              right: 30,
-              zIndex: 10,
-              backgroundColor: 'rgba(255,255,255,0.1)',
-              padding: 8,
-              borderRadius: 20
-            }}
-            activeOpacity={0.7}
-          >
-            <Ionicons name='close' size={28} color='#fff' />
-          </TouchableOpacity>
-
-          {selectedImage && (
-            <Image source={{ uri: selectedImage }} style={{ width: '100%', height: '100%', resizeMode: 'contain' }} />
-          )}
-        </View>
-      </Modal>
+      <ImageExpandModal selectedImage={selectedImage} setSelectedImage={setSelectedImage} />
     </ScrollView>
   )
 }

@@ -47,29 +47,46 @@ const CreatPostScreen = () => {
 
   const onSubmit = async (data: PostSchemaType) => {
     try {
-      if (!imageUri) {
-        Toast.show({ type: 'error', text1: 'Selecione uma imagem antes de publicar.' })
-        return
-      }
-
       const formData = new FormData()
       formData.append('description', data.description)
 
-      const filename = imageUri.split('/').pop() || 'image.jpg'
-      const match = /\.(\w+)$/.exec(filename)
-      const ext = match ? match[1] : 'jpg'
-      const mimeType = `image/${ext}`
+      if (imageUri) {
+        const filename = imageUri.split('/').pop() || 'image.jpg'
+        const match = /\.(\w+)$/.exec(filename)
+        const ext = match ? match[1].toLowerCase() : 'jpg'
+        const mimeType = `image/${ext}`
 
-      if (Platform.OS === 'web') {
-        const response = await fetch(imageUri)
-        const blob = await response.blob()
-        formData.append('image', new File([blob], filename, { type: mimeType }))
+        let fileSize = 0
+
+        if (Platform.OS === 'web') {
+          const response = await fetch(imageUri)
+          const blob = await response.blob()
+          fileSize = blob.size
+
+          if (fileSize > 5 * 1024 * 1024) {
+            Toast.show({ type: 'error', text1: 'A imagem não pode ter mais de 5MB.' })
+            return
+          }
+
+          formData.append('image', new File([blob], filename, { type: mimeType }))
+        } else {
+          const response = await fetch(imageUri)
+          const blob = await response.blob()
+          fileSize = blob.size
+
+          if (fileSize > 5 * 1024 * 1024) {
+            Toast.show({ type: 'error', text1: 'A imagem não pode ter mais de 5MB.' })
+            return
+          }
+
+          formData.append('image', {
+            uri: imageUri,
+            name: filename,
+            type: mimeType
+          } as any)
+        }
       } else {
-        formData.append('image', {
-          uri: imageUri,
-          name: filename,
-          type: mimeType
-        } as any)
+        formData.append('image', '')
       }
 
       await createPost(formData)
@@ -85,30 +102,36 @@ const CreatPostScreen = () => {
   if (!user) return <Loading />
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <KeyboardAvoidingView
+      style={{ flex: 1, backgroundColor: '#fff' }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
       <ScrollView
-        style={{ flex: 1, marginTop: top, paddingHorizontal: 20 }}
-        contentContainerStyle={{ paddingBottom: 40 }}
+        style={{ flex: 1, marginTop: top }}
+        contentContainerStyle={{ paddingBottom: 120 }}
         keyboardShouldPersistTaps='handled'
       >
-        <TextNexu style={{ fontSize: 28, fontWeight: 'bold', marginVertical: 20 }}>Nova publicação</TextNexu>
-
-        <View style={{ marginBottom: 20 }}>
-          <TextNexu style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 6 }}>Descrição</TextNexu>
+        <View style={{ paddingHorizontal: 20, paddingTop: 20 }}>
           <Controller
             control={control}
             name='description'
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInputNexu
-                placeholder='Escreva sua descrição aqui...'
-                mode='outlined'
+                placeholder='O que você está pensando?'
+                mode='flat'
                 value={value}
                 onBlur={onBlur}
                 onChangeText={onChange}
                 error={!!errors.description}
-                numberOfLines={5}
                 multiline
-                style={{ backgroundColor: '#fff', paddingTop: 12 }}
+                numberOfLines={12}
+                style={{
+                  fontSize: 18,
+                  textAlignVertical: 'top',
+                  backgroundColor: '#fff',
+                  borderBottomWidth: 0,
+                  minHeight: 200
+                }}
               />
             )}
           />
@@ -117,17 +140,17 @@ const CreatPostScreen = () => {
           )}
         </View>
 
-        <View style={{ marginBottom: 30 }}>
-          <TextNexu style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>Imagem</TextNexu>
+        <View style={{ marginTop: 20, paddingHorizontal: 20 }}>
           <TouchableOpacity
             onPress={pickImage}
             style={{
-              backgroundColor: '#ccc9',
-              borderRadius: 12,
-              minHeight: 300,
-              width: '100%',
+              backgroundColor: '#f5f5f5',
+              borderRadius: 14,
+              minHeight: 280,
               justifyContent: 'center',
               alignItems: 'center',
+              borderWidth: imageUri ? 0 : 1.5,
+              borderColor: '#ccc',
               overflow: 'hidden'
             }}
             activeOpacity={0.8}
@@ -137,24 +160,43 @@ const CreatPostScreen = () => {
                 source={{ uri: imageUri }}
                 style={{
                   width: '100%',
-                  aspectRatio: 1.1,
-                  borderRadius: 12
+                  height: undefined,
+                  aspectRatio: 1.2
                 }}
                 resizeMode='cover'
               />
             ) : (
               <View style={{ alignItems: 'center' }}>
-                <Ionicons name='image' size={32} />
-                <TextNexu style={{ fontSize: 16, marginTop: 8 }}>Toque para selecionar uma imagem</TextNexu>
+                <Ionicons name='image-outline' size={40} color='#999' />
+                <TextNexu style={{ fontSize: 16, color: '#666', marginTop: 10 }}>
+                  Toque para adicionar uma imagem
+                </TextNexu>
               </View>
             )}
           </TouchableOpacity>
         </View>
-
-        <ButtonNexu buttonColor='#855CF8' onPress={handleSubmit(onSubmit)} style={{ paddingVertical: 12 }}>
-          <TextNexu style={{ fontSize: 20, fontWeight: 'bold', color: '#fff' }}>Publicar</TextNexu>
-        </ButtonNexu>
       </ScrollView>
+
+      <View
+        style={{
+          position: 'absolute',
+          bottom: 30,
+          right: 20,
+          left: 20
+        }}
+      >
+        <ButtonNexu
+          buttonColor='#855CF8'
+          onPress={handleSubmit(onSubmit)}
+          style={{
+            paddingVertical: 14,
+            borderRadius: 12,
+            elevation: 4
+          }}
+        >
+          <TextNexu style={{ fontSize: 18, fontWeight: 'bold', color: '#fff', textAlign: 'center' }}>Publicar</TextNexu>
+        </ButtonNexu>
+      </View>
     </KeyboardAvoidingView>
   )
 }

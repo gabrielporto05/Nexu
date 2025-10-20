@@ -2,7 +2,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { getAllPostsUserById } from 'src/services/apiPosts'
 import { router, useLocalSearchParams } from 'expo-router'
 import { getErrorMessage } from 'src/utils/errorHandler'
-import { Image, ScrollView, View } from 'react-native'
+import { Image, ScrollView, TouchableOpacity, View } from 'react-native'
 import { PostType, UserType } from 'src/utils/types'
 import { getUserById } from 'src/services/apiUser'
 import TextNexu from 'src/components/ui/TextNexu'
@@ -11,6 +11,7 @@ import Toast from 'react-native-toast-message'
 import { Ionicons } from '@expo/vector-icons'
 import Loading from 'src/components/Loanding'
 import { useEffect, useState } from 'react'
+import ImageExpandModal from 'src/components/modals/ImageExpandModal'
 
 const PerfilScreen = () => {
   const { top } = useSafeAreaInsets()
@@ -24,6 +25,8 @@ const PerfilScreen = () => {
   const [sortBy, setSortBy] = useState<'likes' | 'date'>('date')
   const [posts, setPosts] = useState<PostType[]>([])
   const [expandedPosts, setExpandedPosts] = useState<Record<number, boolean>>({})
+
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
 
   const toggleExpand = (postId: number) => {
     setExpandedPosts(prev => ({
@@ -165,27 +168,50 @@ const PerfilScreen = () => {
                   key={post.id}
                   style={{ backgroundColor: '#f5f5f5', borderBottomWidth: 1, borderBottomColor: '#855CF8' }}
                 >
-                  <Image
-                    source={{ uri: `${process.env.EXPO_PUBLIC_API_URL_UPLOADS}/images_posts/${post.image}` }}
-                    style={{
-                      width: '100%',
-                      aspectRatio: 1.1,
-                      marginBottom: 12
-                    }}
-                    resizeMode='cover'
-                  />
+                  {post.image && (
+                    <TouchableOpacity
+                      activeOpacity={0.9}
+                      onPress={() =>
+                        setSelectedImage(`${process.env.EXPO_PUBLIC_API_URL_UPLOADS}/images_posts/${post.image}`)
+                      }
+                    >
+                      <Image
+                        source={{ uri: `${process.env.EXPO_PUBLIC_API_URL_UPLOADS}/images_posts/${post.image}` }}
+                        style={{
+                          width: '100%',
+                          aspectRatio: 1.1,
+                          marginBottom: 12
+                        }}
+                        resizeMode='cover'
+                      />
+                    </TouchableOpacity>
+                  )}
                   <View style={{ padding: 12 }}>
-                    <TextNexu variant='bodyLarge' style={{ color: '#333', marginBottom: 8 }}>
-                      {isExpanded || !isLong ? post.description : `${post.description.slice(0, 130)}...`}
+                    <TextNexu
+                      variant='bodyLarge'
+                      style={{ color: '#333', marginBottom: 8 }}
+                      numberOfLines={expandedPosts[post.id] ? undefined : post.image ? 3 : 6}
+                      ellipsizeMode='tail'
+                      onTextLayout={e => {
+                        const maxLines = post.image ? 3 : 6
+                        const lines = e.nativeEvent.lines.length
+
+                        if (lines > maxLines && !expandedPosts[post.id]) {
+                          setExpandedPosts(prev => ({ ...prev, [post.id]: false }))
+                        }
+                      }}
+                    >
+                      {post.description}
                     </TextNexu>
-                    {isLong && (
-                      <TextNexu
-                        variant='bodyMedium'
-                        style={{ color: '#855CF8', marginBottom: 8 }}
-                        onPress={() => toggleExpand(post.id)}
+
+                    {(post.description.split('\n').length > (post.image ? 3 : 6) || post.description.length > 180) && (
+                      <TouchableOpacity
+                        onPress={() => setExpandedPosts(prev => ({ ...prev, [post.id]: !prev[post.id] }))}
                       >
-                        {isExpanded ? 'ver menos' : 'ver mais'}
-                      </TextNexu>
+                        <TextNexu style={{ color: '#855CF8', fontWeight: 'bold', marginBottom: 8 }}>
+                          {expandedPosts[post.id] ? 'ver menos' : 'ver mais'}
+                        </TextNexu>
+                      </TouchableOpacity>
                     )}
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                       <TextNexu variant='bodyLarge' style={{ color: '#855CF8' }}>
@@ -205,6 +231,8 @@ const PerfilScreen = () => {
             })
         )}
       </View>
+
+      <ImageExpandModal selectedImage={selectedImage} setSelectedImage={setSelectedImage} />
     </ScrollView>
   )
 }
