@@ -122,7 +122,12 @@ func (repository user) GetUserByIdRepository(ID uint64) (models.User, error) {
 		return models.User{}, err
 	}
 
-	err = repository.db.QueryRow("SELECT COUNT(*) FROM post_likes WHERE user_id = ?", ID).Scan(&user.LikesCount)
+	err = repository.db.QueryRow(`
+			SELECT COUNT(*)
+			FROM post_likes pl
+			JOIN posts p ON pl.post_id = p.id
+			WHERE p.author_id = ?
+		`, ID).Scan(&user.LikesCount)
 	if err != nil {
 		return models.User{}, err
 	}

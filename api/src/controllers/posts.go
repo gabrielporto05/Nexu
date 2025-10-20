@@ -19,35 +19,30 @@ import (
 
 // CreatePostController cria um post
 func CreatePostController(w http.ResponseWriter, r *http.Request) {
-
 	userIdToken, err := auth.ExtractUserIdToken(r)
 	if err != nil {
 		responses.Erro(w, http.StatusUnauthorized, err)
-
 		return
 	}
 
-	err = r.ParseMultipartForm(10 << 20)
+	err = r.ParseMultipartForm(5 << 20) // 5MB
 	if err != nil {
 		responses.Erro(w, http.StatusBadRequest, err)
 		return
 	}
 
 	var post models.Post
-
 	post.Description = r.FormValue("description")
 	post.AuthorID = userIdToken
 
 	if err := post.Prepare(); err != nil {
 		responses.Erro(w, http.StatusBadRequest, err)
-
 		return
 	}
 
 	db, err := db.ConnectionDB()
 	if err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
-
 		return
 	}
 	defer db.Close()
@@ -57,7 +52,6 @@ func CreatePostController(w http.ResponseWriter, r *http.Request) {
 	post.ID, err = repository.CreatePostRepository(post)
 	if err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
-
 		return
 	}
 
@@ -67,27 +61,26 @@ func CreatePostController(w http.ResponseWriter, r *http.Request) {
 	}
 
 	file, header, err := r.FormFile("image")
-	if err != nil {
-		responses.Erro(w, http.StatusBadRequest, err)
-		return
-	}
-	defer file.Close()
+	if err == nil {
+		defer file.Close()
 
-	filename := fmt.Sprintf("post_%d_%s", post.ID, header.Filename)
-	path := "uploads/images_posts/" + filename
+		filename := fmt.Sprintf("post_%d_%s", post.ID, header.Filename)
+		path := "uploads/images_posts/" + filename
 
-	out, err := os.Create(path)
-	if err != nil {
-		responses.Erro(w, http.StatusInternalServerError, err)
-		return
-	}
-	defer out.Close()
-	io.Copy(out, file)
+		out, err := os.Create(path)
+		if err != nil {
+			responses.Erro(w, http.StatusInternalServerError, err)
+			return
+		}
+		defer out.Close()
+		io.Copy(out, file)
 
-	if err := repository.UpdatePostImageRepository(post.ID, filename); err != nil {
-		responses.Erro(w, http.StatusInternalServerError, err)
-
-		return
+		if err := repository.UpdatePostImageRepository(post.ID, filename); err != nil {
+			responses.Erro(w, http.StatusInternalServerError, err)
+			return
+		}
+	} else {
+		post.Image = ""
 	}
 
 	fullPost, err := repository.GetPostByIdRepository(post.ID)
@@ -97,7 +90,6 @@ func CreatePostController(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responses.JSON(w, http.StatusCreated, "Post criado com sucesso", fullPost)
-
 }
 
 // GetAllPostsController busca todos os posts dos usuarios que vc segue e os seus proprios posts

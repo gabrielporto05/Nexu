@@ -16,7 +16,7 @@ func PostsRopository(db *sql.DB) *post {
 // CreatePostRepository insere um post no banco de dados
 func (repository post) CreatePostRepository(post models.Post) (uint64, error) {
 
-	stmt, err := repository.db.Prepare("INSERT INTO posts (description, author_id) VALUES (?, ?, ?)")
+	stmt, err := repository.db.Prepare("INSERT INTO posts (description, author_id) VALUES (?, ?)")
 	if err != nil {
 		return 0, err
 	}
