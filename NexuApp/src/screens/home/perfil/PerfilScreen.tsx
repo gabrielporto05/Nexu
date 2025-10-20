@@ -1,8 +1,8 @@
-import { Image, NativeScrollEvent, NativeSyntheticEvent, ScrollView, View } from 'react-native'
-import { useProfileNavigation } from 'src/context/ProfileNavigationContext'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { getAllPostsUserById } from 'src/services/apiPosts'
+import { router, useLocalSearchParams } from 'expo-router'
 import { getErrorMessage } from 'src/utils/errorHandler'
+import { Image, ScrollView, View } from 'react-native'
 import { PostType, UserType } from 'src/utils/types'
 import { getUserById } from 'src/services/apiUser'
 import TextNexu from 'src/components/ui/TextNexu'
@@ -11,18 +11,14 @@ import Toast from 'react-native-toast-message'
 import { Ionicons } from '@expo/vector-icons'
 import Loading from 'src/components/Loanding'
 import { useEffect, useState } from 'react'
-import { router } from 'expo-router'
 
-type ProfilePageProps = {
-  handleScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
-}
-
-const ProfilePage = ({ handleScroll }: ProfilePageProps) => {
+const PerfilScreen = () => {
   const { top } = useSafeAreaInsets()
   const { user } = useAuth()
-  const { currentProfileId, isViewingOtherProfile } = useProfileNavigation()
+  const { id } = useLocalSearchParams()
 
-  const targetUserId = isViewingOtherProfile ? currentProfileId : user?.id
+  const targetUserId = id ? Number(id) : user?.id
+  const isViewingOtherProfile = id && Number(id) !== user?.id
 
   const [profileUser, setProfileUser] = useState<UserType | null>(null)
   const [sortBy, setSortBy] = useState<'likes' | 'date'>('date')
@@ -55,17 +51,12 @@ const ProfilePage = ({ handleScroll }: ProfilePageProps) => {
 
   useEffect(() => {
     fetchProfile()
-  }, [])
+  }, [targetUserId])
 
   if (!profileUser || !user) return <Loading />
 
   return (
-    <ScrollView
-      style={{ flex: 1, marginTop: top, marginBottom: 50 }}
-      keyboardShouldPersistTaps='handled'
-      onScroll={handleScroll}
-      scrollEventThrottle={16}
-    >
+    <ScrollView style={{ flex: 1, marginTop: top }} keyboardShouldPersistTaps='handled' scrollEventThrottle={16}>
       <View style={{ padding: 20 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
@@ -154,7 +145,9 @@ const ProfilePage = ({ handleScroll }: ProfilePageProps) => {
           <View style={{ padding: 20, alignItems: 'center', justifyContent: 'center', marginTop: 40 }}>
             <Ionicons name='chatbubble-ellipses-outline' size={48} style={{ marginBottom: 12 }} />
             <TextNexu variant='titleLarge' style={{ textAlign: 'center' }}>
-              Você ainda não possui nenhum post publicado
+              {isViewingOtherProfile
+                ? 'Este usuário ainda não fez nenhuma publicação.'
+                : 'Você ainda não fez nenhuma publicação.'}
             </TextNexu>
           </View>
         ) : (
@@ -219,4 +212,4 @@ const ProfilePage = ({ handleScroll }: ProfilePageProps) => {
   )
 }
 
-export default ProfilePage
+export default PerfilScreen

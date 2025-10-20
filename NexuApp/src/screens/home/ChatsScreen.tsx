@@ -1,9 +1,9 @@
-import { Image, NativeScrollEvent, NativeSyntheticEvent, ScrollView, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { TextInputNexu } from 'src/components/ui/TextInputNexu'
 import { getConnections } from 'src/services/apiFollower'
 import { getErrorMessage } from 'src/utils/errorHandler'
 import { useCallback, useEffect, useState } from 'react'
+import { Image, ScrollView, View } from 'react-native'
 import { useAuth } from 'src/context/AuthContext'
 import TextNexu from 'src/components/ui/TextNexu'
 import Toast from 'react-native-toast-message'
@@ -13,11 +13,7 @@ import { UserType } from 'src/utils/types'
 import { Card } from 'react-native-paper'
 import { router } from 'expo-router'
 
-type ChatPageProps = {
-  handleScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
-}
-
-const ChatsPage = ({ handleScroll }: ChatPageProps) => {
+const ChatsScreen = () => {
   const { top } = useSafeAreaInsets()
   const { user } = useAuth()
 
@@ -44,7 +40,6 @@ const ChatsPage = ({ handleScroll }: ChatPageProps) => {
 
   return (
     <ScrollView
-      onScroll={handleScroll}
       style={{ flex: 1, padding: 20, marginTop: top }}
       keyboardShouldPersistTaps='handled'
       scrollEventThrottle={16}
@@ -114,4 +109,4 @@ const ChatsPage = ({ handleScroll }: ChatPageProps) => {
   )
 }
 
-export default ChatsPage
+export default ChatsScreen

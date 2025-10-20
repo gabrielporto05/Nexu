@@ -1,33 +1,23 @@
-import { ScrollView, View, Image, NativeSyntheticEvent, NativeScrollEvent } from 'react-native'
-import { useProfileNavigation } from 'src/context/ProfileNavigationContext'
-import { TabEnum } from 'src/components/navigation/BottomTabNavigator'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { TextInputNexu } from 'src/components/ui/TextInputNexu'
 import { getUsersByNameOrNick } from 'src/services/apiUser'
 import { getErrorMessage } from 'src/utils/errorHandler'
+import { ScrollView, View, Image } from 'react-native'
 import { useDebounce } from 'src/hooks/useDebounce'
 import TextNexu from 'src/components/ui/TextNexu'
 import Toast from 'react-native-toast-message'
 import { useEffect, useState } from 'react'
 import { UserType } from 'src/utils/types'
 import { Card } from 'react-native-paper'
+import { router } from 'expo-router'
 
-type SearchPageProps = {
-  handleScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
-  setActiveTab: (tab: TabEnum) => void
-}
-
-const SearchPage = ({ handleScroll, setActiveTab }: SearchPageProps) => {
+const SearchScreen = () => {
   const { top } = useSafeAreaInsets()
   const [search, setSearch] = useState('')
   const [users, setUsers] = useState<UserType[]>([])
 
-  const { navigateToProfile } = useProfileNavigation()
-
-  const handleUserPress = (userId: number) => {
-    navigateToProfile(userId)
-
-    setActiveTab(TabEnum.PERFIL)
+  const handleUserPress = (userID: number) => {
+    router.push(`/home/perfil?id=${userID}`)
   }
 
   const debouncedSearch = useDebounce(search, 500)
@@ -55,7 +45,6 @@ const SearchPage = ({ handleScroll, setActiveTab }: SearchPageProps) => {
 
   return (
     <ScrollView
-      onScroll={handleScroll}
       style={{ flex: 1, padding: 20, marginTop: top }}
       keyboardShouldPersistTaps='handled'
       scrollEventThrottle={16}
@@ -126,4 +115,4 @@ const SearchPage = ({ handleScroll, setActiveTab }: SearchPageProps) => {
   )
 }
 
-export default SearchPage
+export default SearchScreen

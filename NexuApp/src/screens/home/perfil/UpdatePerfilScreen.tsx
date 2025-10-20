@@ -22,7 +22,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { TextInputNexu } from 'src/components/ui/TextInputNexu'
 import { getErrorMessage } from 'src/utils/errorHandler'
 
-const UpdateProfilePage = () => {
+const UpdatePerfilScreen = () => {
   const { top } = useSafeAreaInsets()
   const { user, refreshUser } = useAuth()
 
@@ -226,4 +226,4 @@ const UpdateProfilePage = () => {
   )
 }
 
-export default UpdateProfilePage
+export default UpdatePerfilScreen
