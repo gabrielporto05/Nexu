@@ -17,7 +17,7 @@ const SearchScreen = () => {
   const [users, setUsers] = useState<UserType[]>([])
 
   const handleUserPress = (userID: number) => {
-    router.push(`/home/perfil/${userID}`)
+    router.push(`/home/perfil?id=${userID}`)
   }
 
   const debouncedSearch = useDebounce(search, 500)

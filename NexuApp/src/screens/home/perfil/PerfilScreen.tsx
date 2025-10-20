@@ -15,10 +15,10 @@ import { useEffect, useState } from 'react'
 const PerfilScreen = () => {
   const { top } = useSafeAreaInsets()
   const { user } = useAuth()
-  const { userId } = useLocalSearchParams()
+  const { id } = useLocalSearchParams()
 
-  const targetUserId = userId ? Number(userId) : user?.id
-  const isViewingOtherProfile = userId && Number(userId) !== user?.id
+  const targetUserId = id ? Number(id) : user?.id
+  const isViewingOtherProfile = id && Number(id) !== user?.id
 
   const [profileUser, setProfileUser] = useState<UserType | null>(null)
   const [sortBy, setSortBy] = useState<'likes' | 'date'>('date')
@@ -51,16 +51,12 @@ const PerfilScreen = () => {
 
   useEffect(() => {
     fetchProfile()
-  }, [])
+  }, [targetUserId])
 
   if (!profileUser || !user) return <Loading />
 
   return (
-    <ScrollView
-      style={{ flex: 1, marginTop: top, marginBottom: 50 }}
-      keyboardShouldPersistTaps='handled'
-      scrollEventThrottle={16}
-    >
+    <ScrollView style={{ flex: 1, marginTop: top }} keyboardShouldPersistTaps='handled' scrollEventThrottle={16}>
       <View style={{ padding: 20 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
@@ -149,7 +145,9 @@ const PerfilScreen = () => {
           <View style={{ padding: 20, alignItems: 'center', justifyContent: 'center', marginTop: 40 }}>
             <Ionicons name='chatbubble-ellipses-outline' size={48} style={{ marginBottom: 12 }} />
             <TextNexu variant='titleLarge' style={{ textAlign: 'center' }}>
-              Você ainda não possui nenhum post publicado
+              {isViewingOtherProfile
+                ? 'Este usuário ainda não fez nenhuma publicação.'
+                : 'Você ainda não fez nenhuma publicação.'}
             </TextNexu>
           </View>
         ) : (

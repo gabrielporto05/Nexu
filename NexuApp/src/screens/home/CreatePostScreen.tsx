@@ -93,7 +93,7 @@ const CreatPostScreen = () => {
         contentContainerStyle={{ paddingBottom: 40 }}
         keyboardShouldPersistTaps='handled'
       >
-        <TextNexu style={{ fontSize: 28, fontWeight: 'bold', marginVertical: 20 }}>Novo Post</TextNexu>
+        <TextNexu style={{ fontSize: 28, fontWeight: 'bold', marginVertical: 20 }}>Nova publicação</TextNexu>
 
         <View style={{ marginBottom: 20 }}>
           <TextNexu style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 6 }}>Título</TextNexu>

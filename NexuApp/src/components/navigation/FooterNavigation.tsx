@@ -8,7 +8,7 @@ export enum TabEnum {
   SEARCH = '/home/search',
   CREATE_POST = '/home/creat-post',
   CHAT = '/home/chats',
-  PERFIL = '/home/perfil/[[id]]'
+  PERFIL = '/home/perfil'
 }
 
 type TabButtonType = {
