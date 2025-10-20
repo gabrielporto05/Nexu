@@ -9,7 +9,6 @@ import (
 // Post representa uma publicação
 type Post struct {
 	ID          uint64      `json:"id,omitempty"`
-	Title       string      `json:"title,omitempty"`
 	Description string      `json:"description,omitempty"`
 	Image       string      `json:"image,omitempty"`
 	AuthorID    uint64      `json:"author_id,omitempty"`
@@ -33,7 +32,7 @@ func (post *Post) Prepare() error {
 
 	post.format()
 
-	if err := post.validation(); err != nil {
+	if err := post.validationDescription(); err != nil {
 		return err
 	}
 
@@ -42,15 +41,7 @@ func (post *Post) Prepare() error {
 }
 
 // Validation verifica se os campos do usuário estão preenchidos
-func (post *Post) validation() error {
-
-	// Validation title
-	if post.Title == "" {
-		return errors.New("o campo title é obrigatório")
-	}
-	if len(post.Title) < 3 {
-		return errors.New("o campo title deve ter no mínimo 3 caracteres")
-	}
+func (post *Post) validationDescription() error {
 
 	// Validation description
 	if post.Description == "" {
@@ -61,12 +52,12 @@ func (post *Post) validation() error {
 	}
 
 	return nil
+
 }
 
 // Format remove os espaços em branco dos campos
 func (post *Post) format() {
 
-	post.Title = strings.TrimSpace(post.Title)
 	post.Description = strings.TrimSpace(post.Description)
 
 }

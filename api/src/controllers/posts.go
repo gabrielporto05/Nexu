@@ -35,7 +35,6 @@ func CreatePostController(w http.ResponseWriter, r *http.Request) {
 
 	var post models.Post
 
-	post.Title = r.FormValue("title")
 	post.Description = r.FormValue("description")
 	post.AuthorID = userIdToken
 
@@ -279,7 +278,7 @@ func UpdatePostByIdController(w http.ResponseWriter, r *http.Request) {
 	defer out.Close()
 	io.Copy(out, file)
 
-	post, err := repository.UpdatePostByIdRepository(postRequest.Title, postRequest.Description, filename, postID)
+	post, err := repository.UpdatePostByIdRepository(postRequest.Description, filename, postID)
 	if err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
 		return

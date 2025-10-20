@@ -15,8 +15,8 @@ INSERT INTO followers(user_id, follower_id) VALUES
 (4, 2),
 (4, 1);
 
-INSERT INTO posts(title, description, author_id) VALUES
-("📢 Oportunidade de Estágio em Desenvolvimento na Fleye! ", "📢 Oportunidade de Estágio em Desenvolvimento na Fleye! 
+INSERT INTO posts(description, author_id) VALUES
+("📢 Oportunidade de Estágio em Desenvolvimento na Fleye! 
  Remunerado | 100% remoto
 
 Nesta posição você fará parte do nosso time de Tecnologia colaborando na projeção, desenvolvimento e implementação de soluções digitais para clientes nacionais e internacionais. Trabalhando lado a lado com as equipes de Design e Produto, o time de Tecnologia participa de todas as etapas do processo: desde a compreensão das dores dos clientes até a entrega do produto final. Na Fleye, oferecemos um ambiente acolhedor, dinâmico e repleto de oportunidades para quem está iniciando na área.
@@ -37,15 +37,15 @@ Estar cursando ensino superior em Ciência da Computação, Engenharia da Comput
 = Ambiente colaborativo: faça parte de um time descontraído, engajado em se desenvolver e envolvido em muita troca de conhecimentos.
 
 ➡️ Para se candidatar acesse este link: https://lnkd.in/d87Azp3p", 1),
-("Post 2", "Post 2 description", 1),
-("Post 3", "Post 3 description", 1),
-("Post 4", "Post 4 description", 2),
-("Post 5", "Post 5 description", 2),
-("Post 6", "Post 6 description", 2),
-("Post 7", "Post 7 description", 4),
-("Post 8", "Post 8 description", 4),
-("Post 9", "Post 9 description", 5),
-("Post 10", "Post 10 description", 3);
+("Post 2 description", 1),
+("Post 3 description", 1),
+("Post 4 description", 2),
+("Post 5 description", 2),
+("Post 6 description", 2),
+("Post 7 description", 4),
+("Post 8 description", 4),
+("Post 9 description", 5),
+("Post 10 description", 3);
 
 INSERT INTO post_likes(user_id, post_id) VALUES
 (1, 2),

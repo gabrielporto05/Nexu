@@ -36,7 +36,6 @@ CREATE TABLE followers(
 
 CREATE TABLE posts(
     id int AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(100) NOT NULL,
     description VARCHAR(5000) NOT NULL,
     image VARCHAR(255) DEFAULT '',
 
