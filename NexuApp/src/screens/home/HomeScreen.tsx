@@ -180,9 +180,6 @@ const HomeScreen = () => {
                 )}
 
                 <View style={{ paddingHorizontal: 12, marginBottom: 12 }}>
-                  <TextNexu variant='titleLarge' style={{ fontWeight: 'bold', marginBottom: 4 }}>
-                    {post.title}
-                  </TextNexu>
                   <TextNexu variant='bodyLarge' style={{ color: '#333', marginBottom: 8 }}>
                     {expandedPosts[post.id] || post.description.length <= 200
                       ? post.description

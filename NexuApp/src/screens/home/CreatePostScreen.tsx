@@ -24,7 +24,6 @@ const CreatPostScreen = () => {
   const form = useForm<PostSchemaType>({
     resolver: zodResolver(PostSchema),
     defaultValues: {
-      title: '',
       description: ''
     }
   })
@@ -54,7 +53,6 @@ const CreatPostScreen = () => {
       }
 
       const formData = new FormData()
-      formData.append('title', data.title)
       formData.append('description', data.description)
 
       const filename = imageUri.split('/').pop() || 'image.jpg'
@@ -94,26 +92,6 @@ const CreatPostScreen = () => {
         keyboardShouldPersistTaps='handled'
       >
         <TextNexu style={{ fontSize: 28, fontWeight: 'bold', marginVertical: 20 }}>Nova publicação</TextNexu>
-
-        <View style={{ marginBottom: 20 }}>
-          <TextNexu style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 6 }}>Título</TextNexu>
-          <Controller
-            control={control}
-            name='title'
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInputNexu
-                placeholder='Digite o título do post'
-                mode='outlined'
-                value={value}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                error={!!errors.title}
-                style={{ backgroundColor: '#fff' }}
-              />
-            )}
-          />
-          {errors.title && <TextNexu style={{ color: '#FF6B6B', marginTop: 4 }}>{errors.title.message}</TextNexu>}
-        </View>
 
         <View style={{ marginBottom: 20 }}>
           <TextNexu style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 6 }}>Descrição</TextNexu>

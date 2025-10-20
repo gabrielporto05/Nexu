@@ -175,9 +175,6 @@ const PerfilScreen = () => {
                     resizeMode='cover'
                   />
                   <View style={{ padding: 12 }}>
-                    <TextNexu variant='titleLarge' style={{ fontWeight: 'bold', marginBottom: 4 }}>
-                      {post.title}
-                    </TextNexu>
                     <TextNexu variant='bodyLarge' style={{ color: '#333', marginBottom: 8 }}>
                       {isExpanded || !isLong ? post.description : `${post.description.slice(0, 130)}...`}
                     </TextNexu>
