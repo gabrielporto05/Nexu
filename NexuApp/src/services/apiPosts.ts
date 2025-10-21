@@ -23,4 +23,10 @@ const getAllPostsUserById = async (user: number) => {
   return response.data
 }
 
-export { createPost, getAllPostsUserById, getAllPosts }
+const deletePostById = async (post: number) => {
+  const response = await api.delete(`/posts/${post}`)
+
+  return response.data
+}
+
+export { createPost, getAllPostsUserById, getAllPosts, deletePostById }

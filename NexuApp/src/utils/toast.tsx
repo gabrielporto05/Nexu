@@ -2,18 +2,17 @@ import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import Toast from 'react-native-toast-message'
 import { Ionicons } from '@expo/vector-icons'
-import { colors } from 'src/utils/colors'
 
 export const toastConfig = {
-  success: ({ text1 }: { text1: string }) => (
+  success: ({ text1 }: { text1?: string }) => (
     <View style={styles.toastSuccess}>
-      <Ionicons name='checkmark-circle' size={24} color='white' />
+      <Ionicons name='checkmark-circle' size={20} color='#10B981' />
       <Text style={styles.toastText}>{text1}</Text>
     </View>
   ),
-  error: ({ text1 }: { text1: string }) => (
+  error: ({ text1 }: { text1?: string }) => (
     <View style={styles.toastError}>
-      <Ionicons name='alert-circle' size={24} color='white' />
+      <Ionicons name='close-circle' size={20} color='#EF4444' />
       <Text style={styles.toastText}>{text1}</Text>
     </View>
   )
@@ -21,40 +20,47 @@ export const toastConfig = {
 
 const styles = StyleSheet.create({
   toastSuccess: {
-    backgroundColor: colors.verde,
-    padding: 15,
-    borderRadius: 10,
+    backgroundColor: '#1F2937',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 10,
     marginHorizontal: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 8,
+    borderLeftWidth: 3,
+    borderLeftColor: '#10B981'
   },
   toastError: {
-    backgroundColor: colors.vermelho,
-    padding: 15,
-    borderRadius: 10,
+    backgroundColor: '#1F2937',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 10,
     marginHorizontal: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 8,
+    borderLeftWidth: 3,
+    borderLeftColor: '#EF4444'
   },
   toastText: {
-    color: 'white',
-    marginLeft: 10,
+    color: '#F9FAFB',
     fontSize: 14,
-    fontWeight: '500'
+    fontWeight: '500',
+    flex: 1
   }
 })
 
 export const ToastWrapper = () => {
-  // @ts-ignore
-  return <Toast config={toastConfig} />
+  return <Toast config={toastConfig} position='bottom' bottomOffset={80} />
 }

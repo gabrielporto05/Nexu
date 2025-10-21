@@ -1,8 +1,8 @@
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { getAllPostsUserById } from 'src/services/apiPosts'
+import { deletePostById, getAllPostsUserById } from 'src/services/apiPosts'
 import { router, useLocalSearchParams } from 'expo-router'
 import { getErrorMessage } from 'src/utils/errorHandler'
-import { Image, ScrollView, TouchableOpacity, View } from 'react-native'
+import { Image, ScrollView, TouchableOpacity, View, Modal } from 'react-native'
 import { PostType, UserType } from 'src/utils/types'
 import { getUserById } from 'src/services/apiUser'
 import TextNexu from 'src/components/ui/TextNexu'
@@ -25,14 +25,23 @@ const PerfilScreen = () => {
   const [sortBy, setSortBy] = useState<'likes' | 'date'>('date')
   const [posts, setPosts] = useState<PostType[]>([])
   const [expandedPosts, setExpandedPosts] = useState<Record<number, boolean>>({})
-
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [visibleMenu, setVisibleMenu] = useState<number | null>(null)
 
-  const toggleExpand = (postId: number) => {
-    setExpandedPosts(prev => ({
-      ...prev,
-      [postId]: !prev[postId]
-    }))
+  const handleEditPost = (post: PostType) => {
+    setVisibleMenu(null)
+    router.push(`/home/edit-post/${post.id}`)
+  }
+
+  const handleDeletePost = async (post: number) => {
+    setVisibleMenu(null)
+    try {
+      await deletePostById(post)
+      setPosts(prev => prev.filter(p => p.id !== post))
+      Toast.show({ type: 'success', text1: 'Post excluído com sucesso!' })
+    } catch (err) {
+      Toast.show({ type: 'error', text1: getErrorMessage(err, 'Erro ao excluir post') })
+    }
   }
 
   const fetchProfile = async () => {
@@ -160,14 +169,83 @@ const PerfilScreen = () => {
               return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
             })
             .map(post => {
-              const isExpanded = expandedPosts[post.id] === true
-              const isLong = post.description.length > 130
-
               return (
                 <View
                   key={post.id}
                   style={{ backgroundColor: '#f5f5f5', borderBottomWidth: 1, borderBottomColor: '#855CF8' }}
                 >
+                  <View
+                    style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 12 }}
+                  >
+                    <TextNexu variant='titleMedium' style={{ fontWeight: 'bold', color: '#333' }}>
+                      @{profileUser.nick}
+                    </TextNexu>
+                    {!isViewingOtherProfile && (
+                      <TouchableOpacity
+                        onPress={() => setVisibleMenu(visibleMenu === post.id ? null : post.id)}
+                        style={{
+                          position: 'absolute',
+                          top: 12,
+                          right: 12,
+                          zIndex: 10,
+                          padding: 4
+                        }}
+                        activeOpacity={0.7}
+                      >
+                        <Ionicons name='ellipsis-vertical' size={20} color='#555' />
+                      </TouchableOpacity>
+                    )}
+
+                    {visibleMenu === post.id && !isViewingOtherProfile && (
+                      <View
+                        style={{
+                          position: 'absolute',
+                          top: -80,
+                          right: 12,
+                          backgroundColor: 'white',
+                          borderRadius: 8,
+                          shadowColor: '#000',
+                          shadowOffset: { width: 0, height: 2 },
+                          shadowOpacity: 0.25,
+                          shadowRadius: 3.84,
+                          elevation: 5,
+                          zIndex: 20,
+                          minWidth: 120
+                        }}
+                      >
+                        <TouchableOpacity
+                          onPress={() => handleEditPost(post)}
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            padding: 12,
+                            borderBottomWidth: 1,
+                            borderBottomColor: '#eee'
+                          }}
+                          activeOpacity={0.7}
+                        >
+                          <Ionicons name='create-outline' size={18} color='#555' style={{ marginRight: 8 }} />
+                          <TextNexu variant='bodyMedium'>Editar</TextNexu>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                          onPress={() => handleDeletePost(post.id)}
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            padding: 12
+                          }}
+                          activeOpacity={0.7}
+                        >
+                          <Ionicons name='trash-outline' size={18} color='#FF6B6B' style={{ marginRight: 8 }} />
+                          <TextNexu variant='bodyMedium' style={{ color: '#FF6B6B' }}>
+                            Excluir
+                          </TextNexu>
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                  </View>
+
                   {post.image && (
                     <TouchableOpacity
                       activeOpacity={0.9}
@@ -186,20 +264,13 @@ const PerfilScreen = () => {
                       />
                     </TouchableOpacity>
                   )}
+
                   <View style={{ padding: 12 }}>
                     <TextNexu
                       variant='bodyLarge'
                       style={{ color: '#333', marginBottom: 8 }}
                       numberOfLines={expandedPosts[post.id] ? undefined : post.image ? 3 : 6}
                       ellipsizeMode='tail'
-                      onTextLayout={e => {
-                        const maxLines = post.image ? 3 : 6
-                        const lines = e.nativeEvent.lines.length
-
-                        if (lines > maxLines && !expandedPosts[post.id]) {
-                          setExpandedPosts(prev => ({ ...prev, [post.id]: false }))
-                        }
-                      }}
                     >
                       {post.description}
                     </TextNexu>
@@ -213,6 +284,7 @@ const PerfilScreen = () => {
                         </TextNexu>
                       </TouchableOpacity>
                     )}
+
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                       <TextNexu variant='bodyLarge' style={{ color: '#855CF8' }}>
                         {post.likes} {post.likes === 1 ? 'like' : 'likes'}
