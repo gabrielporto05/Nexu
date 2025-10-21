@@ -78,7 +78,7 @@ func (repository user) GetUsersByNameOrNickRepository(nameOrNick string) ([]mode
 }
 
 // GetUserByIdRepository busca um usuário pelo ID no banco de dados
-func (repository user) GetUserByIdRepository(ID uint64) (models.User, error) {
+func (repository user) GetUserByIdRepository(ID, loggedUserID uint64) (models.User, error) {
 	stmt, err := repository.db.Prepare("SELECT id, name, nick, email, avatar, created_at FROM users WHERE id = ?")
 	if err != nil {
 		return models.User{}, err
@@ -130,6 +130,24 @@ func (repository user) GetUserByIdRepository(ID uint64) (models.User, error) {
 		`, ID).Scan(&user.LikesCount)
 	if err != nil {
 		return models.User{}, err
+	}
+
+	if loggedUserID > 0 && loggedUserID != ID {
+		var exists int
+		err = repository.db.QueryRow(
+			"SELECT 1 FROM followers WHERE user_id = ? AND follower_id = ? LIMIT 1",
+			ID, loggedUserID,
+		).Scan(&exists)
+
+		if err == sql.ErrNoRows {
+			user.Following = false
+		} else if err != nil {
+			return models.User{}, err
+		} else {
+			user.Following = true
+		}
+	} else {
+		user.Following = false
 	}
 
 	return user, nil
@@ -197,7 +215,7 @@ func (repository user) GetUserPasswordByIdRepository(ID uint64) (string, error) 
 // UpdateUserRepository atualiza um usuário no banco de dados
 func (repository user) UpdateUserRepository(ID uint64, user models.User) (models.User, error) {
 
-	if _, err := repository.GetUserByIdRepository(ID); err != nil {
+	if _, err := repository.GetUserByIdRepository(ID, ID); err != nil {
 		return models.User{}, err
 	}
 
@@ -211,7 +229,7 @@ func (repository user) UpdateUserRepository(ID uint64, user models.User) (models
 		return models.User{}, err
 	}
 
-	return repository.GetUserByIdRepository(ID)
+	return repository.GetUserByIdRepository(ID, ID)
 
 }
 

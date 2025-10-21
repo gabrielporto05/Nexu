@@ -31,7 +31,7 @@ func GetProfileController(w http.ResponseWriter, r *http.Request) {
 
 	repository := repositories.UsersRopository(db)
 
-	user, err := repository.GetUserByIdRepository(userID)
+	user, err := repository.GetUserByIdRepository(userID, userID)
 	if err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
 
@@ -59,7 +59,7 @@ func UploadProfileAvatarController(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	repository := repositories.UsersRopository(db)
-	user, err := repository.GetUserByIdRepository(userID)
+	user, err := repository.GetUserByIdRepository(userID, userID)
 	if err != nil {
 		responses.Erro(w, http.StatusNotFound, err)
 		return
@@ -115,7 +115,7 @@ func DeleteProfileAvatarController(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	repository := repositories.UsersRopository(db)
-	user, err := repository.GetUserByIdRepository(userID)
+	user, err := repository.GetUserByIdRepository(userID, userID)
 	if err != nil {
 		responses.Erro(w, http.StatusNotFound, err)
 		return

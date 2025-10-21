@@ -17,6 +17,7 @@ type User struct {
 	Email          string `json:"email,omitempty"`
 	Password       string `json:"password,omitempty"`
 	Avatar         string `json:"avatar,omitempty"`
+	Following      bool   `json:"following"`
 	FollowersCount uint64 `json:"followersCount"`
 	FollowingCount uint64 `json:"followingCount"`
 	PostsCount     uint64 `json:"postsCount"`

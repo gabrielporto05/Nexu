@@ -187,8 +187,8 @@ func (repository post) GetAllPostsByIdRepository(userID uint64) (models.Posts, e
 			&post.Image,
 			&post.AuthorID,
 			&post.CreatedAt,
-			&nick,
 			&name,
+			&nick,
 			&avatar,
 		); err != nil {
 			return models.Posts{}, err

@@ -54,6 +54,13 @@ func GetUsersByIdController(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	loggedUserID, err := auth.ExtractUserIdToken(r)
+	if err != nil {
+		responses.Erro(w, http.StatusUnauthorized, err)
+
+		return
+	}
+
 	db, err := db.ConnectionDB()
 	if err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
@@ -64,7 +71,7 @@ func GetUsersByIdController(w http.ResponseWriter, r *http.Request) {
 
 	repository := repositories.UsersRopository(db)
 
-	user, err := repository.GetUserByIdRepository(userID)
+	user, err := repository.GetUserByIdRepository(userID, loggedUserID)
 	if err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
 
