@@ -8,7 +8,7 @@ const followUser = async (user: number) => {
 }
 
 const unfollowUser = async (user: number) => {
-  const response = await api.post(`/users/${user}/unfollow`)
+  const response = await api.delete(`/users/${user}/unfollow`)
 
   return response
 }

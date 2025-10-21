@@ -4,6 +4,7 @@ export type UserType = {
   nick: string
   email: string
   avatar?: string
+  following: boolean
   followersCount: number
   followingCount: number
   postsCount: number

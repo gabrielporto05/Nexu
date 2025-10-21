@@ -12,6 +12,7 @@ import { Ionicons } from '@expo/vector-icons'
 import Loading from 'src/components/Loanding'
 import { useEffect, useState } from 'react'
 import ImageExpandModal from 'src/components/modals/ImageExpandModal'
+import { followUser, unfollowUser } from 'src/services/apiFollower'
 
 const PerfilScreen = () => {
   const { top } = useSafeAreaInsets()
@@ -44,6 +45,21 @@ const PerfilScreen = () => {
     }
   }
 
+  const fetchUserProfile = async () => {
+    if (!targetUserId) return
+
+    try {
+      const userData = await getUserById(targetUserId)
+      setProfileUser(userData.data)
+    } catch (err) {
+      console.error('Erro ao buscar usuário:', err)
+      Toast.show({
+        type: 'error',
+        text1: getErrorMessage(err, 'Erro ao carregar usuário')
+      })
+    }
+  }
+
   const fetchProfile = async () => {
     if (!targetUserId) return
 
@@ -64,6 +80,24 @@ const PerfilScreen = () => {
   useEffect(() => {
     fetchProfile()
   }, [targetUserId])
+
+  const handleFollowOrUnfollowUser = async () => {
+    if (!profileUser) return
+
+    try {
+      profileUser.following ? await unfollowUser(profileUser.id) : await followUser(profileUser.id)
+      Toast.show({
+        type: 'success',
+        text1: `${profileUser.following ? 'Deixou de seguir' : `Seguindo ${profileUser.name}`}`
+      })
+      fetchUserProfile()
+    } catch (err) {
+      Toast.show({
+        type: 'error',
+        text1: getErrorMessage(err, 'Erro ao atualizar status de seguir')
+      })
+    }
+  }
 
   if (!profileUser || !user) return <Loading />
 
@@ -100,6 +134,74 @@ const PerfilScreen = () => {
           </TextNexu>
           <TextNexu variant='titleLarge'>@{profileUser.nick}</TextNexu>
         </View>
+        {isViewingOtherProfile && (
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginTop: 20,
+              paddingHorizontal: 20,
+              gap: 12
+            }}
+          >
+            <TouchableOpacity
+              onPress={handleFollowOrUnfollowUser}
+              style={{
+                flex: 1,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingVertical: 12,
+                paddingHorizontal: 20,
+                borderRadius: 12,
+                backgroundColor: profileUser.following ? '#F3F4F6' : '#855CF8',
+                gap: 8,
+                shadowColor: profileUser.following ? 'transparent' : '#855CF8',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.3,
+                shadowRadius: 8,
+                elevation: profileUser.following ? 0 : 5
+              }}
+              activeOpacity={0.8}
+            >
+              <Ionicons
+                name={profileUser.following ? 'checkmark-circle' : 'person-add'}
+                size={20}
+                color={profileUser.following ? '#6B7280' : '#FFFFFF'}
+              />
+              <TextNexu
+                variant='bodyMedium'
+                style={{
+                  fontWeight: '600',
+                  color: profileUser.following ? '#6B7280' : '#FFFFFF'
+                }}
+              >
+                {profileUser.following ? 'Seguindo' : 'Seguir'}
+              </TextNexu>
+            </TouchableOpacity>
+
+            {profileUser.following && (
+              <TouchableOpacity
+                onPress={() => router.push(`/home/chat/${profileUser.id}`)}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  paddingVertical: 12,
+                  paddingHorizontal: 16,
+                  borderRadius: 12,
+                  backgroundColor: '#F3F4F6',
+                  borderWidth: 1,
+                  borderColor: '#E5E7EB'
+                }}
+                activeOpacity={0.8}
+              >
+                <Ionicons name='chatbubble-ellipses' size={20} color='#855CF8' />
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
         <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: 20 }}>
           <View style={{ alignItems: 'center' }}>
             <TextNexu variant='titleLarge' style={{ fontWeight: 'bold' }}>
