@@ -18,7 +18,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 const LoginPage = () => {
   const router = useRouter()
   const { signIn } = useAuth()
-  const { top, bottom } = useSafeAreaInsets()
+  const { bottom } = useSafeAreaInsets()
 
   const [showPassword, setShowPassword] = useState(false)
   const [focusedField, setFocusedField] = useState<string | null>(null)
@@ -26,8 +26,8 @@ const LoginPage = () => {
   const form = useForm<LoginSchemaType>({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
-      email: `${process.env.EXPO_PUBLIC_EMAIL_LOGIN}`,
-      password: `${process.env.EXPO_PUBLIC_PASSWORD_LOGIN}`
+      email: '',
+      password: ''
     }
   })
 

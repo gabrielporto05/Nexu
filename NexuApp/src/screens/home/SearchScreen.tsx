@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback } from 'react'
-import { ScrollView, View, Image, TouchableOpacity, RefreshControl, StyleSheet, ActivityIndicator } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { ScrollView, View, Image, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { getUsersByNameOrNick } from 'src/services/apiUser'
 import { getErrorMessage } from 'src/utils/errorHandler'
@@ -11,7 +11,6 @@ import { router } from 'expo-router'
 import { LinearGradient } from 'expo-linear-gradient'
 import * as Animatable from 'react-native-animatable'
 import { Ionicons } from '@expo/vector-icons'
-import { useAuth } from 'src/context/auth/AuthContext'
 import { TextInputNexu } from 'src/components/ui/TextInputNexu'
 
 const COLORS = {
