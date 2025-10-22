@@ -8,7 +8,6 @@
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "scheme": ["nexuapp"],
-    "assets": ["./assets/fonts/"],
     "assetBundlePatterns": ["assets/*"],
     "splash": {
       "image": "./assets/splash-icon.png",
