@@ -1,13 +1,13 @@
 {
   "expo": {
-    "name": "NexuApp",
-    "slug": "NexuApp",
+    "name": "Nexu",
+    "slug": "Nexu",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
-    "scheme": ["nexuapp"],
+    "scheme": ["nexu"],
     "assetBundlePatterns": ["assets/*"],
     "splash": {
       "image": "./assets/splash-icon.png",
@@ -24,7 +24,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.chinesporto.NexuApp"
+      "package": "com.chinesporto.nexu"
     },
     "web": {
       "favicon": "./assets/favicon.png",
