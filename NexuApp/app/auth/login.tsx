@@ -1,22 +1,25 @@
-import { Image, View, KeyboardAvoidingView, Platform, ScrollView } from 'react-native'
+import { Image, View, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity } from 'react-native'
 import { LoginSchema, LoginSchemaType } from 'src/schemas/authSchema'
 import { TextInputNexu } from 'src/components/ui/TextInputNexu'
 import { getErrorMessage } from 'src/utils/errorHandler'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import ButtonNexu from 'src/components/ui/ButtonNexu'
 import TextNexu from 'src/components/ui/TextNexu'
 import { useAuth } from 'src/context/AuthContext'
 import Toast from 'react-native-toast-message'
 import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import { useState } from 'react'
+import { LinearGradient } from 'expo-linear-gradient'
+import * as Animatable from 'react-native-animatable'
+import AnimatedLogo from 'src/components/ui/AnimatedLogo'
 
 const LoginPage = () => {
   const router = useRouter()
   const { signIn } = useAuth()
 
   const [showPassword, setShowPassword] = useState(false)
+  const [focusedField, setFocusedField] = useState<string | null>(null)
 
   const form = useForm<LoginSchemaType>({
     resolver: zodResolver(LoginSchema),
@@ -29,7 +32,7 @@ const LoginPage = () => {
   const {
     control,
     handleSubmit,
-    formState: { errors }
+    formState: { errors, isSubmitting }
   } = form
 
   const onSubmit = async (data: LoginSchemaType) => {
@@ -46,183 +49,248 @@ const LoginPage = () => {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <ScrollView
-        contentContainerStyle={{
-          flexGrow: 1,
-          justifyContent: 'center',
-          padding: 24,
-          backgroundColor: '#fff'
-        }}
-        keyboardShouldPersistTaps='handled'
-      >
-        <View>
-          <Image
-            source={require('../../assets/NexuApenasSemFundoPreta.png')}
-            style={{ alignSelf: 'center', width: '100%', height: 150 }}
-          />
-          <View>
-            <View>
-              <TextNexu
-                style={{
-                  fontSize: 40,
-                  fontWeight: 'bold',
-                  color: '#000',
-                  textAlign: 'center'
-                }}
-              >
-                Entre
-              </TextNexu>
-              <TextNexu style={{ fontSize: 30, color: '#000', marginBottom: 32, textAlign: 'center' }}>
-                Com suas credenciais!
-              </TextNexu>
-            </View>
+      <LinearGradient colors={['#0F0F23', '#1A1A2E', '#16213E']} style={{ flex: 1 }}>
+        <ScrollView
+          contentContainerStyle={{
+            flexGrow: 1,
+            justifyContent: 'center',
+            padding: 24
+          }}
+          keyboardShouldPersistTaps='handled'
+          showsVerticalScrollIndicator={false}
+        >
+          <AnimatedLogo size='large' animation='zoomIn' duration={1500} delay={200} />
 
-            <View>
-              <View>
-                <TextNexu style={{ fontSize: 22, fontWeight: 'bold', color: '#000' }}>Email</TextNexu>
-                <Controller
-                  control={control}
-                  name='email'
-                  render={({ field: { onChange, onBlur, value } }) => (
+          <Animatable.View
+            animation='fadeInDown'
+            duration={1000}
+            delay={300}
+            style={{ marginBottom: 40, alignItems: 'center' }}
+          >
+            <TextNexu
+              style={{
+                fontSize: 36,
+                fontWeight: 'bold',
+                color: '#FFFFFF',
+                marginBottom: 8
+              }}
+            >
+              Bem-vindo de volta!
+            </TextNexu>
+            <TextNexu style={{ fontSize: 16, color: '#9CA3AF' }}>Entre com suas credenciais para continuar</TextNexu>
+          </Animatable.View>
+
+          <Animatable.View
+            animation='fadeInUp'
+            duration={1000}
+            delay={500}
+            style={{
+              backgroundColor: '#1E1E38',
+              borderRadius: 24,
+              padding: 24,
+              shadowColor: '#855CF8',
+              shadowOffset: { width: 0, height: 8 },
+              shadowOpacity: 0.3,
+              shadowRadius: 20,
+              elevation: 10,
+              borderWidth: 1,
+              borderColor: 'rgba(133, 92, 248, 0.3)'
+            }}
+          >
+            <Animatable.View animation='fadeInRight' duration={800} delay={700} style={{ marginBottom: 20 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                <Ionicons name='mail' size={20} color={focusedField === 'email' ? '#855CF8' : '#6B7280'} />
+                <TextNexu
+                  style={{
+                    fontSize: 16,
+                    fontWeight: '600',
+                    color: focusedField === 'email' ? '#855CF8' : '#9CA3AF',
+                    marginLeft: 8
+                  }}
+                >
+                  Email
+                </TextNexu>
+              </View>
+              <Controller
+                control={control}
+                name='email'
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <View
+                    style={{
+                      borderWidth: 2,
+                      borderColor: errors.email ? '#EF4444' : focusedField === 'email' ? '#855CF8' : '#374151',
+                      borderRadius: 16,
+                      backgroundColor: '#0F0F23',
+                      overflow: 'hidden'
+                    }}
+                  >
                     <TextInputNexu
-                      placeholder='chines@email.com'
-                      mode='outlined'
+                      placeholder='seu@email.com'
+                      placeholderTextColor='#6B7280'
+                      mode='flat'
                       value={value}
-                      onBlur={onBlur}
+                      onFocus={() => setFocusedField('email')}
+                      onBlur={() => {
+                        setFocusedField(null)
+                        onBlur()
+                      }}
                       onChangeText={onChange}
                       error={!!errors.email}
                       style={{
-                        marginBottom: 5,
-                        backgroundColor: '#ffffff0'
+                        backgroundColor: 'transparent',
+                        fontSize: 16,
+                        paddingHorizontal: 16,
+                        color: '#FFFFFF'
                       }}
                       keyboardType='email-address'
                       autoCapitalize='none'
+                      underlineColor='transparent'
+                      activeUnderlineColor='transparent'
                     />
-                  )}
-                />
-                {errors.email && (
-                  <TextNexu
+                  </View>
+                )}
+              />
+              {errors.email && (
+                <Animatable.View animation='shake' style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
+                  <Ionicons name='alert-circle' size={16} color='#EF4444' />
+                  <TextNexu style={{ color: '#EF4444', marginLeft: 6, fontSize: 13 }}>{errors.email.message}</TextNexu>
+                </Animatable.View>
+              )}
+            </Animatable.View>
+
+            <Animatable.View animation='fadeInRight' duration={800} delay={900} style={{ marginBottom: 24 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                <Ionicons name='lock-closed' size={20} color={focusedField === 'password' ? '#855CF8' : '#6B7280'} />
+                <TextNexu
+                  style={{
+                    fontSize: 16,
+                    fontWeight: '600',
+                    color: focusedField === 'password' ? '#855CF8' : '#9CA3AF',
+                    marginLeft: 8
+                  }}
+                >
+                  Senha
+                </TextNexu>
+              </View>
+              <Controller
+                control={control}
+                name='password'
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <View
                     style={{
-                      color: '#FF6B6B',
-                      marginBottom: 8,
-                      marginLeft: 4
+                      borderWidth: 2,
+                      borderColor: errors.password ? '#EF4444' : focusedField === 'password' ? '#855CF8' : '#374151',
+                      borderRadius: 16,
+                      backgroundColor: '#0F0F23',
+                      overflow: 'hidden',
+                      flexDirection: 'row',
+                      alignItems: 'center'
                     }}
                   >
-                    {errors.email.message}
-                  </TextNexu>
-                )}
-              </View>
-
-              <View>
-                <TextNexu style={{ fontSize: 22, fontWeight: 'bold', color: '#000' }}>Password</TextNexu>
-                <Controller
-                  control={control}
-                  name='password'
-                  render={({ field: { onChange, onBlur, value } }) => (
                     <TextInputNexu
-                      placeholder='********'
-                      mode='outlined'
+                      placeholder='Digite sua senha'
+                      placeholderTextColor='#6B7280'
+                      mode='flat'
                       value={value}
-                      onBlur={onBlur}
+                      onFocus={() => setFocusedField('password')}
+                      onBlur={() => {
+                        setFocusedField(null)
+                        onBlur()
+                      }}
                       onChangeText={onChange}
                       error={!!errors.password}
                       style={{
-                        marginBottom: 5,
-                        backgroundColor: '#ffffff0'
+                        backgroundColor: 'transparent',
+                        fontSize: 16,
+                        paddingHorizontal: 16,
+                        flex: 1,
+                        color: '#FFFFFF'
                       }}
                       secureTextEntry={!showPassword}
-                      right={
-                        <TextInputNexu.Icon
-                          icon={showPassword ? 'eye' : 'eye-off'}
-                          onPress={() => setShowPassword(prev => !prev)}
-                          accessibilityLabel={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
-                        />
-                      }
+                      underlineColor='transparent'
+                      activeUnderlineColor='transparent'
                     />
-                  )}
-                />
-                {errors.password && (
-                  <TextNexu
-                    style={{
-                      color: '#FF6B6B',
-                      marginBottom: 8,
-                      marginLeft: 4
-                    }}
-                  >
+                    <TouchableOpacity
+                      onPress={() => setShowPassword(prev => !prev)}
+                      style={{ paddingHorizontal: 16 }}
+                      activeOpacity={0.7}
+                    >
+                      <Ionicons name={showPassword ? 'eye' : 'eye-off'} size={22} color='#6B7280' />
+                    </TouchableOpacity>
+                  </View>
+                )}
+              />
+              {errors.password && (
+                <Animatable.View animation='shake' style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
+                  <Ionicons name='alert-circle' size={16} color='#EF4444' />
+                  <TextNexu style={{ color: '#EF4444', marginLeft: 6, fontSize: 13 }}>
                     {errors.password.message}
                   </TextNexu>
-                )}
-              </View>
-            </View>
+                </Animatable.View>
+              )}
+            </Animatable.View>
 
-            <View style={{ alignItems: 'flex-end', marginTop: 10 }}>
-              <TextNexu style={{ color: 'blue', fontSize: 18 }} onPress={() => router.push('/auth/forgot-password')}>
-                Esqueci minha senha
-              </TextNexu>
-            </View>
-
-            <ButtonNexu
-              buttonColor='#855CF8'
-              onPress={handleSubmit(onSubmit)}
-              style={{ marginVertical: 30, paddingVertical: 8 }}
-            >
-              <TextNexu style={{ fontSize: 30, fontWeight: 'bold', color: '#fff' }}>Entrar</TextNexu>
-            </ButtonNexu>
-
-            <View style={{ alignItems: 'center' }}>
-              <TextNexu style={{ fontSize: 20 }}>-Ou entre com-</TextNexu>
-            </View>
-
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 30 }}>
-              <View
-                style={{
-                  height: 80,
-                  width: 80,
-                  boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',
-                  borderRadius: 10,
-                  justifyContent: 'center',
-                  alignItems: 'center'
-                }}
+            <Animatable.View animation='fadeIn' duration={800} delay={1100}>
+              <TouchableOpacity
+                onPress={() => router.push('/auth/forgot-password')}
+                style={{ alignSelf: 'flex-end', marginBottom: 24 }}
+                activeOpacity={0.7}
               >
-                <Ionicons name='logo-google' size={40} />
-              </View>
-              <View
-                style={{
-                  height: 80,
-                  width: 80,
-                  boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',
-                  borderRadius: 10,
-                  justifyContent: 'center',
-                  alignItems: 'center'
-                }}
-              >
-                <Ionicons name='logo-github' size={40} />
-              </View>
-              <View
-                style={{
-                  height: 80,
-                  width: 80,
-                  boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',
-                  borderRadius: 10,
-                  justifyContent: 'center',
-                  alignItems: 'center'
-                }}
-              >
-                <Ionicons name='logo-facebook' size={40} />
-              </View>
-            </View>
+                <TextNexu style={{ color: '#855CF8', fontSize: 14, fontWeight: '600' }}>Esqueceu a senha?</TextNexu>
+              </TouchableOpacity>
+            </Animatable.View>
 
-            <View style={{ alignItems: 'center', marginTop: 50 }}>
-              <TextNexu style={{ fontSize: 18 }}>
-                Não possui uma conta?{' '}
-                <TextNexu style={{ color: 'blue' }} onPress={() => router.push('/auth/register')}>
-                  Registre-se
-                </TextNexu>
-              </TextNexu>
+            <Animatable.View animation='pulse' iterationCount='infinite' duration={3000}>
+              <TouchableOpacity onPress={handleSubmit(onSubmit)} disabled={isSubmitting} activeOpacity={0.9}>
+                <LinearGradient
+                  colors={['#9B7EF8', '#855CF8', '#7C3AED']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={{
+                    paddingVertical: 18,
+                    borderRadius: 16,
+                    shadowColor: '#855CF8',
+                    shadowOffset: { width: 0, height: 8 },
+                    shadowOpacity: 0.6,
+                    shadowRadius: 16,
+                    elevation: 12
+                  }}
+                >
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                    {isSubmitting ? (
+                      <>
+                        <Animatable.View animation='rotate' iterationCount='infinite' duration={1000}>
+                          <Ionicons name='sync' size={22} color='#FFF' />
+                        </Animatable.View>
+                        <TextNexu style={{ fontSize: 18, fontWeight: 'bold', color: '#FFF' }}>Entrando...</TextNexu>
+                      </>
+                    ) : (
+                      <>
+                        <Ionicons name='log-in' size={22} color='#FFF' />
+                        <TextNexu style={{ fontSize: 18, fontWeight: 'bold', color: '#FFF' }}>Entrar</TextNexu>
+                      </>
+                    )}
+                  </View>
+                </LinearGradient>
+              </TouchableOpacity>
+            </Animatable.View>
+          </Animatable.View>
+
+          <Animatable.View
+            animation='fadeInUp'
+            duration={1000}
+            delay={1300}
+            style={{ alignItems: 'center', marginTop: 32 }}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <TextNexu style={{ fontSize: 15, color: '#9CA3AF' }}>Não possui uma conta? </TextNexu>
+              <TouchableOpacity onPress={() => router.push('/auth/register')} activeOpacity={0.7}>
+                <TextNexu style={{ fontSize: 15, color: '#855CF8', fontWeight: 'bold' }}>Registre-se</TextNexu>
+              </TouchableOpacity>
             </View>
-          </View>
-        </View>
-      </ScrollView>
+          </Animatable.View>
+        </ScrollView>
+      </LinearGradient>
     </KeyboardAvoidingView>
   )
 }

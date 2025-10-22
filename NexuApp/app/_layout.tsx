@@ -1,7 +1,7 @@
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { Provider as PaperProvider } from 'react-native-paper'
-import { View, ActivityIndicator } from 'react-native'
 import { AuthProvider } from 'src/context/AuthContext'
+import { ThemeProvider } from 'src/context/ThemeContext'
 import { ToastWrapper } from 'src/utils/toast'
 import { StatusBar } from 'expo-status-bar'
 import { Slot } from 'expo-router'
@@ -11,6 +11,7 @@ import {
   SpaceGrotesk_500Medium,
   SpaceGrotesk_700Bold
 } from '@expo-google-fonts/space-grotesk'
+import Loading from 'src/components/Loanding'
 
 export default function Layout() {
   const [fontsLoaded, fontError] = useFonts({
@@ -19,23 +20,19 @@ export default function Layout() {
     SpaceGrotesk_700Bold
   })
 
-  if (!fontsLoaded && !fontError) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size='large' />
-      </View>
-    )
-  }
+  if (!fontsLoaded && !fontError) return <Loading />
 
   return (
     <SafeAreaProvider>
-      <AuthProvider>
-        <PaperProvider>
-          <StatusBar />
-          <Slot />
-          <ToastWrapper />
-        </PaperProvider>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <PaperProvider>
+            <StatusBar style='auto' />
+            <Slot />
+            <ToastWrapper />
+          </PaperProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </SafeAreaProvider>
   )
 }

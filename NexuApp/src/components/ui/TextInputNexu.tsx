@@ -1,17 +1,24 @@
 import { TextInput, TextInputProps } from 'react-native-paper'
+import { useTheme } from 'src/context/ThemeContext'
 
 export const TextInputNexu = (props: TextInputProps) => {
+  const { colors } = useTheme()
+
   return (
     <TextInput
       {...props}
-      textColor='#000'
+      textColor={colors.text}
       style={[{ fontFamily: 'SpaceGrotesk_400Regular' }, props.style]}
       right={props.right}
       secureTextEntry={props.secureTextEntry}
       theme={{
         colors: {
-          primary: '#855CF8',
-          outline: '#ccc',
+          primary: colors.primary,
+          outline: colors.border,
+          onSurfaceVariant: colors.textSecondary,
+          surfaceVariant: colors.card,
+          background: colors.inputBackground,
+          onSurface: colors.text,
           ...props.theme?.colors
         }
       }}

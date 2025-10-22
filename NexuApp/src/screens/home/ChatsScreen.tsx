@@ -3,7 +3,7 @@ import { TextInputNexu } from 'src/components/ui/TextInputNexu'
 import { getConnections } from 'src/services/apiFollower'
 import { getErrorMessage } from 'src/utils/errorHandler'
 import { useCallback, useEffect, useState } from 'react'
-import { Image, ScrollView, View } from 'react-native'
+import { Image, ScrollView, View, RefreshControl } from 'react-native'
 import { useAuth } from 'src/context/AuthContext'
 import TextNexu from 'src/components/ui/TextNexu'
 import Toast from 'react-native-toast-message'
@@ -21,6 +21,13 @@ const ChatsScreen = () => {
 
   const [search, setSearch] = useState('')
   const [connections, setConnections] = useState<UserType[]>([])
+  const [isRefreshing, setIsRefreshing] = useState(false)
+
+  const onRefresh = async () => {
+    setIsRefreshing(true)
+    await fetchConnections()
+    setIsRefreshing(false)
+  }
 
   const fetchConnections = useCallback(async () => {
     try {
@@ -38,11 +45,14 @@ const ChatsScreen = () => {
     fetchConnections()
   }, [fetchConnections])
 
+  if (isRefreshing) return <Loading />
+
   return (
     <ScrollView
       style={{ flex: 1, padding: 20, marginTop: top }}
       keyboardShouldPersistTaps='handled'
       scrollEventThrottle={16}
+      refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} colors={['#855CF8']} />}
     >
       <TextNexu variant='headlineLarge' style={{ fontWeight: 'bold', marginBottom: 20 }}>
         Conversas

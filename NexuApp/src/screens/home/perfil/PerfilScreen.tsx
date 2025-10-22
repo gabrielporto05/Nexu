@@ -1,8 +1,10 @@
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { Image, ScrollView, TouchableOpacity, View, RefreshControl } from 'react-native'
 import { deletePostById, getAllPostsUserById } from 'src/services/apiPosts'
+import ImageExpandModal from 'src/components/modals/ImageExpandModal'
+import { followUser, unfollowUser } from 'src/services/apiFollower'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { router, useLocalSearchParams } from 'expo-router'
 import { getErrorMessage } from 'src/utils/errorHandler'
-import { Image, ScrollView, TouchableOpacity, View, Modal } from 'react-native'
 import { PostType, UserType } from 'src/utils/types'
 import { getUserById } from 'src/services/apiUser'
 import TextNexu from 'src/components/ui/TextNexu'
@@ -11,8 +13,6 @@ import Toast from 'react-native-toast-message'
 import { Ionicons } from '@expo/vector-icons'
 import Loading from 'src/components/Loanding'
 import { useEffect, useState } from 'react'
-import ImageExpandModal from 'src/components/modals/ImageExpandModal'
-import { followUser, unfollowUser } from 'src/services/apiFollower'
 
 const PerfilScreen = () => {
   const { top } = useSafeAreaInsets()
@@ -28,6 +28,8 @@ const PerfilScreen = () => {
   const [expandedPosts, setExpandedPosts] = useState<Record<number, boolean>>({})
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [visibleMenu, setVisibleMenu] = useState<number | null>(null)
+
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
   const handleEditPost = (post: PostType) => {
     setVisibleMenu(null)
@@ -81,6 +83,12 @@ const PerfilScreen = () => {
     fetchProfile()
   }, [targetUserId])
 
+  const onRefresh = async () => {
+    setIsRefreshing(true)
+    await fetchUserProfile()
+    setIsRefreshing(false)
+  }
+
   const handleFollowOrUnfollowUser = async () => {
     if (!profileUser) return
 
@@ -102,7 +110,12 @@ const PerfilScreen = () => {
   if (!profileUser || !user) return <Loading />
 
   return (
-    <ScrollView style={{ flex: 1, marginTop: top }} keyboardShouldPersistTaps='handled' scrollEventThrottle={16}>
+    <ScrollView
+      style={{ flex: 1, marginTop: top }}
+      keyboardShouldPersistTaps='handled'
+      scrollEventThrottle={16}
+      refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} colors={['#855CF8']} />}
+    >
       <View style={{ padding: 20 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>

@@ -1,6 +1,20 @@
 import { Text } from 'react-native-paper'
 import { ComponentProps } from 'react'
+import { useTheme } from 'src/context/ThemeContext'
 
 export default function TextNexu(props: ComponentProps<typeof Text>) {
-  return <Text {...props} style={[{ fontFamily: 'SpaceGrotesk_400Regular', color: '#000' }, props.style]} />
+  const { colors } = useTheme()
+
+  return (
+    <Text
+      {...props}
+      style={[
+        {
+          fontFamily: 'SpaceGrotesk_400Regular',
+          color: colors.text
+        },
+        props.style
+      ]}
+    />
+  )
 }
