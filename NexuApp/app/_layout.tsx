@@ -1,6 +1,6 @@
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { Provider as PaperProvider } from 'react-native-paper'
-import { AuthProvider } from 'src/context/AuthContext'
+import { AuthProvider } from 'src/context/auth/AuthContext'
 import { ThemeProvider } from 'src/context/ThemeContext'
 import { ToastWrapper } from 'src/utils/toast'
 import { StatusBar } from 'expo-status-bar'

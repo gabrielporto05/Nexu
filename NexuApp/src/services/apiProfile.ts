@@ -24,4 +24,8 @@ const deleteAvatar = async () => {
   await api.delete('/profile/me/avatar')
 }
 
-export { fetchUserProfile, updateAvatar, deleteAvatar }
+const changePassword = async (user: number, data: { current_password: string; new_password: string }) => {
+  await api.patch(`/users/${user}/update-password`, data)
+}
+
+export { fetchUserProfile, updateAvatar, deleteAvatar, changePassword }

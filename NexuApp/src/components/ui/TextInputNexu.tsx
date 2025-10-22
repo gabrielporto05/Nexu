@@ -11,6 +11,7 @@ export const TextInputNexu = (props: TextInputProps) => {
       style={[{ fontFamily: 'SpaceGrotesk_400Regular' }, props.style]}
       right={props.right}
       secureTextEntry={props.secureTextEntry}
+      maxLength={props.maxLength}
       theme={{
         colors: {
           primary: colors.primary,

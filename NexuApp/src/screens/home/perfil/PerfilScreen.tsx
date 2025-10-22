@@ -1,18 +1,31 @@
-import { Image, ScrollView, TouchableOpacity, View, RefreshControl } from 'react-native'
-import { deletePostById, getAllPostsUserById } from 'src/services/apiPosts'
-import ImageExpandModal from 'src/components/modals/ImageExpandModal'
-import { followUser, unfollowUser } from 'src/services/apiFollower'
+import React, { useEffect, useState, useCallback } from 'react'
+import { ScrollView, View, Image, TouchableOpacity, RefreshControl, StyleSheet, Dimensions } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { router, useLocalSearchParams } from 'expo-router'
-import { getErrorMessage } from 'src/utils/errorHandler'
-import { PostType, UserType } from 'src/utils/types'
-import { getUserById } from 'src/services/apiUser'
-import TextNexu from 'src/components/ui/TextNexu'
-import { useAuth } from 'src/context/AuthContext'
-import Toast from 'react-native-toast-message'
 import { Ionicons } from '@expo/vector-icons'
+import * as Animatable from 'react-native-animatable'
+import { LinearGradient } from 'expo-linear-gradient'
+
+import { getErrorMessage } from 'src/utils/errorHandler'
+import TextNexu from 'src/components/ui/TextNexu'
 import Loading from 'src/components/Loanding'
-import { useEffect, useState } from 'react'
+import ImageExpandModal from 'src/components/modals/ImageExpandModal'
+
+import { useAuth } from 'src/context/auth/AuthContext'
+import { getUserById } from 'src/services/apiUser'
+import { getAllPostsUserById, deletePostById } from 'src/services/apiPosts'
+import { followUser, unfollowUser } from 'src/services/apiFollower'
+import Toast from 'react-native-toast-message'
+import { PostType, UserType } from 'src/utils/types'
+
+const { width } = Dimensions.get('window')
+
+const COLORS = {
+  card: '#1E1E38',
+  primary: '#855CF8',
+  subtext: '#9CA3AF',
+  text: '#FFFFFF'
+}
 
 const PerfilScreen = () => {
   const { top } = useSafeAreaInsets()
@@ -23,254 +36,198 @@ const PerfilScreen = () => {
   const isViewingOtherProfile = id && Number(id) !== user?.id
 
   const [profileUser, setProfileUser] = useState<UserType | null>(null)
-  const [sortBy, setSortBy] = useState<'likes' | 'date'>('date')
   const [posts, setPosts] = useState<PostType[]>([])
   const [expandedPosts, setExpandedPosts] = useState<Record<number, boolean>>({})
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [visibleMenu, setVisibleMenu] = useState<number | null>(null)
-
   const [isRefreshing, setIsRefreshing] = useState(false)
+
+  const fetchProfile = useCallback(async () => {
+    if (!targetUserId) return
+    try {
+      const [userData, postsData] = await Promise.all([getUserById(targetUserId), getAllPostsUserById(targetUserId)])
+      setProfileUser(userData.data)
+      setPosts(postsData.data)
+    } catch (err) {
+      Toast.show({ type: 'error', text1: getErrorMessage(err, 'Erro ao carregar perfil') })
+    }
+  }, [targetUserId])
+
+  useEffect(() => {
+    fetchProfile()
+  }, [fetchProfile])
+
+  const onRefresh = async () => {
+    setIsRefreshing(true)
+    await fetchProfile()
+    setIsRefreshing(false)
+  }
 
   const handleEditPost = (post: PostType) => {
     setVisibleMenu(null)
     router.push(`/home/edit-post/${post.id}`)
   }
 
-  const handleDeletePost = async (post: number) => {
+  const handleDeletePost = async (postId: number) => {
     setVisibleMenu(null)
     try {
-      await deletePostById(post)
-      setPosts(prev => prev.filter(p => p.id !== post))
+      await deletePostById(postId)
+      setPosts(prev => prev.filter(p => p.id !== postId))
       Toast.show({ type: 'success', text1: 'Post excluído com sucesso!' })
     } catch (err) {
       Toast.show({ type: 'error', text1: getErrorMessage(err, 'Erro ao excluir post') })
     }
   }
 
-  const fetchUserProfile = async () => {
-    if (!targetUserId) return
-
+  const handleFollowToggle = async () => {
+    if (!profileUser || !user) return
     try {
-      const userData = await getUserById(targetUserId)
-      setProfileUser(userData.data)
+      if (profileUser.following) {
+        await unfollowUser(profileUser.id)
+        Toast.show({ type: 'success', text1: `Deixou de seguir ${profileUser.name}` })
+      } else {
+        await followUser(profileUser.id)
+        Toast.show({ type: 'success', text1: `Agora você segue ${profileUser.name}` })
+      }
+      const { data } = await getUserById(profileUser.id)
+      setProfileUser(data)
     } catch (err) {
-      console.error('Erro ao buscar usuário:', err)
-      Toast.show({
-        type: 'error',
-        text1: getErrorMessage(err, 'Erro ao carregar usuário')
-      })
-    }
-  }
-
-  const fetchProfile = async () => {
-    if (!targetUserId) return
-
-    try {
-      const [userData, postsData] = await Promise.all([getUserById(targetUserId), getAllPostsUserById(targetUserId)])
-
-      setProfileUser(userData.data)
-      setPosts(postsData.data)
-    } catch (err) {
-      console.error('Erro ao buscar perfil:', err)
-      Toast.show({
-        type: 'error',
-        text1: getErrorMessage(err, 'Erro ao carregar perfil')
-      })
-    }
-  }
-
-  useEffect(() => {
-    fetchProfile()
-  }, [targetUserId])
-
-  const onRefresh = async () => {
-    setIsRefreshing(true)
-    await fetchUserProfile()
-    setIsRefreshing(false)
-  }
-
-  const handleFollowOrUnfollowUser = async () => {
-    if (!profileUser) return
-
-    try {
-      profileUser.following ? await unfollowUser(profileUser.id) : await followUser(profileUser.id)
-      Toast.show({
-        type: 'success',
-        text1: `${profileUser.following ? 'Deixou de seguir' : `Seguindo ${profileUser.name}`}`
-      })
-      fetchUserProfile()
-    } catch (err) {
-      Toast.show({
-        type: 'error',
-        text1: getErrorMessage(err, 'Erro ao atualizar status de seguir')
-      })
+      Toast.show({ type: 'error', text1: getErrorMessage(err, 'Erro ao atualizar seguimento') })
     }
   }
 
   if (!profileUser || !user) return <Loading />
 
   return (
-    <ScrollView
-      style={{ flex: 1, marginTop: top }}
-      keyboardShouldPersistTaps='handled'
-      scrollEventThrottle={16}
-      refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} colors={['#855CF8']} />}
-    >
-      <View style={{ padding: 20 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+    <LinearGradient colors={['#0F0F23', '#1A1A2E', '#16213E']} style={{ flex: 1, paddingTop: top }}>
+      <ScrollView
+        style={{ flex: 1 }}
+        keyboardShouldPersistTaps='handled'
+        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />}
+        contentContainerStyle={{ paddingBottom: 32 }}
+      >
+        <View
+          style={{
+            paddingHorizontal: 20,
+            paddingTop: 20,
+            paddingBottom: 8,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}
+        >
+          <Animatable.View
+            style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}
+            animation='zoomIn'
+            duration={600}
+          >
             {isViewingOtherProfile && (
-              <Ionicons name='arrow-back' size={24} color='black' onPress={() => router.back()} />
+              <Ionicons name='arrow-back-outline' size={32} color={COLORS.text} onPress={() => router.back()} />
             )}
-            <TextNexu variant='headlineLarge' style={{ fontWeight: 'bold' }}>
+            <TextNexu variant='headlineLarge' style={{ color: COLORS.text, fontWeight: '800' }}>
               {isViewingOtherProfile ? 'Perfil' : 'Meu Perfil'}
             </TextNexu>
-          </View>
-
+          </Animatable.View>
           {!isViewingOtherProfile && (
-            <Ionicons
-              onPress={() => router.push('/home/perfil/config-perfil')}
-              name='settings-outline'
-              size={30}
-              color='black'
-            />
+            <TouchableOpacity onPress={() => router.push('/home/perfil/config-perfil')} style={styles.headerAction}>
+              <Ionicons name='settings-outline' size={32} color={COLORS.text} />
+            </TouchableOpacity>
           )}
         </View>
-        <Image
-          source={{ uri: `${process.env.EXPO_PUBLIC_API_URL_UPLOADS}/avatars/${profileUser.avatar}` }}
-          style={{ width: 130, height: 130, borderRadius: 100, alignSelf: 'center' }}
-          resizeMode='cover'
-        />
-        <View style={{ alignItems: 'center', marginTop: 20, gap: 5 }}>
-          <TextNexu variant='titleLarge' style={{ fontWeight: 'bold' }}>
-            {profileUser.name}
-          </TextNexu>
-          <TextNexu variant='titleLarge'>@{profileUser.nick}</TextNexu>
-        </View>
-        {isViewingOtherProfile && (
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginTop: 20,
-              paddingHorizontal: 20,
-              gap: 12
-            }}
-          >
-            <TouchableOpacity
-              onPress={handleFollowOrUnfollowUser}
-              style={{
-                flex: 1,
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',
-                paddingVertical: 12,
-                paddingHorizontal: 20,
-                borderRadius: 12,
-                backgroundColor: profileUser.following ? '#F3F4F6' : '#855CF8',
-                gap: 8,
-                shadowColor: profileUser.following ? 'transparent' : '#855CF8',
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.3,
-                shadowRadius: 8,
-                elevation: profileUser.following ? 0 : 5
-              }}
-              activeOpacity={0.8}
-            >
-              <Ionicons
-                name={profileUser.following ? 'checkmark-circle' : 'person-add'}
-                size={20}
-                color={profileUser.following ? '#6B7280' : '#FFFFFF'}
-              />
-              <TextNexu
-                variant='bodyMedium'
-                style={{
-                  fontWeight: '600',
-                  color: profileUser.following ? '#6B7280' : '#FFFFFF'
-                }}
-              >
-                {profileUser.following ? 'Seguindo' : 'Seguir'}
-              </TextNexu>
-            </TouchableOpacity>
 
-            {profileUser.following && (
+        <View style={styles.profileCard}>
+          <Image
+            source={{ uri: `${process.env.EXPO_PUBLIC_API_URL_UPLOADS}/avatars/${profileUser.avatar}` }}
+            style={styles.avatarLarge}
+            resizeMode='cover'
+          />
+          <View style={{ alignItems: 'center', marginTop: 12 }}>
+            <TextNexu variant='titleLarge' style={{ color: COLORS.text, fontWeight: '800' }}>
+              {profileUser.name}
+            </TextNexu>
+            <TextNexu variant='bodyLarge' style={{ color: COLORS.subtext }}>
+              @{profileUser.nick}
+            </TextNexu>
+          </View>
+
+          {isViewingOtherProfile && (
+            <View style={styles.followRow}>
               <TouchableOpacity
-                onPress={() => router.push(`/home/chat/${profileUser.id}`)}
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  paddingVertical: 12,
-                  paddingHorizontal: 16,
-                  borderRadius: 12,
-                  backgroundColor: '#F3F4F6',
-                  borderWidth: 1,
-                  borderColor: '#E5E7EB'
-                }}
-                activeOpacity={0.8}
+                onPress={handleFollowToggle}
+                style={[
+                  styles.followBtn,
+                  {
+                    backgroundColor: profileUser.following ? '#F3F4F6' : COLORS.primary,
+                    shadowColor: profileUser.following ? 'transparent' : COLORS.primary
+                  }
+                ]}
+                activeOpacity={0.85}
               >
-                <Ionicons name='chatbubble-ellipses' size={20} color='#855CF8' />
+                <Ionicons
+                  name={profileUser.following ? 'checkmark-circle' : 'person-add'}
+                  size={18}
+                  color={profileUser.following ? '#6B7280' : '#fff'}
+                  style={{ marginRight: 8 }}
+                />
+                <TextNexu style={{ color: profileUser.following ? '#6B7280' : '#fff', fontWeight: '700' }}>
+                  {profileUser.following ? 'Seguindo' : 'Seguir'}
+                </TextNexu>
               </TouchableOpacity>
-            )}
-          </View>
-        )}
-        <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: 20 }}>
-          <View style={{ alignItems: 'center' }}>
-            <TextNexu variant='titleLarge' style={{ fontWeight: 'bold' }}>
-              {profileUser.followersCount}
-            </TextNexu>
-            <TextNexu variant='bodyLarge'>Seguidores</TextNexu>
-          </View>
-          <View style={{ alignItems: 'center' }}>
-            <TextNexu variant='titleLarge' style={{ fontWeight: 'bold' }}>
-              {profileUser.followingCount}
-            </TextNexu>
-            <TextNexu variant='bodyLarge'>Seguindo</TextNexu>
-          </View>
-          <View style={{ alignItems: 'center' }}>
-            <TextNexu variant='titleLarge' style={{ fontWeight: 'bold' }}>
-              {profileUser.postsCount}
-            </TextNexu>
-            <TextNexu variant='bodyLarge'>Posts</TextNexu>
-          </View>
-          <View style={{ alignItems: 'center' }}>
-            <TextNexu variant='titleLarge' style={{ fontWeight: 'bold' }}>
-              {profileUser.likesCount}
-            </TextNexu>
-            <TextNexu variant='bodyLarge'>Likes</TextNexu>
+
+              {profileUser.following && (
+                <TouchableOpacity
+                  onPress={() => router.push(`/home/chat/${profileUser.id}`)}
+                  style={styles.messageBtn}
+                  activeOpacity={0.85}
+                >
+                  <Ionicons name='chatbubble-ellipses' size={18} color={COLORS.primary} />
+                </TouchableOpacity>
+              )}
+            </View>
+          )}
+
+          <View style={styles.statsRow}>
+            <View style={styles.stat}>
+              <TextNexu variant='titleLarge' style={{ color: COLORS.text, fontWeight: '800' }}>
+                {profileUser.followersCount}
+              </TextNexu>
+              <TextNexu style={{ color: COLORS.subtext }}>Seguidores</TextNexu>
+            </View>
+            <View style={styles.stat}>
+              <TextNexu variant='titleLarge' style={{ color: COLORS.text, fontWeight: '800' }}>
+                {profileUser.followingCount}
+              </TextNexu>
+              <TextNexu style={{ color: COLORS.subtext }}>Seguindo</TextNexu>
+            </View>
+            <View style={styles.stat}>
+              <TextNexu variant='titleLarge' style={{ color: COLORS.text, fontWeight: '800' }}>
+                {profileUser.postsCount}
+              </TextNexu>
+              <TextNexu style={{ color: COLORS.subtext }}>Posts</TextNexu>
+            </View>
+            <View style={styles.stat}>
+              <TextNexu variant='titleLarge' style={{ color: COLORS.text, fontWeight: '800' }}>
+                {profileUser.likesCount}
+              </TextNexu>
+              <TextNexu style={{ color: COLORS.subtext }}>Likes</TextNexu>
+            </View>
           </View>
         </View>
-      </View>
-      <View>
-        <TextNexu variant='titleLarge' style={{ fontWeight: 'bold', marginLeft: 20 }}>
-          {isViewingOtherProfile ? 'Posts' : 'Meus posts'}
-        </TextNexu>
 
-        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 12, padding: 20 }}>
-          <TextNexu
-            style={{
-              color: sortBy === 'date' ? '#855CF8' : '#999'
-            }}
-            onPress={() => setSortBy('date')}
-            variant='bodyLarge'
-          >
-            Mais recentes
-          </TextNexu>
-          <TextNexu
-            style={{
-              color: sortBy === 'likes' ? '#855CF8' : '#999'
-            }}
-            onPress={() => setSortBy('likes')}
-            variant='bodyLarge'
-          >
-            Mais likes
+        <View style={{ paddingHorizontal: 20, marginTop: 8 }}>
+          <TextNexu variant='titleLarge' style={{ color: COLORS.text, fontWeight: '800', marginBottom: 8 }}>
+            {isViewingOtherProfile ? 'Posts' : 'Meus posts'}
           </TextNexu>
         </View>
 
         {!posts || posts.length === 0 ? (
           <View style={{ padding: 20, alignItems: 'center', justifyContent: 'center', marginTop: 40 }}>
-            <Ionicons name='chatbubble-ellipses-outline' size={48} style={{ marginBottom: 12 }} />
+            <Ionicons
+              name='chatbubble-ellipses-outline'
+              size={56}
+              color={COLORS.subtext}
+              style={{ marginBottom: 12 }}
+            />
             <TextNexu variant='titleLarge' style={{ textAlign: 'center' }}>
               {isViewingOtherProfile
                 ? 'Este usuário ainda não fez nenhuma publicação.'
@@ -279,87 +236,54 @@ const PerfilScreen = () => {
           </View>
         ) : (
           [...posts]
-            .sort((a, b) => {
-              if (sortBy === 'likes') return b.likes - a.likes
-              return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-            })
-            .map(post => {
+            .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+            .map((post, idx) => {
+              const isExpanded = !!expandedPosts[post.id]
+              const maxLines = post.image ? 3 : 6
+
               return (
-                <View
+                <Animatable.View
                   key={post.id}
-                  style={{ backgroundColor: '#f5f5f5', borderBottomWidth: 1, borderBottomColor: '#855CF8' }}
+                  animation='fadeInUp'
+                  delay={idx * 40}
+                  style={[styles.postCard, { backgroundColor: COLORS.card, borderColor: COLORS.primary + '22' }]}
                 >
-                  <View
-                    style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 12 }}
-                  >
-                    <TextNexu variant='titleMedium' style={{ fontWeight: 'bold', color: '#333' }}>
-                      @{profileUser.nick}
-                    </TextNexu>
+                  <View style={styles.postHeader}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <Image
+                        source={{ uri: `${process.env.EXPO_PUBLIC_API_URL_UPLOADS}/avatars/${profileUser.avatar}` }}
+                        style={styles.avatarSmall}
+                        resizeMode='cover'
+                      />
+                      <View style={{ marginLeft: 10 }}>
+                        <TextNexu variant='titleMedium' style={{ color: COLORS.text, fontWeight: '700' }}>
+                          {profileUser.name}
+                        </TextNexu>
+                        <TextNexu variant='bodySmall' style={{ color: COLORS.subtext }}>
+                          @{profileUser.nick}
+                        </TextNexu>
+                      </View>
+                    </View>
+
                     {!isViewingOtherProfile && (
                       <TouchableOpacity
                         onPress={() => setVisibleMenu(visibleMenu === post.id ? null : post.id)}
-                        style={{
-                          position: 'absolute',
-                          top: 12,
-                          right: 12,
-                          zIndex: 10,
-                          padding: 4
-                        }}
-                        activeOpacity={0.7}
+                        style={styles.menuToggle}
+                        activeOpacity={0.8}
                       >
-                        <Ionicons name='ellipsis-vertical' size={20} color='#555' />
+                        <Ionicons name='ellipsis-vertical' size={20} color={COLORS.subtext} />
                       </TouchableOpacity>
                     )}
-
-                    {visibleMenu === post.id && !isViewingOtherProfile && (
-                      <View
-                        style={{
-                          position: 'absolute',
-                          top: -80,
-                          right: 12,
-                          backgroundColor: 'white',
-                          borderRadius: 8,
-                          shadowColor: '#000',
-                          shadowOffset: { width: 0, height: 2 },
-                          shadowOpacity: 0.25,
-                          shadowRadius: 3.84,
-                          elevation: 5,
-                          zIndex: 20,
-                          minWidth: 120
-                        }}
-                      >
-                        <TouchableOpacity
-                          onPress={() => handleEditPost(post)}
-                          style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            padding: 12,
-                            borderBottomWidth: 1,
-                            borderBottomColor: '#eee'
-                          }}
-                          activeOpacity={0.7}
-                        >
-                          <Ionicons name='create-outline' size={18} color='#555' style={{ marginRight: 8 }} />
-                          <TextNexu variant='bodyMedium'>Editar</TextNexu>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                          onPress={() => handleDeletePost(post.id)}
-                          style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            padding: 12
-                          }}
-                          activeOpacity={0.7}
-                        >
-                          <Ionicons name='trash-outline' size={18} color='#FF6B6B' style={{ marginRight: 8 }} />
-                          <TextNexu variant='bodyMedium' style={{ color: '#FF6B6B' }}>
-                            Excluir
-                          </TextNexu>
-                        </TouchableOpacity>
-                      </View>
-                    )}
                   </View>
+
+                  {visibleMenu === post.id && !isViewingOtherProfile && (
+                    <View style={styles.menuBox}>
+                      <TouchableOpacity onPress={() => handleDeletePost(post.id)} style={styles.menuItem}>
+                        <Ionicons name='trash-outline' size={18} color='#FF6B6B' style={{ marginRight: 8 }} />
+                        <TextNexu style={{ color: '#FF6B6B' }}>Excluir</TextNexu>
+                      </TouchableOpacity>
+                    </View>
+                  )}
 
                   {post.image && (
                     <TouchableOpacity
@@ -367,44 +291,40 @@ const PerfilScreen = () => {
                       onPress={() =>
                         setSelectedImage(`${process.env.EXPO_PUBLIC_API_URL_UPLOADS}/images_posts/${post.image}`)
                       }
+                      style={{ marginTop: 12 }}
                     >
                       <Image
                         source={{ uri: `${process.env.EXPO_PUBLIC_API_URL_UPLOADS}/images_posts/${post.image}` }}
-                        style={{
-                          width: '100%',
-                          aspectRatio: 1.1,
-                          marginBottom: 12
-                        }}
+                        style={styles.postImage}
                         resizeMode='cover'
                       />
                     </TouchableOpacity>
                   )}
 
-                  <View style={{ padding: 12 }}>
+                  <View style={{ paddingVertical: 12 }}>
                     <TextNexu
                       variant='bodyLarge'
-                      style={{ color: '#333', marginBottom: 8 }}
-                      numberOfLines={expandedPosts[post.id] ? undefined : post.image ? 3 : 6}
-                      ellipsizeMode='tail'
+                      style={{ color: COLORS.text, lineHeight: 20, marginBottom: 8 }}
+                      numberOfLines={isExpanded ? undefined : maxLines}
                     >
                       {post.description}
                     </TextNexu>
 
-                    {(post.description.split('\n').length > (post.image ? 3 : 6) || post.description.length > 180) && (
+                    {(post.description.split('\n').length > maxLines || post.description.length > maxLines * 80) && (
                       <TouchableOpacity
                         onPress={() => setExpandedPosts(prev => ({ ...prev, [post.id]: !prev[post.id] }))}
                       >
-                        <TextNexu style={{ color: '#855CF8', fontWeight: 'bold', marginBottom: 8 }}>
-                          {expandedPosts[post.id] ? 'ver menos' : 'ver mais'}
+                        <TextNexu style={{ color: COLORS.primary, fontWeight: '700' }}>
+                          {isExpanded ? 'ver menos' : 'ver mais'}
                         </TextNexu>
                       </TouchableOpacity>
                     )}
 
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <TextNexu variant='bodyLarge' style={{ color: '#855CF8' }}>
+                    <View style={styles.postFooter}>
+                      <TextNexu style={{ color: COLORS.primary }}>
                         {post.likes} {post.likes === 1 ? 'like' : 'likes'}
                       </TextNexu>
-                      <TextNexu variant='bodySmall' style={{ color: '#777' }}>
+                      <TextNexu variant='bodySmall' style={{ color: COLORS.subtext }}>
                         {new Date(post.created_at).toLocaleDateString('pt-BR', {
                           day: '2-digit',
                           month: 'short',
@@ -413,15 +333,95 @@ const PerfilScreen = () => {
                       </TextNexu>
                     </View>
                   </View>
-                </View>
+                </Animatable.View>
               )
             })
         )}
-      </View>
+      </ScrollView>
 
       <ImageExpandModal selectedImage={selectedImage} setSelectedImage={setSelectedImage} />
-    </ScrollView>
+    </LinearGradient>
   )
 }
+
+const styles = StyleSheet.create({
+  headerAction: { padding: 8 },
+  profileCard: {
+    marginHorizontal: 20,
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 12
+  },
+  avatarLarge: {
+    width: 130,
+    height: 130,
+    borderRadius: 100,
+    alignSelf: 'center',
+    borderWidth: 2,
+    borderColor: COLORS.primary
+  },
+  followRow: {
+    flexDirection: 'row',
+    marginTop: 16,
+    justifyContent: 'center',
+    gap: 12
+  },
+  followBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    elevation: 6
+  },
+  messageBtn: {
+    marginLeft: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    backgroundColor: '#F3F4F6',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  statsRow: {
+    marginTop: 18,
+    flexDirection: 'row',
+    justifyContent: 'space-around'
+  },
+  stat: { alignItems: 'center' },
+  emptyState: { padding: 20, alignItems: 'center', justifyContent: 'center', marginTop: 24 },
+  postCard: {
+    padding: 12,
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4
+  },
+  postHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  avatarSmall: { width: 44, height: 44, borderRadius: 22, borderWidth: 2, borderColor: COLORS.primary },
+  menuToggle: { padding: 6, marginLeft: 8 },
+  menuBox: {
+    position: 'absolute',
+    top: 50,
+    right: 28,
+    backgroundColor: COLORS.card,
+    borderRadius: 10,
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+    zIndex: 40,
+    borderWidth: 1,
+    borderColor: COLORS.primary + '22',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
+    elevation: 8
+  },
+  menuItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 6 },
+  postImage: { width: width - 64, height: (width - 64) * 0.9, borderRadius: 12, alignSelf: 'center' },
+  postFooter: { marginTop: 8, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }
+})
 
 export default PerfilScreen

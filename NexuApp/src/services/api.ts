@@ -21,16 +21,34 @@ api.interceptors.request.use(async config => {
 })
 
 api.interceptors.response.use(
-  response => {
-    return response
-  },
+  response => response,
   async error => {
-    if (error.response?.status === 401) {
-      await deleteToken()
+    try {
+      const resp = error?.response
 
-      setTimeout(() => {
-        router.replace('/auth/login')
-      }, 0)
+      const serverError =
+        resp?.data?.error ||
+        resp?.data?.data?.error ||
+        resp?.data?.message ||
+        (typeof resp?.data === 'string' ? resp.data : undefined)
+
+      const normalized = typeof serverError === 'string' ? serverError.toLowerCase() : ''
+
+      const isTokenExpired =
+        normalized.includes('token is expired') ||
+        normalized.includes('token expired') ||
+        normalized.includes('token is invalid') ||
+        normalized.includes('jwt expired') ||
+        normalized.includes('session expired')
+
+      if (isTokenExpired) {
+        await deleteToken()
+        setTimeout(() => {
+          router.replace('/auth/login')
+        }, 0)
+      }
+    } catch (e) {
+      console.warn('Error handling interceptor:', e)
     }
 
     return Promise.reject(error)

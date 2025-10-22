@@ -1,22 +1,24 @@
-import { Image, View, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity } from 'react-native'
+import { View, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity } from 'react-native'
 import { LoginSchema, LoginSchemaType } from 'src/schemas/authSchema'
 import { TextInputNexu } from 'src/components/ui/TextInputNexu'
+import AnimatedLogo from 'src/components/ui/AnimatedLogo'
 import { getErrorMessage } from 'src/utils/errorHandler'
+import { useAuth } from 'src/context/auth/AuthContext'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import * as Animatable from 'react-native-animatable'
+import { LinearGradient } from 'expo-linear-gradient'
 import TextNexu from 'src/components/ui/TextNexu'
-import { useAuth } from 'src/context/AuthContext'
 import Toast from 'react-native-toast-message'
 import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import { useState } from 'react'
-import { LinearGradient } from 'expo-linear-gradient'
-import * as Animatable from 'react-native-animatable'
-import AnimatedLogo from 'src/components/ui/AnimatedLogo'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 const LoginPage = () => {
   const router = useRouter()
   const { signIn } = useAuth()
+  const { top, bottom } = useSafeAreaInsets()
 
   const [showPassword, setShowPassword] = useState(false)
   const [focusedField, setFocusedField] = useState<string | null>(null)
@@ -48,13 +50,14 @@ const LoginPage = () => {
   }
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <LinearGradient colors={['#0F0F23', '#1A1A2E', '#16213E']} style={{ flex: 1 }}>
+    <LinearGradient colors={['#0F0F23', '#1A1A2E', '#16213E']} style={{ flex: 1 }}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView
           contentContainerStyle={{
             flexGrow: 1,
             justifyContent: 'center',
-            padding: 24
+            padding: 24,
+            paddingBottom: bottom + 20
           }}
           keyboardShouldPersistTaps='handled'
           showsVerticalScrollIndicator={false}
@@ -275,7 +278,6 @@ const LoginPage = () => {
               </TouchableOpacity>
             </Animatable.View>
           </Animatable.View>
-
           <Animatable.View
             animation='fadeInUp'
             duration={1000}
@@ -290,8 +292,8 @@ const LoginPage = () => {
             </View>
           </Animatable.View>
         </ScrollView>
-      </LinearGradient>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </LinearGradient>
   )
 }
 

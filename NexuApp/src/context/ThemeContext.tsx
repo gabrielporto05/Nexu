@@ -1,6 +1,3 @@
-// ==========================================
-// 1. src/context/ThemeContext.tsx
-// ==========================================
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { Platform } from 'react-native'
 import * as SecureStore from 'expo-secure-store'
@@ -58,13 +55,17 @@ const darkColors: ThemeColors = {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
-// Funções auxiliares para storage
+const THEME_KEY = 'app.theme'
+
 const getStorageItem = async (key: string): Promise<string | null> => {
   try {
+    const safeKey = key.replace(/[^A-Za-z0-9._-]/g, '')
+
     if (Platform.OS === 'web') {
-      return localStorage.getItem(key)
+      return localStorage.getItem(safeKey)
     }
-    return await SecureStore.getItemAsync(key)
+
+    return await SecureStore.getItemAsync(safeKey)
   } catch (error) {
     console.error('Erro ao buscar item do storage:', error)
     return null
@@ -73,10 +74,11 @@ const getStorageItem = async (key: string): Promise<string | null> => {
 
 const setStorageItem = async (key: string, value: string): Promise<void> => {
   try {
+    const safeKey = key.replace(/[^A-Za-z0-9._-]/g, '')
     if (Platform.OS === 'web') {
-      localStorage.setItem(key, value)
+      localStorage.setItem(safeKey, value)
     } else {
-      await SecureStore.setItemAsync(key, value)
+      await SecureStore.setItemAsync(safeKey, value)
     }
   } catch (error) {
     console.error('Erro ao salvar item no storage:', error)
@@ -92,7 +94,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 
   const loadTheme = async () => {
     try {
-      const savedTheme = await getStorageItem('@theme')
+      const savedTheme = await getStorageItem(THEME_KEY)
       if (savedTheme === 'light' || savedTheme === 'dark') {
         setThemeState(savedTheme)
       }
@@ -103,7 +105,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 
   const setTheme = async (newTheme: ThemeMode) => {
     try {
-      await setStorageItem('@theme', newTheme)
+      await setStorageItem(THEME_KEY, newTheme)
       setThemeState(newTheme)
     } catch (error) {
       console.error('Erro ao salvar tema:', error)

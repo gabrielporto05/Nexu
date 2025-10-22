@@ -1,7 +1,7 @@
 import { View, Image, StyleSheet } from 'react-native'
 import { router } from 'expo-router'
 import { useEffect } from 'react'
-import { useAuth } from 'src/context/AuthContext'
+import { useAuth } from 'src/context/auth/AuthContext'
 
 export default function IndexPage() {
   const { user } = useAuth()

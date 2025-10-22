@@ -1,24 +1,25 @@
-import { Image, KeyboardAvoidingView, Platform, ScrollView, View, TouchableOpacity } from 'react-native'
+import { KeyboardAvoidingView, Platform, ScrollView, View, TouchableOpacity } from 'react-native'
+import { RegisterSchema, RegisterSchemaType } from 'src/schemas/authSchema'
+import { TextInputNexu } from 'src/components/ui/TextInputNexu'
+import AnimatedLogo from 'src/components/ui/AnimatedLogo'
+import { getErrorMessage } from 'src/utils/errorHandler'
+import type { KeyboardTypeOptions } from 'react-native'
+import { useAuth } from 'src/context/auth/AuthContext'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import Toast from 'react-native-toast-message'
-import { RegisterSchema, RegisterSchemaType } from 'src/schemas/authSchema'
-import { getErrorMessage } from 'src/utils/errorHandler'
-import { useRouter } from 'expo-router'
-import type { KeyboardTypeOptions } from 'react-native'
-import TextNexu from 'src/components/ui/TextNexu'
-import { useAuth } from 'src/context/AuthContext'
-import { TextInputNexu } from 'src/components/ui/TextInputNexu'
-import { useState } from 'react'
-import { LinearGradient } from 'expo-linear-gradient'
 import * as Animatable from 'react-native-animatable'
+import { LinearGradient } from 'expo-linear-gradient'
+import TextNexu from 'src/components/ui/TextNexu'
+import Toast from 'react-native-toast-message'
 import { Ionicons } from '@expo/vector-icons'
-import AnimatedLogo from 'src/components/ui/AnimatedLogo'
+import { useRouter } from 'expo-router'
+import { useState } from 'react'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 const RegisterPage = () => {
   const router = useRouter()
   const { singUp } = useAuth()
-
+  const { bottom } = useSafeAreaInsets()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [focusedField, setFocusedField] = useState<string | null>(null)
@@ -70,14 +71,15 @@ const RegisterPage = () => {
   ]
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <LinearGradient colors={['#0F0F23', '#1A1A2E', '#16213E']} style={{ flex: 1 }}>
+    <LinearGradient colors={['#0F0F23', '#1A1A2E', '#16213E']} style={{ flex: 1 }}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView
           contentContainerStyle={{
             flexGrow: 1,
             justifyContent: 'center',
             padding: 24,
-            paddingTop: 60
+            paddingTop: 60,
+            paddingBottom: bottom + 20
           }}
           keyboardShouldPersistTaps='handled'
           showsVerticalScrollIndicator={false}
@@ -289,8 +291,8 @@ const RegisterPage = () => {
             </View>
           </Animatable.View>
         </ScrollView>
-      </LinearGradient>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </LinearGradient>
   )
 }
 
