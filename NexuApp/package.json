@@ -16,7 +16,6 @@
     "@types/node": "^24.6.2",
     "axios": "^1.12.2",
     "expo": "~54.0.12",
-    "expo-app-loading": "^2.1.1",
     "expo-constants": "~18.0.9",
     "expo-font": "~14.0.8",
     "expo-image-picker": "^17.0.8",
