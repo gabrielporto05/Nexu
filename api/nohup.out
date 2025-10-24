@@ -1,0 +1,145 @@
+Running server on http://localhost:8080
+2025/10/23 23:11:48 
+ GET /api/users
+Running server on http://localhost:8080
+2025/10/23 23:24:09 
+ POST /api/auth/login
+2025/10/23 23:24:17 
+ GET /api/users
+2025/10/23 23:25:08 
+ POST /api/auth/register
+2025/10/23 23:25:22 
+ POST /api/auth/login
+2025/10/23 23:25:23 
+ GET /api/profile/me
+2025/10/23 23:25:23 
+ GET /api/posts
+2025/10/23 23:25:24 
+ GET /api/posts
+2025/10/23 23:25:28 
+ GET /api/users/1/connections
+2025/10/23 23:25:28 
+ GET /api/users/1
+2025/10/23 23:25:29 
+ GET /api/users/1/posts
+2025/10/23 23:25:32 
+ GET /api/posts
+2025/10/23 23:25:43 
+ GET /api/users/1
+2025/10/23 23:25:43 
+ GET /api/users/1/posts
+2025/10/23 23:26:11 
+ PUT /api/users/1
+2025/10/23 23:26:12 
+ PATCH /api/profile/me/avatar
+2025/10/23 23:26:19 
+ PUT /api/users/1
+2025/10/23 23:26:20 
+ PATCH /api/profile/me/avatar
+2025/10/23 23:29:13 
+ PUT /api/users/1
+2025/10/23 23:29:14 
+ PATCH /api/profile/me/avatar
+Running server on http://localhost:8080
+2025/10/23 23:31:11 
+ PUT /api/users/1
+2025/10/23 23:31:12 
+ PATCH /api/profile/me/avatar
+2025/10/23 23:31:23 
+ GET /api/profile/me
+2025/10/23 23:31:26 
+ GET /api/posts
+2025/10/23 23:31:26 
+ GET /api/users/1
+2025/10/23 23:31:27 
+ GET /api/users/1/posts
+2025/10/23 23:31:38 
+ PUT /api/users/1
+2025/10/23 23:31:38 
+ PATCH /api/profile/me/avatar
+2025/10/23 23:35:07 
+ PUT /api/users/1
+2025/10/23 23:35:09 
+ PATCH /api/profile/me/avatar
+2025/10/23 23:36:24 
+ POST /api/auth/login
+2025/10/23 23:37:17 
+ PATCH /api/profile/me/avatar
+2025/10/23 23:39:29 
+ PATCH /api/profile/me/avatar
+2025/10/23 23:39:35 
+ GET /api/users/1
+2025/10/23 23:39:35 
+ GET /api/users/1/posts
+2025/10/23 23:40:02 
+ GET /api/profile/me
+2025/10/23 23:40:04 
+ GET /api/posts
+2025/10/23 23:40:06 
+ GET /api/users/1
+2025/10/23 23:40:07 
+ GET /api/users/1/posts
+2025/10/23 23:40:44 
+ POST /api/posts
+2025/10/23 23:40:45 
+ GET /api/posts
+2025/10/23 23:40:52 
+ GET /api/users/1/posts
+2025/10/23 23:40:52 
+ GET /api/users/1
+2025/10/23 23:41:48 
+ GET /api/posts
+2025/10/24 00:39:54 
+ GET /api/users
+2025/10/24 02:07:57 
+ GET /api/profile/me
+2025/10/24 02:08:00 
+ GET /api/posts
+2025/10/24 02:08:04 
+ GET /api/users/1
+2025/10/24 02:08:05 
+ GET /api/users/1/posts
+2025/10/24 02:08:06 
+ GET /api/posts
+2025/10/24 02:09:15 
+ GET /api/users
+2025/10/24 02:09:16 
+ GET /api/users
+2025/10/24 02:11:20 
+ GET /api/profile/me
+2025/10/24 02:11:23 
+ GET /api/posts
+2025/10/24 02:11:24 
+ GET /api/users
+2025/10/24 02:12:09 
+ GET /api/profile/me
+2025/10/24 02:12:11 
+ GET /api/posts
+2025/10/24 02:13:48 
+ GET /api/profile/me
+2025/10/24 02:13:50 
+ GET /api/posts
+2025/10/24 02:14:05 
+ PATCH /api/posts/1/like
+2025/10/24 02:14:06 
+ PATCH /api/posts/1/unlike
+2025/10/24 02:14:47 
+ GET /api/users?nameOrNick=a
+2025/10/24 02:14:51 
+ GET /api/users/1/connections
+2025/10/24 02:14:52 
+ GET /api/users/1
+2025/10/24 02:14:52 
+ GET /api/users/1/posts
+2025/10/24 02:14:56 
+ GET /api/users/1/connections
+2025/10/24 02:14:57 
+ GET /api/users/1
+2025/10/24 02:14:58 
+ GET /api/users/1/posts
+2025/10/24 02:15:36 
+ GET /api/posts
+2025/10/24 02:15:46 
+ GET /api/profile/me
+2025/10/24 02:15:49 
+ GET /api/posts
