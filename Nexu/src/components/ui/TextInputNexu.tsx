@@ -1,5 +1,5 @@
 import { TextInput, TextInputProps } from 'react-native-paper'
-import { useTheme } from 'src/context/ThemeContext'
+import { useTheme } from 'src/context/theme/ThemeContext'
 
 export const TextInputNexu = (props: TextInputProps) => {
   const { colors } = useTheme()

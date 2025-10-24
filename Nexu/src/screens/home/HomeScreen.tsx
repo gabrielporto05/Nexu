@@ -146,7 +146,15 @@ const HomeScreen = () => {
                     }
                   ]}
                 >
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      paddingHorizontal: 12,
+                      paddingTop: 12
+                    }}
+                  >
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                       <Image
                         source={{ uri: `${process.env.EXPO_PUBLIC_API_URL_UPLOADS}/avatars/${post.user.avatar}` }}
@@ -188,7 +196,7 @@ const HomeScreen = () => {
                     </TouchableOpacity>
                   )}
 
-                  <View style={{ paddingVertical: 12 }}>
+                  <View style={{ paddingVertical: 12, paddingHorizontal: 12 }}>
                     <TextNexu
                       variant='bodyLarge'
                       style={{ color: COLORS.text, lineHeight: 20, marginBottom: 6 }}
@@ -257,7 +265,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between'
   },
   card: {
-    padding: 12,
     borderWidth: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 6 },
@@ -266,8 +273,9 @@ const styles = StyleSheet.create({
     elevation: 4
   },
   avatar: { width: 44, height: 44, borderRadius: 22, borderWidth: 2 },
-  postImage: { width: width - 64, height: (width - 64) * 0.9, borderRadius: 12, alignSelf: 'center' },
+  postImage: { width: '100%', height: (width - 64) * 0.9, alignSelf: 'center' },
   cardFooter: {
+    paddingHorizontal: 12,
     marginTop: 6,
     flexDirection: 'row',
     justifyContent: 'space-between',

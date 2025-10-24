@@ -20,7 +20,7 @@ func main() {
 	mux.Handle("/", router.Generate())
 
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://192.168.15.11:8081"},
+		AllowedOrigins:   []string{"http://localhost:8081", "http://192.168.15.1:8081"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE"},
 		AllowedHeaders:   []string{"Authorization", "Content-Type"},
 		AllowCredentials: true,
@@ -28,6 +28,6 @@ func main() {
 
 	handler := c.Handler(mux)
 
-	fmt.Printf("Running server on http://192.168.15.11:%d\n", config.Port)
+	fmt.Printf("Running server on http://localhost:%d\n", config.Port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", config.Port), handler))
 }
