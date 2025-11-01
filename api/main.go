@@ -20,7 +20,7 @@ func main() {
 	mux.Handle("/", router.Generate())
 
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:8081", "http://192.168.15.1:8081"},
+		AllowedOrigins:   []string{"http://localhost:8081", "http://192.168.15.11:8081"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE"},
 		AllowedHeaders:   []string{"Authorization", "Content-Type"},
 		AllowCredentials: true,
