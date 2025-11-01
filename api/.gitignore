@@ -2,3 +2,9 @@
 
 uploads/avatars/*
 uploads/images_posts/*
+
+.env.swo
+.env.swp
+
+nohup.out
+/nohup.out
