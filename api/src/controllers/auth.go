@@ -14,50 +14,61 @@ import (
 	"net/http"
 )
 
+// AuthLoginController autentica um usuário e retorna um token JWT
 func AuthLoginController(w http.ResponseWriter, r *http.Request) {
 
 	bodyRequest, err := io.ReadAll(r.Body)
 	if err != nil {
 		responses.Erro(w, http.StatusUnprocessableEntity, err)
-
 		return
 	}
 
 	var user models.User
-
 	if err := json.Unmarshal(bodyRequest, &user); err != nil {
 		responses.Erro(w, http.StatusBadRequest, err)
+		return
+	}
 
+	if user.Nick == "" && user.Email == "" {
+		responses.Erro(w, http.StatusBadRequest, fmt.Errorf("nick ou email é obrigatório"))
 		return
 	}
 
 	db, err := db.ConnectionDB()
 	if err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
-
 		return
 	}
 	defer db.Close()
 
 	repository := repositories.UsersRopository(db)
 
-	userResponse, err := repository.GetUserByEmailRepository(user.Email)
-	if err != nil {
-		responses.Erro(w, http.StatusInternalServerError, err)
+	var userResponse models.User
 
+	if user.Nick != "" {
+		userResponse, err = repository.GetUserByNickRepository(user.Nick)
+		if err != nil {
+			if user.Email != "" {
+				userResponse, err = repository.GetUserByEmailRepository(user.Email)
+			}
+		}
+	} else {
+		userResponse, err = repository.GetUserByEmailRepository(user.Email)
+	}
+
+	if err != nil {
+		responses.Erro(w, http.StatusUnauthorized, fmt.Errorf("credenciais inválidas"))
 		return
 	}
 
 	if err := secret.Verify(userResponse.Password, user.Password); err != nil {
-		responses.Erro(w, http.StatusUnauthorized, fmt.Errorf("email ou senha incorretos"))
-
+		responses.Erro(w, http.StatusUnauthorized, fmt.Errorf("credenciais inválidas"))
 		return
 	}
 
 	token, err := auth.CreateToken(userResponse.ID)
 	if err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
-
 		return
 	}
 
@@ -65,6 +76,7 @@ func AuthLoginController(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// RegisterUserController registra um novo usuário
 func RegisterUserController(w http.ResponseWriter, r *http.Request) {
 
 	bodyRequest, err := io.ReadAll(r.Body)

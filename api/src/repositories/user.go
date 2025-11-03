@@ -196,6 +196,38 @@ func (repository user) GetUserByEmailRepository(email string) (models.User, erro
 
 }
 
+// GetUserByNickRepository busca um usuário pelo nick no banco de dados
+func (repository user) GetUserByNickRepository(nick string) (models.User, error) {
+
+	stmt, err := repository.db.Prepare("SELECT id, email, password FROM users WHERE nick = ?")
+	if err != nil {
+		return models.User{}, err
+	}
+	defer stmt.Close()
+
+	row, err := stmt.Query(nick)
+	if err != nil {
+		return models.User{}, err
+	}
+	defer row.Close()
+
+	var user models.User
+	if row.Next() {
+		if err := row.Scan(
+			&user.ID,
+			&user.Email,
+			&user.Password,
+		); err != nil {
+			return models.User{}, err
+		}
+	} else {
+		return models.User{}, fmt.Errorf("user com nick %s nao encontrado", nick)
+	}
+
+	return user, nil
+
+}
+
 // GetUserPasswordByIdRepository busca a senha de um usuário pelo ID
 func (repository user) GetUserPasswordByIdRepository(ID uint64) (string, error) {
 

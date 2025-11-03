@@ -1,16 +1,16 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { getToken, setToken, deleteToken } from 'src/utils/token'
 import { fetchUserProfile } from 'src/services/apiProfile'
-import { ForgotPasswordSchemaType, LoginSchemaType, RegisterSchemaType } from 'src/schemas/authSchema'
+import { ForgotPasswordSchemaType, RegisterSchemaType } from 'src/schemas/authSchema'
 import { ForgotPassword, Login, Register } from 'src/services/apiAuth'
 import { useRouter } from 'expo-router'
-import { UserType } from 'src/utils/types'
+import { LoginRequest, UserType } from 'src/utils/types'
 
 type AuthContextType = {
   user: UserType | null
   refreshUser: () => Promise<void>
   loading: boolean
-  signIn: (data: LoginSchemaType) => Promise<string>
+  signIn: (data: LoginRequest) => Promise<string>
   singUp: (data: RegisterSchemaType) => Promise<string>
   signOut: () => Promise<void>
   forgotPassword: (data: ForgotPasswordSchemaType) => Promise<string>
@@ -53,7 +53,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     loadUser()
   }, [])
 
-  const signIn = async (data: LoginSchemaType): Promise<string> => {
+  const signIn = async (data: LoginRequest): Promise<string> => {
     const response = await Login(data)
     await setToken(response.data)
     await loadUser()
