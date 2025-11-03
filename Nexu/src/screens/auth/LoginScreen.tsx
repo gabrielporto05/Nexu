@@ -10,6 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import * as Animatable from 'react-native-animatable'
 import { LinearGradient } from 'expo-linear-gradient'
 import TextNexu from 'src/components/ui/TextNexu'
+import { LoginRequest } from 'src/utils/types'
 import Toast from 'react-native-toast-message'
 import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
@@ -27,7 +28,7 @@ const LoginScreen = () => {
   const form = useForm<LoginSchemaType>({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
-      email: '',
+      login: '',
       password: ''
     }
   })
@@ -40,7 +41,13 @@ const LoginScreen = () => {
 
   const onSubmit = async (data: LoginSchemaType) => {
     try {
-      await signIn(data)
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.login)
+
+      const payload: LoginRequest = isEmail
+        ? { email: data.login, password: data.password }
+        : { nick: data.login, password: data.password }
+
+      await signIn(payload)
       router.replace('/home')
     } catch (err) {
       Toast.show({
@@ -48,6 +55,13 @@ const LoginScreen = () => {
         text1: getErrorMessage(err, 'Erro ao logar')
       })
     }
+  }
+
+  const getLoginType = (login: string): { isEmail: boolean; value: string } => {
+    const trimmedLogin = login.trim()
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedLogin)
+
+    return { isEmail, value: trimmedLogin }
   }
 
   return (
@@ -87,7 +101,7 @@ const LoginScreen = () => {
               Bem-vindo de volta!
             </TextNexu>
             <TextNexu style={{ fontSize: 16, color: colors.textSecondary }}>
-              Entre com suas credenciais para continuar
+              Entre com email ou nick para continuar
             </TextNexu>
           </Animatable.View>
 
@@ -111,69 +125,72 @@ const LoginScreen = () => {
             <Animatable.View animation='fadeInRight' duration={800} delay={700} style={{ marginBottom: 20 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
                 <Ionicons
-                  name='mail'
+                  name='at'
                   size={20}
-                  color={focusedField === 'email' ? colors.primary : colors.textSecondary}
+                  color={focusedField === 'login' ? colors.primary : colors.textSecondary}
                 />
                 <TextNexu
                   style={{
                     fontSize: 16,
                     fontWeight: '600',
-                    color: focusedField === 'email' ? colors.primary : colors.textSecondary,
+                    color: focusedField === 'login' ? colors.primary : colors.textSecondary,
                     marginLeft: 8
                   }}
                 >
-                  Email
+                  Email ou Nick
                 </TextNexu>
               </View>
               <Controller
                 control={control}
-                name='email'
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <View
-                    style={{
-                      borderWidth: 2,
-                      borderColor: errors.email
-                        ? colors.error
-                        : focusedField === 'email'
-                          ? colors.primary
-                          : colors.border,
-                      borderRadius: 16,
-                      backgroundColor: colors.inputBackground,
-                      overflow: 'hidden'
-                    }}
-                  >
-                    <TextInputNexu
-                      placeholder='seu@email.com'
-                      placeholderTextColor={colors.placeholder}
-                      mode='flat'
-                      value={value}
-                      onFocus={() => setFocusedField('email')}
-                      onBlur={() => {
-                        setFocusedField(null)
-                        onBlur()
-                      }}
-                      onChangeText={onChange}
-                      error={!!errors.email}
+                name='login'
+                render={({ field: { onChange, onBlur, value } }) => {
+                  return (
+                    <View
                       style={{
-                        backgroundColor: 'transparent',
-                        fontSize: 16,
-                        paddingHorizontal: 16,
-                        color: colors.text
+                        borderWidth: 2,
+                        borderColor: errors.login
+                          ? colors.error
+                          : focusedField === 'login'
+                            ? colors.primary
+                            : colors.border,
+                        borderRadius: 16,
+                        backgroundColor: colors.inputBackground,
+                        overflow: 'hidden'
                       }}
-                      keyboardType='email-address'
-                      autoCapitalize='none'
-                      underlineColor='transparent'
-                      activeUnderlineColor='transparent'
-                    />
-                  </View>
-                )}
+                    >
+                      <TextInputNexu
+                        placeholder='exemple@email.com ou nick'
+                        placeholderTextColor={colors.placeholder}
+                        mode='flat'
+                        value={value}
+                        onFocus={() => setFocusedField('login')}
+                        onBlur={() => {
+                          setFocusedField(null)
+                          onBlur()
+                        }}
+                        onChangeText={onChange}
+                        error={!!errors.login}
+                        style={{
+                          backgroundColor: 'transparent',
+                          fontSize: 16,
+                          paddingHorizontal: 16,
+                          color: colors.text
+                        }}
+                        keyboardType='default'
+                        autoCapitalize='none'
+                        autoCorrect={false}
+                        underlineColor='transparent'
+                        activeUnderlineColor='transparent'
+                      />
+                    </View>
+                  )
+                }}
               />
-              {errors.email && (
+              {errors.login && (
                 <Animatable.View animation='shake' style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
                   <Ionicons name='alert-circle' size={16} color={colors.error} />
                   <TextNexu style={{ color: colors.error, marginLeft: 6, fontSize: 13 }}>
-                    {errors.email.message}
+                    {errors.login.message}
                   </TextNexu>
                 </Animatable.View>
               )}
@@ -265,7 +282,9 @@ const LoginScreen = () => {
                 style={{ alignSelf: 'flex-end', marginBottom: 24 }}
                 activeOpacity={0.7}
               >
-                <TextNexu style={{ color: '#855CF8', fontSize: 14, fontWeight: '600' }}>Esqueceu a senha?</TextNexu>
+                <TextNexu style={{ color: colors.primary, fontSize: 14, fontWeight: '600' }}>
+                  Esqueceu a senha?
+                </TextNexu>
               </TouchableOpacity>
             </Animatable.View>
 

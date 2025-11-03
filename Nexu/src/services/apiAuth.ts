@@ -1,9 +1,9 @@
 import { ForgotPasswordSchemaType, LoginSchemaType, RegisterSchemaType } from 'src/schemas/authSchema'
 import { api } from 'src/services/api'
+import { LoginRequest } from 'src/utils/types'
 
-const Login = async (payload: LoginSchemaType) => {
+const Login = async (payload: LoginRequest) => {
   const response = await api.post('/auth/login', payload)
-
   return response.data
 }
 

@@ -42,3 +42,9 @@ export type GetPostResponse = {
   message: string
   data: PostType
 }
+
+export type LoginRequest = {
+  nick?: string
+  email?: string
+  password: string
+}
