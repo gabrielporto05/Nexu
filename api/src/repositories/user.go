@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"api/src/models"
+	"api/src/utils"
 	"database/sql"
 	"fmt"
 )
@@ -25,6 +26,16 @@ func (repository user) CreateUserRepository(user models.User) (uint64, error) {
 
 	result, err := stmt.Exec(user.Name, user.Nick, user.Email, user.Password)
 	if err != nil {
+		if isDuplicate, field := utils.IsDuplicateError(err); isDuplicate {
+			switch field {
+			case "nick":
+				return 0, fmt.Errorf("este nick já está em uso")
+			case "email":
+				return 0, fmt.Errorf("este email já está cadastrado")
+			default:
+				return 0, fmt.Errorf("dados duplicados")
+			}
+		}
 		return 0, err
 	}
 
@@ -215,17 +226,48 @@ func (repository user) GetUserPasswordByIdRepository(ID uint64) (string, error) 
 // UpdateUserRepository atualiza um usuário no banco de dados
 func (repository user) UpdateUserRepository(ID uint64, user models.User) (models.User, error) {
 
-	if _, err := repository.GetUserByIdRepository(ID, ID); err != nil {
+	existingUser, err := repository.GetUserByIdRepository(ID, ID)
+	if err != nil {
 		return models.User{}, err
 	}
 
-	stmt, err := repository.db.Prepare("UPDATE users SET name = ?, nick = ? WHERE id = ?")
+	if user.Nick != existingUser.Nick || user.Email != existingUser.Email {
+		if user.Nick != existingUser.Nick {
+			exists, err := repository.checkNickExists(user.Nick)
+			if err != nil {
+				return models.User{}, err
+			}
+			if exists {
+				return models.User{}, fmt.Errorf("este nick já está em uso")
+			}
+		}
+
+		if user.Email != existingUser.Email {
+			exists, err := repository.checkEmailExists(user.Email)
+			if err != nil {
+				return models.User{}, err
+			}
+			if exists {
+				return models.User{}, fmt.Errorf("este email já está cadastrado")
+			}
+		}
+	}
+
+	stmt, err := repository.db.Prepare("UPDATE users SET name = ?, nick = ?, email = ? WHERE id = ?")
 	if err != nil {
 		return models.User{}, err
 	}
 	defer stmt.Close()
 
-	if _, err := stmt.Exec(user.Name, user.Nick, ID); err != nil {
+	if _, err := stmt.Exec(user.Name, user.Nick, user.Email, ID); err != nil {
+		if isDuplicate, field := utils.IsDuplicateError(err); isDuplicate {
+			switch field {
+			case "nick":
+				return models.User{}, fmt.Errorf("este nick já está em uso")
+			case "email":
+				return models.User{}, fmt.Errorf("este email já está cadastrado")
+			}
+		}
 		return models.User{}, err
 	}
 
@@ -290,4 +332,24 @@ func (repository user) DeleteUserByIdRepository(ID uint64) (bool, error) {
 
 	return true, nil
 
+}
+
+func (repository user) checkNickExists(nick string) (bool, error) {
+	var exists bool
+	query := "SELECT EXISTS(SELECT 1 FROM users WHERE nick = ?)"
+	err := repository.db.QueryRow(query, nick).Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+	return exists, nil
+}
+
+func (repository user) checkEmailExists(email string) (bool, error) {
+	var exists bool
+	query := "SELECT EXISTS(SELECT 1 FROM users WHERE email = ?)"
+	err := repository.db.QueryRow(query, email).Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+	return exists, nil
 }

@@ -10,6 +10,8 @@ import Loading from 'src/components/Loanding'
 import { Ionicons } from '@expo/vector-icons'
 import React, { useState } from 'react'
 import { router } from 'expo-router'
+import { deleteUserById } from 'src/services/apiUser'
+import Toast from 'react-native-toast-message'
 
 const configOptions = [
   { key: 'edit', label: 'Editar perfil', icon: 'create-outline', route: '/home/perfil/update-perfil' },
@@ -57,7 +59,12 @@ const ConfigPerfilScreen = () => {
         'Excluir conta',
         'Tem certeza que deseja excluir sua conta? Esta ação é irreversível e removerá todos os seus dados.',
         true,
-        () => {
+        async () => {
+          await deleteUserById(user.id)
+          Toast.show({
+            type: 'success',
+            text1: 'Sua conta foi excluída permanentemente da nosso app!'
+          })
           closeConfirm()
           signOut()
         }

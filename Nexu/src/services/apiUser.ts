@@ -17,4 +17,8 @@ const updateUserInfo = async (name: string, nick: string, user: number) => {
   await api.put(`/users/${user}`, { name, nick })
 }
 
-export { getUsersByNameOrNick, getUserById, updateUserInfo }
+const deleteUserById = async (user: number) => {
+  await api.delete(`/users/${user}`)
+}
+
+export { getUsersByNameOrNick, getUserById, updateUserInfo, deleteUserById }
