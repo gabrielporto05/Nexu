@@ -11,10 +11,12 @@ import { getErrorMessage } from 'src/utils/errorHandler'
 import { LinearGradient } from 'expo-linear-gradient'
 import * as Animatable from 'react-native-animatable'
 import { Ionicons } from '@expo/vector-icons'
+import { useTheme } from 'src/context/theme/ThemeContext'
 
 const ForgotPasswordScreen = () => {
   const { forgotPassword } = useAuth()
   const router = useRouter()
+  const { theme, colors } = useTheme()
   const [focusedField, setFocusedField] = useState<string | null>(null)
 
   const {
@@ -22,39 +24,31 @@ const ForgotPasswordScreen = () => {
     handleSubmit,
     formState: { errors, isSubmitting }
   } = useForm<ForgotPasswordSchemaType>({
-    defaultValues: {
-      email: ''
-    }
+    defaultValues: { email: '' }
   })
 
   const onSubmit = async (data: ForgotPasswordSchemaType) => {
     try {
       const message = await forgotPassword(data)
-      Toast.show({
-        type: 'success',
-        text1: message
-      })
-
-      setTimeout(() => {
-        router.replace('/auth/password-sent')
-      }, 1500)
+      Toast.show({ type: 'success', text1: message })
+      setTimeout(() => router.replace('/auth/password-sent'), 1500)
     } catch (err) {
-      Toast.show({
-        type: 'error',
-        text1: getErrorMessage(err, 'Erro ao recuperar senha')
-      })
+      Toast.show({ type: 'error', text1: getErrorMessage(err, 'Erro ao recuperar senha') })
     }
   }
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <LinearGradient colors={['#0F0F23', '#1A1A2E', '#16213E']} style={{ flex: 1 }}>
+    <LinearGradient
+      colors={
+        theme === 'dark'
+          ? [colors.background, colors.surface, colors.card]
+          : [colors.surface, colors.background, colors.background]
+      }
+      style={{ flex: 1 }}
+    >
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView
-          contentContainerStyle={{
-            flexGrow: 1,
-            justifyContent: 'center',
-            padding: 24
-          }}
+          contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: 24 }}
           keyboardShouldPersistTaps='handled'
           showsVerticalScrollIndicator={false}
         >
@@ -64,18 +58,11 @@ const ForgotPasswordScreen = () => {
             delay={200}
             style={{ marginBottom: 40, alignItems: 'center' }}
           >
-            <Ionicons name='key' size={48} color='#855CF8' style={{ marginBottom: 16 }} />
-            <TextNexu
-              style={{
-                fontSize: 32,
-                fontWeight: 'bold',
-                color: '#FFFFFF',
-                marginBottom: 8
-              }}
-            >
+            <Ionicons name='key' size={48} color={colors.primary} style={{ marginBottom: 16 }} />
+            <TextNexu style={{ fontSize: 32, fontWeight: 'bold', color: colors.text, marginBottom: 8 }}>
               Esqueceu a senha?
             </TextNexu>
-            <TextNexu style={{ fontSize: 15, color: '#9CA3AF', textAlign: 'center', paddingHorizontal: 20 }}>
+            <TextNexu style={{ fontSize: 15, color: colors.textSecondary, textAlign: 'center', paddingHorizontal: 20 }}>
               Insira seu e-mail e enviaremos{'\n'}uma nova senha para você
             </TextNexu>
           </Animatable.View>
@@ -85,26 +72,30 @@ const ForgotPasswordScreen = () => {
             duration={1000}
             delay={400}
             style={{
-              backgroundColor: '#1E1E38',
+              backgroundColor: colors.card,
               borderRadius: 24,
               padding: 24,
-              shadowColor: '#855CF8',
+              shadowColor: colors.primary,
               shadowOffset: { width: 0, height: 8 },
               shadowOpacity: 0.3,
               shadowRadius: 20,
               elevation: 10,
               borderWidth: 1,
-              borderColor: 'rgba(133, 92, 248, 0.3)'
+              borderColor: `${colors.primary}33`
             }}
           >
             <View style={{ marginBottom: 20 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-                <Ionicons name='mail' size={20} color={focusedField === 'email' ? '#855CF8' : '#6B7280'} />
+                <Ionicons
+                  name='mail'
+                  size={20}
+                  color={focusedField === 'email' ? colors.primary : colors.textSecondary}
+                />
                 <TextNexu
                   style={{
                     fontSize: 16,
                     fontWeight: '600',
-                    color: focusedField === 'email' ? '#855CF8' : '#9CA3AF',
+                    color: focusedField === 'email' ? colors.primary : colors.textSecondary,
                     marginLeft: 8
                   }}
                 >
@@ -119,15 +110,19 @@ const ForgotPasswordScreen = () => {
                   <View
                     style={{
                       borderWidth: 2,
-                      borderColor: errors.email ? '#EF4444' : focusedField === 'email' ? '#855CF8' : '#374151',
+                      borderColor: errors.email
+                        ? colors.error
+                        : focusedField === 'email'
+                          ? colors.primary
+                          : colors.border,
                       borderRadius: 16,
-                      backgroundColor: '#0F0F23',
+                      backgroundColor: colors.inputBackground,
                       overflow: 'hidden'
                     }}
                   >
                     <TextInputNexu
                       placeholder='seu@email.com'
-                      placeholderTextColor='#6B7280'
+                      placeholderTextColor={colors.placeholder}
                       mode='flat'
                       value={value}
                       onFocus={() => setFocusedField('email')}
@@ -141,7 +136,7 @@ const ForgotPasswordScreen = () => {
                         backgroundColor: 'transparent',
                         fontSize: 16,
                         paddingHorizontal: 16,
-                        color: '#FFFFFF'
+                        color: colors.text
                       }}
                       keyboardType='email-address'
                       autoCapitalize='none'
@@ -154,8 +149,10 @@ const ForgotPasswordScreen = () => {
 
               {errors.email && (
                 <Animatable.View animation='shake' style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
-                  <Ionicons name='alert-circle' size={16} color='#EF4444' />
-                  <TextNexu style={{ color: '#EF4444', marginLeft: 6, fontSize: 13 }}>{errors.email.message}</TextNexu>
+                  <Ionicons name='alert-circle' size={16} color={colors.error} />
+                  <TextNexu style={{ color: colors.error, marginLeft: 6, fontSize: 13 }}>
+                    {errors.email.message}
+                  </TextNexu>
                 </Animatable.View>
               )}
             </View>
@@ -163,13 +160,13 @@ const ForgotPasswordScreen = () => {
             <Animatable.View animation='pulse' iterationCount='infinite' duration={3000}>
               <TouchableOpacity onPress={handleSubmit(onSubmit)} disabled={isSubmitting} activeOpacity={0.9}>
                 <LinearGradient
-                  colors={['#9B7EF8', '#855CF8', '#7C3AED']}
+                  colors={[colors.primary, '#7C3AED']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                   style={{
                     paddingVertical: 18,
                     borderRadius: 16,
-                    shadowColor: '#855CF8',
+                    shadowColor: colors.primary,
                     shadowOffset: { width: 0, height: 8 },
                     shadowOpacity: 0.6,
                     shadowRadius: 16,
@@ -205,15 +202,15 @@ const ForgotPasswordScreen = () => {
             style={{ alignItems: 'center', marginTop: 32 }}
           >
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <TextNexu style={{ fontSize: 15, color: '#9CA3AF' }}>Lembrou sua senha? </TextNexu>
+              <TextNexu style={{ fontSize: 15, color: colors.textSecondary }}>Lembrou sua senha? </TextNexu>
               <TouchableOpacity onPress={() => router.push('/auth/login')} activeOpacity={0.7}>
-                <TextNexu style={{ fontSize: 15, color: '#855CF8', fontWeight: 'bold' }}>Voltar ao login</TextNexu>
+                <TextNexu style={{ fontSize: 15, color: colors.primary, fontWeight: 'bold' }}>Voltar ao login</TextNexu>
               </TouchableOpacity>
             </View>
           </Animatable.View>
         </ScrollView>
-      </LinearGradient>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </LinearGradient>
   )
 }
 

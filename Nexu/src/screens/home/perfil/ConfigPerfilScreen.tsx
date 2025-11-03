@@ -1,12 +1,14 @@
 import { ScrollView, View, Image, TouchableOpacity, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import ConfirmModal from 'src/components/modals/ConfirmModal'
+import { useTheme } from 'src/context/theme/ThemeContext'
 import { useAuth } from 'src/context/auth/AuthContext'
 import { LinearGradient } from 'expo-linear-gradient'
 import * as Animatable from 'react-native-animatable'
 import TextNexu from 'src/components/ui/TextNexu'
 import Loading from 'src/components/Loanding'
 import { Ionicons } from '@expo/vector-icons'
+import { Switch } from 'react-native-paper'
 import React, { useState } from 'react'
 import { router } from 'expo-router'
 
@@ -28,6 +30,7 @@ const configOptions = [
 const ConfigPerfilScreen = () => {
   const { top } = useSafeAreaInsets()
   const { user, signOut } = useAuth()
+  const { theme, toggleTheme } = useTheme()
 
   const [modalVisible, setModalVisible] = useState(false)
   const [modalProps, setModalProps] = useState<{
@@ -125,6 +128,13 @@ const ConfigPerfilScreen = () => {
               </TouchableOpacity>
             </Animatable.View>
           ))}
+        </View>
+
+        <View style={{ marginTop: 16 }}>
+          <TextNexu style={{ color: COLORS.subtext, marginBottom: 8 }}>
+            {theme === 'dark' ? 'Dark mode' : 'Light mode'}
+          </TextNexu>
+          <Switch value={theme === 'dark'} onValueChange={toggleTheme} />
         </View>
 
         <View style={{ height: 36 }} />

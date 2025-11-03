@@ -14,11 +14,14 @@ import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import { useState } from 'react'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useTheme } from 'src/context/theme/ThemeContext'
 
 const RegisterScreen = () => {
   const router = useRouter()
   const { singUp } = useAuth()
   const { bottom } = useSafeAreaInsets()
+  const { theme, colors } = useTheme()
+
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [focusedField, setFocusedField] = useState<string | null>(null)
@@ -70,7 +73,14 @@ const RegisterScreen = () => {
   ]
 
   return (
-    <LinearGradient colors={['#0F0F23', '#1A1A2E', '#16213E']} style={{ flex: 1 }}>
+    <LinearGradient
+      colors={
+        theme === 'dark'
+          ? [colors.background, colors.surface, colors.card]
+          : [colors.surface, colors.background, colors.background]
+      }
+      style={{ flex: 1 }}
+    >
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView
           contentContainerStyle={{
@@ -93,13 +103,13 @@ const RegisterScreen = () => {
               style={{
                 fontSize: 32,
                 fontWeight: 'bold',
-                color: '#FFFFFF',
+                color: colors.text,
                 marginBottom: 8
               }}
             >
               Crie sua conta
             </TextNexu>
-            <TextNexu style={{ fontSize: 15, color: '#9CA3AF' }}>Preencha os dados para começar</TextNexu>
+            <TextNexu style={{ fontSize: 15, color: colors.textSecondary }}>Preencha os dados para começar</TextNexu>
           </Animatable.View>
 
           <Animatable.View
@@ -107,16 +117,16 @@ const RegisterScreen = () => {
             duration={1000}
             delay={400}
             style={{
-              backgroundColor: '#1E1E38',
+              backgroundColor: colors.card,
               borderRadius: 24,
               padding: 24,
-              shadowColor: '#855CF8',
+              shadowColor: colors.primary,
               shadowOffset: { width: 0, height: 8 },
               shadowOpacity: 0.3,
               shadowRadius: 20,
               elevation: 10,
               borderWidth: 1,
-              borderColor: 'rgba(133, 92, 248, 0.3)'
+              borderColor: `${colors.primary}33`
             }}
           >
             {fields.map((field, index) => (
@@ -131,13 +141,13 @@ const RegisterScreen = () => {
                   <Ionicons
                     name={field.icon as any}
                     size={18}
-                    color={focusedField === field.name ? '#855CF8' : '#6B7280'}
+                    color={focusedField === field.name ? colors.primary : colors.textSecondary}
                   />
                   <TextNexu
                     style={{
                       fontSize: 15,
                       fontWeight: '600',
-                      color: focusedField === field.name ? '#855CF8' : '#9CA3AF',
+                      color: focusedField === field.name ? colors.primary : colors.textSecondary,
                       marginLeft: 8
                     }}
                   >
@@ -153,12 +163,12 @@ const RegisterScreen = () => {
                       style={{
                         borderWidth: 2,
                         borderColor: errors[field.name]
-                          ? '#EF4444'
+                          ? colors.error
                           : focusedField === field.name
-                            ? '#855CF8'
-                            : '#374151',
+                            ? colors.primary
+                            : colors.border,
                         borderRadius: 16,
-                        backgroundColor: '#0F0F23',
+                        backgroundColor: colors.inputBackground,
                         overflow: 'hidden',
                         flexDirection: 'row',
                         alignItems: 'center'
@@ -166,7 +176,7 @@ const RegisterScreen = () => {
                     >
                       <TextInputNexu
                         placeholder={field.placeholder}
-                        placeholderTextColor='#6B7280'
+                        placeholderTextColor={colors.placeholder}
                         mode='flat'
                         value={value}
                         onFocus={() => setFocusedField(field.name)}
@@ -181,7 +191,7 @@ const RegisterScreen = () => {
                           fontSize: 15,
                           paddingHorizontal: 16,
                           flex: 1,
-                          color: '#FFFFFF'
+                          color: colors.text
                         }}
                         keyboardType={field.keyboardType}
                         secureTextEntry={
@@ -216,7 +226,7 @@ const RegisterScreen = () => {
                                   : 'eye-off'
                             }
                             size={20}
-                            color='#6B7280'
+                            color={colors.textSecondary}
                           />
                         </TouchableOpacity>
                       )}
@@ -229,8 +239,8 @@ const RegisterScreen = () => {
                     animation='shake'
                     style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}
                   >
-                    <Ionicons name='alert-circle' size={14} color='#EF4444' />
-                    <TextNexu style={{ color: '#EF4444', marginLeft: 6, fontSize: 12 }}>
+                    <Ionicons name='alert-circle' size={14} color={colors.error} />
+                    <TextNexu style={{ color: colors.error, marginLeft: 6, fontSize: 12 }}>
                       {errors[field.name]?.message}
                     </TextNexu>
                   </Animatable.View>
@@ -241,13 +251,13 @@ const RegisterScreen = () => {
             <Animatable.View animation='pulse' iterationCount='infinite' duration={3000} style={{ marginTop: 8 }}>
               <TouchableOpacity onPress={handleSubmit(onSubmit)} disabled={isSubmitting} activeOpacity={0.9}>
                 <LinearGradient
-                  colors={['#9B7EF8', '#855CF8', '#7C3AED']}
+                  colors={[`${colors.primary}`, '#7C3AED']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                   style={{
                     paddingVertical: 16,
                     borderRadius: 16,
-                    shadowColor: '#855CF8',
+                    shadowColor: colors.primary,
                     shadowOffset: { width: 0, height: 8 },
                     shadowOpacity: 0.6,
                     shadowRadius: 16,
@@ -281,9 +291,9 @@ const RegisterScreen = () => {
             style={{ alignItems: 'center', marginTop: 24, marginBottom: 24 }}
           >
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <TextNexu style={{ fontSize: 14, color: '#9CA3AF' }}>Já possui uma conta? </TextNexu>
+              <TextNexu style={{ fontSize: 14, color: colors.textSecondary }}>Já possui uma conta? </TextNexu>
               <TouchableOpacity onPress={() => router.push('/auth/login')} activeOpacity={0.7}>
-                <TextNexu style={{ fontSize: 14, color: '#855CF8', fontWeight: 'bold' }}>Faça login</TextNexu>
+                <TextNexu style={{ fontSize: 14, color: colors.primary, fontWeight: 'bold' }}>Faça login</TextNexu>
               </TouchableOpacity>
             </View>
           </Animatable.View>
