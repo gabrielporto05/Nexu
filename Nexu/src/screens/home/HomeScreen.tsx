@@ -6,6 +6,7 @@ import { like, unlike } from 'src/services/apiLikes'
 import { getAllPosts } from 'src/services/apiPosts'
 import TextNexu from 'src/components/ui/TextNexu'
 import { useAuth } from 'src/context/auth/AuthContext'
+import { useTheme } from 'src/context/theme/ThemeContext'
 import Toast from 'react-native-toast-message'
 import { Ionicons } from '@expo/vector-icons'
 import Loading from 'src/components/Loanding'
@@ -16,16 +17,10 @@ import * as Animatable from 'react-native-animatable'
 
 const { width } = Dimensions.get('window')
 
-const COLORS = {
-  card: '#1E1E38',
-  primary: '#855CF8',
-  subtext: '#9CA3AF',
-  text: '#FFFFFF'
-}
-
 const HomeScreen = () => {
   const { top } = useSafeAreaInsets()
   const { user } = useAuth()
+  const { theme, colors } = useTheme()
 
   const [posts, setPosts] = useState<PostType[]>([])
   const [sortBy, setSortBy] = useState<'likes' | 'date'>('date')
@@ -55,7 +50,7 @@ const HomeScreen = () => {
     setIsRefreshing(false)
   }
 
-  if (!user) return <Loading />
+  if (!user) return <Loading backgroundColor={colors.background} iconColor={colors.primary} />
 
   const handleLikeAndUnlike = async (post: PostType) => {
     try {
@@ -75,15 +70,22 @@ const HomeScreen = () => {
   }
 
   return (
-    <LinearGradient colors={['#0F0F23', '#1A1A2E', '#16213E']} style={{ flex: 1, paddingTop: top }}>
+    <LinearGradient
+      colors={
+        theme === 'dark'
+          ? [colors.background, colors.surface, colors.card]
+          : [colors.surface, colors.background, colors.background]
+      }
+      style={{ flex: 1, paddingTop: top }}
+    >
       <ScrollView
         style={{ flex: 1 }}
         keyboardShouldPersistTaps='handled'
-        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />}
+        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} colors={[colors.primary]} />}
       >
         <View style={styles.headerContainer}>
           <Animatable.View animation='zoomIn' duration={600}>
-            <TextNexu variant='headlineLarge' style={{ color: COLORS.text, fontWeight: 'bold' }}>
+            <TextNexu variant='headlineLarge' style={{ color: colors.text, fontWeight: 'bold' }}>
               Nexu
             </TextNexu>
           </Animatable.View>
@@ -92,14 +94,14 @@ const HomeScreen = () => {
         <View style={{ paddingHorizontal: 20, marginBottom: 8 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 12 }}>
             <TextNexu
-              style={{ color: sortBy === 'date' ? COLORS.primary : COLORS.subtext, marginRight: 12 }}
+              style={{ color: sortBy === 'date' ? colors.primary : colors.textSecondary, marginRight: 12 }}
               onPress={() => setSortBy('date')}
               variant='bodyLarge'
             >
               Mais recentes
             </TextNexu>
             <TextNexu
-              style={{ color: sortBy === 'likes' ? COLORS.primary : COLORS.subtext }}
+              style={{ color: sortBy === 'likes' ? colors.primary : colors.textSecondary }}
               onPress={() => setSortBy('likes')}
               variant='bodyLarge'
             >
@@ -113,13 +115,13 @@ const HomeScreen = () => {
             <Ionicons
               name='chatbubble-ellipses-outline'
               size={64}
-              color={COLORS.subtext}
+              color={colors.textSecondary}
               style={{ marginBottom: 12 }}
             />
-            <TextNexu variant='titleLarge' style={{ textAlign: 'center', color: COLORS.text }}>
+            <TextNexu variant='titleLarge' style={{ textAlign: 'center', color: colors.text }}>
               Ainda não há nenhum post publicado por você ou por suas conexões.
             </TextNexu>
-            <TextNexu variant='bodyLarge' style={{ textAlign: 'center', marginTop: 8, color: COLORS.subtext }}>
+            <TextNexu variant='bodyLarge' style={{ textAlign: 'center', marginTop: 8, color: colors.textSecondary }}>
               Atualize a tela ou publique algo novo.
             </TextNexu>
           </View>
@@ -141,8 +143,8 @@ const HomeScreen = () => {
                   style={[
                     styles.card,
                     {
-                      backgroundColor: COLORS.card,
-                      borderColor: COLORS.primary + '33'
+                      backgroundColor: colors.card,
+                      borderColor: `${colors.primary}33`
                     }
                   ]}
                 >
@@ -158,20 +160,20 @@ const HomeScreen = () => {
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                       <Image
                         source={{ uri: `${process.env.EXPO_PUBLIC_API_URL_UPLOADS}/avatars/${post.user.avatar}` }}
-                        style={[styles.avatar, { borderColor: COLORS.primary }]}
+                        style={[styles.avatar, { borderColor: colors.primary }]}
                         resizeMode='cover'
                       />
                       <View style={{ marginLeft: 10 }}>
-                        <TextNexu variant='titleMedium' style={{ fontWeight: '700', color: COLORS.text }}>
+                        <TextNexu variant='titleMedium' style={{ fontWeight: '700', color: colors.text }}>
                           {post.user.name}
                         </TextNexu>
-                        <TextNexu variant='bodySmall' style={{ color: COLORS.subtext }}>
+                        <TextNexu variant='bodySmall' style={{ color: colors.textSecondary }}>
                           @{post.user.nick}
                         </TextNexu>
                       </View>
                     </View>
 
-                    <TextNexu variant='bodySmall' style={{ color: COLORS.subtext }}>
+                    <TextNexu variant='bodySmall' style={{ color: colors.textSecondary }}>
                       {new Date(post.created_at).toLocaleDateString('pt-BR', {
                         day: '2-digit',
                         month: 'short',
@@ -199,7 +201,7 @@ const HomeScreen = () => {
                   <View style={{ paddingVertical: 12, paddingHorizontal: 12 }}>
                     <TextNexu
                       variant='bodyLarge'
-                      style={{ color: COLORS.text, lineHeight: 20, marginBottom: 6 }}
+                      style={{ color: colors.text, lineHeight: 20, marginBottom: 6 }}
                       numberOfLines={isExpanded ? undefined : maxLines}
                       ellipsizeMode='tail'
                     >
@@ -210,7 +212,7 @@ const HomeScreen = () => {
                       <TouchableOpacity
                         onPress={() => setExpandedPosts(prev => ({ ...prev, [post.id]: !prev[post.id] }))}
                       >
-                        <TextNexu style={{ color: COLORS.primary, fontWeight: '700' }}>
+                        <TextNexu style={{ color: colors.primary, fontWeight: '700' }}>
                           {isExpanded ? 'ver menos' : 'ver mais'}
                         </TextNexu>
                       </TouchableOpacity>
@@ -233,11 +235,11 @@ const HomeScreen = () => {
                           <Ionicons
                             name={post.likedByUser ? 'heart' : 'heart-outline'}
                             size={22}
-                            color={post.likedByUser ? COLORS.primary : COLORS.subtext}
+                            color={post.likedByUser ? colors.primary : colors.textSecondary}
                           />
                         </Animatable.View>
                       </TouchableOpacity>
-                      <TextNexu variant='bodyLarge' style={{ color: COLORS.primary, marginLeft: 8 }}>
+                      <TextNexu variant='bodyLarge' style={{ color: colors.primary, marginLeft: 8 }}>
                         {post.likes} {post.likes === 1 ? 'like' : 'likes'}
                       </TextNexu>
                     </View>

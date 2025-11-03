@@ -12,6 +12,7 @@ import Loading from 'src/components/Loanding'
 import ImageExpandModal from 'src/components/modals/ImageExpandModal'
 
 import { useAuth } from 'src/context/auth/AuthContext'
+import { useTheme } from 'src/context/theme/ThemeContext'
 import { getUserById } from 'src/services/apiUser'
 import { getAllPostsUserById, deletePostById } from 'src/services/apiPosts'
 import { followUser, unfollowUser } from 'src/services/apiFollower'
@@ -20,16 +21,10 @@ import { PostType, UserType } from 'src/utils/types'
 
 const { width } = Dimensions.get('window')
 
-const COLORS = {
-  card: '#1E1E38',
-  primary: '#855CF8',
-  subtext: '#9CA3AF',
-  text: '#FFFFFF'
-}
-
 const PerfilScreen = () => {
   const { top } = useSafeAreaInsets()
   const { user } = useAuth()
+  const { theme, colors } = useTheme()
   const { id } = useLocalSearchParams()
 
   const targetUserId = id ? Number(id) : user?.id
@@ -96,14 +91,21 @@ const PerfilScreen = () => {
     }
   }
 
-  if (!profileUser || !user) return <Loading />
+  if (!profileUser || !user) return <Loading backgroundColor={colors.background} iconColor={colors.primary} />
 
   return (
-    <LinearGradient colors={['#0F0F23', '#1A1A2E', '#16213E']} style={{ flex: 1, paddingTop: top }}>
+    <LinearGradient
+      colors={
+        theme === 'dark'
+          ? [colors.background, colors.surface, colors.card]
+          : [colors.surface, colors.background, colors.background]
+      }
+      style={{ flex: 1, paddingTop: top }}
+    >
       <ScrollView
         style={{ flex: 1 }}
         keyboardShouldPersistTaps='handled'
-        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />}
+        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} colors={[colors.primary]} />}
         contentContainerStyle={{ paddingBottom: 32 }}
       >
         <View
@@ -122,30 +124,30 @@ const PerfilScreen = () => {
             duration={600}
           >
             {isViewingOtherProfile && (
-              <Ionicons name='arrow-back-outline' size={32} color={COLORS.text} onPress={() => router.back()} />
+              <Ionicons name='arrow-back-outline' size={32} color={colors.text} onPress={() => router.back()} />
             )}
-            <TextNexu variant='headlineLarge' style={{ color: COLORS.text, fontWeight: '800' }}>
+            <TextNexu variant='headlineLarge' style={{ color: colors.text, fontWeight: '800' }}>
               {isViewingOtherProfile ? 'Perfil' : 'Meu Perfil'}
             </TextNexu>
           </Animatable.View>
           {!isViewingOtherProfile && (
             <TouchableOpacity onPress={() => router.push('/home/perfil/config-perfil')} style={styles.headerAction}>
-              <Ionicons name='settings-outline' size={32} color={COLORS.text} />
+              <Ionicons name='settings-outline' size={32} color={colors.text} />
             </TouchableOpacity>
           )}
         </View>
 
-        <View style={styles.profileCard}>
+        <View style={{ marginBottom: 12 }}>
           <Image
             source={{ uri: `${process.env.EXPO_PUBLIC_API_URL_UPLOADS}/avatars/${profileUser.avatar}` }}
-            style={styles.avatarLarge}
+            style={[styles.avatarLarge, { borderColor: colors.primary }]}
             resizeMode='cover'
           />
           <View style={{ alignItems: 'center', marginTop: 12 }}>
-            <TextNexu variant='titleLarge' style={{ color: COLORS.text, fontWeight: '800' }}>
+            <TextNexu variant='titleLarge' style={{ color: colors.text, fontWeight: '800' }}>
               {profileUser.name}
             </TextNexu>
-            <TextNexu variant='bodyLarge' style={{ color: COLORS.subtext }}>
+            <TextNexu variant='bodyLarge' style={{ color: colors.textSecondary }}>
               @{profileUser.nick}
             </TextNexu>
           </View>
@@ -157,8 +159,8 @@ const PerfilScreen = () => {
                 style={[
                   styles.followBtn,
                   {
-                    backgroundColor: profileUser.following ? '#F3F4F6' : COLORS.primary,
-                    shadowColor: profileUser.following ? 'transparent' : COLORS.primary
+                    backgroundColor: profileUser.following ? colors.inputBackground : colors.primary,
+                    shadowColor: profileUser.following ? 'transparent' : colors.primary
                   }
                 ]}
                 activeOpacity={0.85}
@@ -166,10 +168,10 @@ const PerfilScreen = () => {
                 <Ionicons
                   name={profileUser.following ? 'checkmark-circle' : 'person-add'}
                   size={18}
-                  color={profileUser.following ? '#6B7280' : '#fff'}
+                  color={profileUser.following ? colors.textSecondary : '#fff'}
                   style={{ marginRight: 8 }}
                 />
-                <TextNexu style={{ color: profileUser.following ? '#6B7280' : '#fff', fontWeight: '700' }}>
+                <TextNexu style={{ color: profileUser.following ? colors.textSecondary : '#fff', fontWeight: '700' }}>
                   {profileUser.following ? 'Seguindo' : 'Seguir'}
                 </TextNexu>
               </TouchableOpacity>
@@ -177,10 +179,10 @@ const PerfilScreen = () => {
               {profileUser.following && (
                 <TouchableOpacity
                   onPress={() => router.push(`/home/chat/${profileUser.id}`)}
-                  style={styles.messageBtn}
+                  style={[styles.messageBtn, { backgroundColor: colors.inputBackground }]}
                   activeOpacity={0.85}
                 >
-                  <Ionicons name='chatbubble-ellipses' size={18} color={COLORS.primary} />
+                  <Ionicons name='chatbubble-ellipses' size={18} color={colors.primary} />
                 </TouchableOpacity>
               )}
             </View>
@@ -188,34 +190,34 @@ const PerfilScreen = () => {
 
           <View style={styles.statsRow}>
             <View style={styles.stat}>
-              <TextNexu variant='titleLarge' style={{ color: COLORS.text, fontWeight: '800' }}>
+              <TextNexu variant='titleLarge' style={{ color: colors.text, fontWeight: '800' }}>
                 {profileUser.followersCount}
               </TextNexu>
-              <TextNexu style={{ color: COLORS.subtext }}>Seguidores</TextNexu>
+              <TextNexu style={{ color: colors.textSecondary }}>Seguidores</TextNexu>
             </View>
             <View style={styles.stat}>
-              <TextNexu variant='titleLarge' style={{ color: COLORS.text, fontWeight: '800' }}>
+              <TextNexu variant='titleLarge' style={{ color: colors.text, fontWeight: '800' }}>
                 {profileUser.followingCount}
               </TextNexu>
-              <TextNexu style={{ color: COLORS.subtext }}>Seguindo</TextNexu>
+              <TextNexu style={{ color: colors.textSecondary }}>Seguindo</TextNexu>
             </View>
             <View style={styles.stat}>
-              <TextNexu variant='titleLarge' style={{ color: COLORS.text, fontWeight: '800' }}>
+              <TextNexu variant='titleLarge' style={{ color: colors.text, fontWeight: '800' }}>
                 {profileUser.postsCount}
               </TextNexu>
-              <TextNexu style={{ color: COLORS.subtext }}>Posts</TextNexu>
+              <TextNexu style={{ color: colors.textSecondary }}>Posts</TextNexu>
             </View>
             <View style={styles.stat}>
-              <TextNexu variant='titleLarge' style={{ color: COLORS.text, fontWeight: '800' }}>
+              <TextNexu variant='titleLarge' style={{ color: colors.text, fontWeight: '800' }}>
                 {profileUser.likesCount}
               </TextNexu>
-              <TextNexu style={{ color: COLORS.subtext }}>Likes</TextNexu>
+              <TextNexu style={{ color: colors.textSecondary }}>Likes</TextNexu>
             </View>
           </View>
         </View>
 
         <View style={{ paddingHorizontal: 20, marginTop: 8 }}>
-          <TextNexu variant='titleLarge' style={{ color: COLORS.text, fontWeight: '800', marginBottom: 8 }}>
+          <TextNexu variant='titleLarge' style={{ color: colors.text, fontWeight: '800', marginBottom: 8 }}>
             {isViewingOtherProfile ? 'Posts' : 'Meus posts'}
           </TextNexu>
         </View>
@@ -225,10 +227,10 @@ const PerfilScreen = () => {
             <Ionicons
               name='chatbubble-ellipses-outline'
               size={56}
-              color={COLORS.subtext}
+              color={colors.textSecondary}
               style={{ marginBottom: 12 }}
             />
-            <TextNexu variant='titleLarge' style={{ textAlign: 'center' }}>
+            <TextNexu variant='titleLarge' style={{ textAlign: 'center', color: colors.text }}>
               {isViewingOtherProfile
                 ? 'Este usuário ainda não fez nenhuma publicação.'
                 : 'Você ainda não fez nenhuma publicação.'}
@@ -246,20 +248,26 @@ const PerfilScreen = () => {
                   key={post.id}
                   animation='fadeInUp'
                   delay={idx * 40}
-                  style={[styles.postCard, { backgroundColor: COLORS.card, borderColor: COLORS.primary + '22' }]}
+                  style={[
+                    styles.postCard,
+                    {
+                      backgroundColor: colors.card,
+                      borderColor: `${colors.primary}22`
+                    }
+                  ]}
                 >
                   <View style={styles.postHeader}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                       <Image
                         source={{ uri: `${process.env.EXPO_PUBLIC_API_URL_UPLOADS}/avatars/${profileUser.avatar}` }}
-                        style={styles.avatarSmall}
+                        style={[styles.avatarSmall, { borderColor: colors.primary }]}
                         resizeMode='cover'
                       />
                       <View style={{ marginLeft: 10 }}>
-                        <TextNexu variant='titleMedium' style={{ color: COLORS.text, fontWeight: '700' }}>
+                        <TextNexu variant='titleMedium' style={{ color: colors.text, fontWeight: '700' }}>
                           {profileUser.name}
                         </TextNexu>
-                        <TextNexu variant='bodySmall' style={{ color: COLORS.subtext }}>
+                        <TextNexu variant='bodySmall' style={{ color: colors.textSecondary }}>
                           @{profileUser.nick}
                         </TextNexu>
                       </View>
@@ -271,16 +279,24 @@ const PerfilScreen = () => {
                         style={styles.menuToggle}
                         activeOpacity={0.8}
                       >
-                        <Ionicons name='ellipsis-vertical' size={20} color={COLORS.subtext} />
+                        <Ionicons name='ellipsis-vertical' size={20} color={colors.textSecondary} />
                       </TouchableOpacity>
                     )}
                   </View>
 
                   {visibleMenu === post.id && !isViewingOtherProfile && (
-                    <View style={styles.menuBox}>
+                    <View
+                      style={[
+                        styles.menuBox,
+                        {
+                          backgroundColor: colors.card,
+                          borderColor: `${colors.primary}22`
+                        }
+                      ]}
+                    >
                       <TouchableOpacity onPress={() => handleDeletePost(post.id)} style={styles.menuItem}>
-                        <Ionicons name='trash-outline' size={18} color='#FF6B6B' style={{ marginRight: 8 }} />
-                        <TextNexu style={{ color: '#FF6B6B' }}>Excluir</TextNexu>
+                        <Ionicons name='trash-outline' size={18} color={colors.error} style={{ marginRight: 8 }} />
+                        <TextNexu style={{ color: colors.error }}>Excluir</TextNexu>
                       </TouchableOpacity>
                     </View>
                   )}
@@ -304,7 +320,7 @@ const PerfilScreen = () => {
                   <View style={{ paddingVertical: 12 }}>
                     <TextNexu
                       variant='bodyLarge'
-                      style={{ color: COLORS.text, lineHeight: 20, marginBottom: 8 }}
+                      style={{ color: colors.text, lineHeight: 20, marginBottom: 8 }}
                       numberOfLines={isExpanded ? undefined : maxLines}
                     >
                       {post.description}
@@ -314,17 +330,17 @@ const PerfilScreen = () => {
                       <TouchableOpacity
                         onPress={() => setExpandedPosts(prev => ({ ...prev, [post.id]: !prev[post.id] }))}
                       >
-                        <TextNexu style={{ color: COLORS.primary, fontWeight: '700' }}>
+                        <TextNexu style={{ color: colors.primary, fontWeight: '700' }}>
                           {isExpanded ? 'ver menos' : 'ver mais'}
                         </TextNexu>
                       </TouchableOpacity>
                     )}
 
                     <View style={styles.postFooter}>
-                      <TextNexu style={{ color: COLORS.primary }}>
+                      <TextNexu style={{ color: colors.primary }}>
                         {post.likes} {post.likes === 1 ? 'like' : 'likes'}
                       </TextNexu>
-                      <TextNexu variant='bodySmall' style={{ color: COLORS.subtext }}>
+                      <TextNexu variant='bodySmall' style={{ color: colors.textSecondary }}>
                         {new Date(post.created_at).toLocaleDateString('pt-BR', {
                           day: '2-digit',
                           month: 'short',
@@ -346,19 +362,12 @@ const PerfilScreen = () => {
 
 const styles = StyleSheet.create({
   headerAction: { padding: 8 },
-  profileCard: {
-    marginHorizontal: 20,
-    borderRadius: 16,
-    padding: 18,
-    marginBottom: 12
-  },
   avatarLarge: {
     width: 130,
     height: 130,
     borderRadius: 100,
     alignSelf: 'center',
-    borderWidth: 2,
-    borderColor: COLORS.primary
+    borderWidth: 2
   },
   followRow: {
     flexDirection: 'row',
@@ -379,7 +388,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 12,
-    backgroundColor: '#F3F4F6',
     alignItems: 'center',
     justifyContent: 'center'
   },
@@ -400,19 +408,17 @@ const styles = StyleSheet.create({
     elevation: 4
   },
   postHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  avatarSmall: { width: 44, height: 44, borderRadius: 22, borderWidth: 2, borderColor: COLORS.primary },
+  avatarSmall: { width: 44, height: 44, borderRadius: 22, borderWidth: 2 },
   menuToggle: { padding: 6, marginLeft: 8 },
   menuBox: {
     position: 'absolute',
     top: 50,
     right: 28,
-    backgroundColor: COLORS.card,
     borderRadius: 10,
     paddingVertical: 6,
     paddingHorizontal: 8,
     zIndex: 40,
     borderWidth: 1,
-    borderColor: COLORS.primary + '22',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.18,

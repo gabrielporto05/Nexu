@@ -15,6 +15,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { TextInputNexu } from 'src/components/ui/TextInputNexu'
 import TextNexu from 'src/components/ui/TextNexu'
+import { useTheme } from 'src/context/theme/ThemeContext'
 import { createPost } from 'src/services/apiPosts'
 import { getErrorMessage } from 'src/utils/errorHandler'
 import { useAuth } from 'src/context/auth/AuthContext'
@@ -28,18 +29,10 @@ import * as Animatable from 'react-native-animatable'
 
 const { width } = Dimensions.get('window')
 
-const COLORS = {
-  card: '#1E1E38',
-  primary: '#855CF8',
-  accentStart: '#9B7EF8',
-  accentEnd: '#7C3AED',
-  text: '#FFFFFF',
-  subtext: '#9CA3AF'
-}
-
 const CreatPostScreen = () => {
   const { user } = useAuth()
   const { top } = useSafeAreaInsets()
+  const { theme, colors } = useTheme()
   const [imageUri, setImageUri] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -118,25 +111,32 @@ const CreatPostScreen = () => {
     }
   }
 
-  if (!user) return <Loading />
+  if (!user) return <Loading backgroundColor={colors.background} iconColor={colors.primary} />
 
   return (
-    <LinearGradient colors={['#0F0F23', '#1A1A2E', '#16213E']} style={[styles.container, { paddingTop: top }]}>
+    <LinearGradient
+      colors={
+        theme === 'dark'
+          ? [colors.background, colors.surface, colors.card]
+          : [colors.surface, colors.background, colors.background]
+      }
+      style={[styles.container, { paddingTop: top }]}
+    >
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps='handled'>
           <Animatable.View animation='fadeInDown' duration={600} style={styles.header}>
-            <TextNexu variant='headlineLarge' style={{ color: COLORS.text, fontWeight: 'bold' }}>
+            <TextNexu variant='headlineLarge' style={{ color: colors.text, fontWeight: 'bold' }}>
               Criar publicação
             </TextNexu>
-            <TextNexu style={{ color: COLORS.subtext, marginTop: 6 }}>
+            <TextNexu style={{ color: colors.textSecondary, marginTop: 6 }}>
               Compartilhe uma ideia, foto ou pensamento com sua comunidade
             </TextNexu>
           </Animatable.View>
 
-          <Animatable.View animation='fadeInUp' duration={700} style={[styles.card, { backgroundColor: COLORS.card }]}>
+          <Animatable.View animation='fadeInUp' duration={700} style={[styles.card, { backgroundColor: colors.card }]}>
             <View style={styles.editorRow}>
-              <Ionicons name='person-circle' size={36} color={COLORS.primary} />
-              <TextNexu style={{ color: COLORS.text, fontWeight: '600', marginLeft: 10 }}>{user.name}</TextNexu>
+              <Ionicons name='person-circle' size={36} color={colors.primary} />
+              <TextNexu style={{ color: colors.text, fontWeight: '600', marginLeft: 10 }}>{user.name}</TextNexu>
             </View>
 
             <Controller
@@ -145,7 +145,7 @@ const CreatPostScreen = () => {
               render={({ field: { onChange, onBlur, value } }) => (
                 <TextInputNexu
                   placeholder='O que você está pensando?'
-                  placeholderTextColor={COLORS.subtext}
+                  placeholderTextColor={colors.textSecondary}
                   mode='flat'
                   value={value}
                   onBlur={onBlur}
@@ -153,17 +153,25 @@ const CreatPostScreen = () => {
                   error={!!errors.description}
                   multiline
                   numberOfLines={8}
-                  style={styles.textArea}
+                  style={[
+                    styles.textArea,
+                    {
+                      backgroundColor: colors.inputBackground,
+                      color: colors.text
+                    }
+                  ]}
                 />
               )}
             />
-            {errors.description && <TextNexu style={styles.errorText}>{errors.description.message}</TextNexu>}
+            {errors.description && (
+              <TextNexu style={[styles.errorText, { color: colors.error }]}>{errors.description.message}</TextNexu>
+            )}
 
             <TouchableOpacity onPress={pickImage} activeOpacity={0.85} style={styles.imagePicker}>
               {!imageUri ? (
-                <View style={styles.imagePlaceholder}>
-                  <Ionicons name='image-outline' size={36} color={COLORS.subtext} />
-                  <TextNexu style={{ color: COLORS.subtext, marginTop: 8 }}>Toque para adicionar imagem</TextNexu>
+                <View style={[styles.imagePlaceholder, { backgroundColor: colors.inputBackground }]}>
+                  <Ionicons name='image-outline' size={36} color={colors.textSecondary} />
+                  <TextNexu style={{ color: colors.textSecondary, marginTop: 8 }}>Toque para adicionar imagem</TextNexu>
                 </View>
               ) : (
                 <View>
@@ -183,13 +191,13 @@ const CreatPostScreen = () => {
           <Animatable.View animation='pulse' iterationCount='infinite' duration={3000}>
             <TouchableOpacity onPress={handleSubmit(onSubmit)} disabled={isSubmitting} activeOpacity={0.9}>
               <LinearGradient
-                colors={['#9B7EF8', '#855CF8', '#7C3AED']}
+                colors={[colors.primary, '#7C3AED']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={{
                   paddingVertical: 18,
                   borderRadius: 16,
-                  shadowColor: '#855CF8',
+                  shadowColor: colors.primary,
                   shadowOffset: { width: 0, height: 8 },
                   shadowOpacity: 0.6,
                   shadowRadius: 16,
@@ -237,13 +245,11 @@ const styles = StyleSheet.create({
   textArea: {
     minHeight: 140,
     borderRadius: 12,
-    backgroundColor: '#0F0F23',
-    color: '#fff',
     fontSize: 16,
     textAlignVertical: 'top',
     marginBottom: 12
   },
-  errorText: { color: '#FF6B6B', marginBottom: 8 },
+  errorText: { marginBottom: 8 },
   imagePicker: {
     borderRadius: 12,
     overflow: 'hidden',
@@ -253,7 +259,6 @@ const styles = StyleSheet.create({
   imagePlaceholder: {
     height: 180,
     width: '100%',
-    backgroundColor: '#141426',
     alignItems: 'center',
     justifyContent: 'center'
   },

@@ -17,6 +17,7 @@ import { LinearGradient } from 'expo-linear-gradient'
 import Toast from 'react-native-toast-message'
 import * as Animatable from 'react-native-animatable'
 import { useAuth } from 'src/context/auth/AuthContext'
+import { useTheme } from 'src/context/theme/ThemeContext'
 import { router } from 'expo-router'
 import { changePassword } from 'src/services/apiProfile'
 import { Ionicons } from '@expo/vector-icons'
@@ -24,16 +25,10 @@ import { ChangePasswordSchema, ChangePasswordSchemaType } from 'src/schemas/Chan
 import { getErrorMessage } from 'src/utils/errorHandler'
 import Loading from 'src/components/Loanding'
 
-const COLORS = {
-  card: '#1E1E38',
-  primary: '#855CF8',
-  subtext: '#9CA3AF',
-  text: '#FFFFFF'
-}
-
 const ChangePasswordScreen = () => {
   const { top } = useSafeAreaInsets()
   const { user } = useAuth()
+  const { theme, colors } = useTheme()
   const [showCurrent, setShowCurrent] = useState(false)
   const [showNew, setShowNew] = useState(false)
   const [focusedField, setFocusedField] = useState<string | null>(null)
@@ -66,34 +61,41 @@ const ChangePasswordScreen = () => {
   }
 
   return (
-    <LinearGradient colors={['#0F0F23', '#1A1A2E', '#16213E']} style={[styles.container, { paddingTop: top }]}>
+    <LinearGradient
+      colors={
+        theme === 'dark'
+          ? [colors.background, colors.surface, colors.card]
+          : [colors.surface, colors.background, colors.background]
+      }
+      style={[styles.container, { paddingTop: top }]}
+    >
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps='handled'>
           <TouchableOpacity onPress={() => router.back()} style={{ marginBottom: 8 }}>
-            <Ionicons name='arrow-back' size={24} color={COLORS.text} />
+            <Ionicons name='arrow-back' size={24} color={colors.text} />
           </TouchableOpacity>
           <Animatable.View animation='fadeInDown' duration={600} style={{ marginBottom: 8 }}>
-            <TextNexu variant='headlineLarge' style={{ color: COLORS.text, fontWeight: '800' }}>
+            <TextNexu variant='headlineLarge' style={{ color: colors.text, fontWeight: '800' }}>
               Alterar senha
             </TextNexu>
-            <TextNexu style={{ color: COLORS.subtext, marginTop: 6 }}>
+            <TextNexu style={{ color: colors.textSecondary, marginTop: 6 }}>
               Informe sua senha atual e escolha uma nova senha segura
             </TextNexu>
           </Animatable.View>
 
-          <Animatable.View animation='fadeInUp' duration={700} style={[styles.card, { backgroundColor: COLORS.card }]}>
+          <Animatable.View animation='fadeInUp' duration={700} style={[styles.card, { backgroundColor: colors.card }]}>
             <View style={{ marginBottom: 12 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
                 <Ionicons
                   name='lock-closed'
                   size={20}
-                  color={focusedField === 'current_password' ? COLORS.primary : COLORS.subtext}
+                  color={focusedField === 'current_password' ? colors.primary : colors.textSecondary}
                 />
                 <TextNexu
                   style={{
                     fontSize: 16,
                     fontWeight: '600',
-                    color: focusedField === 'current_password' ? COLORS.primary : COLORS.subtext,
+                    color: focusedField === 'current_password' ? colors.primary : colors.textSecondary,
                     marginLeft: 8
                   }}
                 >
@@ -109,12 +111,12 @@ const ChangePasswordScreen = () => {
                     style={{
                       borderWidth: 2,
                       borderColor: errors.current_password
-                        ? '#EF4444'
+                        ? colors.error
                         : focusedField === 'current_password'
-                          ? COLORS.primary
-                          : '#374151',
+                          ? colors.primary
+                          : colors.border,
                       borderRadius: 16,
-                      backgroundColor: '#0F0F23',
+                      backgroundColor: colors.inputBackground,
                       overflow: 'hidden',
                       flexDirection: 'row',
                       alignItems: 'center'
@@ -122,7 +124,7 @@ const ChangePasswordScreen = () => {
                   >
                     <TextInputNexu
                       placeholder='Digite sua senha atual'
-                      placeholderTextColor={COLORS.subtext}
+                      placeholderTextColor={colors.textSecondary}
                       value={value}
                       onFocus={() => setFocusedField('current_password')}
                       onBlur={() => {
@@ -136,7 +138,7 @@ const ChangePasswordScreen = () => {
                         fontSize: 16,
                         paddingHorizontal: 16,
                         flex: 1,
-                        color: COLORS.text
+                        color: colors.text
                       }}
                       error={!!errors.current_password}
                     />
@@ -145,7 +147,7 @@ const ChangePasswordScreen = () => {
                       style={{ paddingHorizontal: 16 }}
                       activeOpacity={0.7}
                     >
-                      <Ionicons name={showCurrent ? 'eye' : 'eye-off'} size={22} color='#6B7280' />
+                      <Ionicons name={showCurrent ? 'eye' : 'eye-off'} size={22} color={colors.textSecondary} />
                     </TouchableOpacity>
                   </View>
                 )}
@@ -153,8 +155,8 @@ const ChangePasswordScreen = () => {
 
               {errors.current_password && (
                 <Animatable.View animation='shake' style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
-                  <Ionicons name='alert-circle' size={16} color='#EF4444' />
-                  <TextNexu style={{ color: '#EF4444', marginLeft: 6, fontSize: 13 }}>
+                  <Ionicons name='alert-circle' size={16} color={colors.error} />
+                  <TextNexu style={{ color: colors.error, marginLeft: 6, fontSize: 13 }}>
                     {errors.current_password.message}
                   </TextNexu>
                 </Animatable.View>
@@ -166,13 +168,13 @@ const ChangePasswordScreen = () => {
                 <Ionicons
                   name='lock-closed'
                   size={20}
-                  color={focusedField === 'new_password' ? COLORS.primary : COLORS.subtext}
+                  color={focusedField === 'new_password' ? colors.primary : colors.textSecondary}
                 />
                 <TextNexu
                   style={{
                     fontSize: 16,
                     fontWeight: '600',
-                    color: focusedField === 'new_password' ? COLORS.primary : COLORS.subtext,
+                    color: focusedField === 'new_password' ? colors.primary : colors.textSecondary,
                     marginLeft: 8
                   }}
                 >
@@ -188,12 +190,12 @@ const ChangePasswordScreen = () => {
                     style={{
                       borderWidth: 2,
                       borderColor: errors.new_password
-                        ? '#EF4444'
+                        ? colors.error
                         : focusedField === 'new_password'
-                          ? COLORS.primary
-                          : '#374151',
+                          ? colors.primary
+                          : colors.border,
                       borderRadius: 16,
-                      backgroundColor: '#0F0F23',
+                      backgroundColor: colors.inputBackground,
                       overflow: 'hidden',
                       flexDirection: 'row',
                       alignItems: 'center'
@@ -201,7 +203,7 @@ const ChangePasswordScreen = () => {
                   >
                     <TextInputNexu
                       placeholder='Crie uma nova senha'
-                      placeholderTextColor={COLORS.subtext}
+                      placeholderTextColor={colors.textSecondary}
                       value={value}
                       onFocus={() => setFocusedField('new_password')}
                       onBlur={() => {
@@ -218,7 +220,7 @@ const ChangePasswordScreen = () => {
                         fontSize: 16,
                         paddingHorizontal: 16,
                         flex: 1,
-                        color: COLORS.text
+                        color: colors.text
                       }}
                       error={!!errors.new_password}
                     />
@@ -227,7 +229,7 @@ const ChangePasswordScreen = () => {
                       style={{ paddingHorizontal: 16 }}
                       activeOpacity={0.7}
                     >
-                      <Ionicons name={showNew ? 'eye' : 'eye-off'} size={22} color='#6B7280' />
+                      <Ionicons name={showNew ? 'eye' : 'eye-off'} size={22} color={colors.textSecondary} />
                     </TouchableOpacity>
                   </View>
                 )}
@@ -235,15 +237,15 @@ const ChangePasswordScreen = () => {
 
               {errors.new_password && (
                 <Animatable.View animation='shake' style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
-                  <Ionicons name='alert-circle' size={16} color='#EF4444' />
-                  <TextNexu style={{ color: '#EF4444', marginLeft: 6, fontSize: 13 }}>
+                  <Ionicons name='alert-circle' size={16} color={colors.error} />
+                  <TextNexu style={{ color: colors.error, marginLeft: 6, fontSize: 13 }}>
                     {errors.new_password.message}
                   </TextNexu>
                 </Animatable.View>
               )}
 
               <View style={{ marginTop: 8 }}>
-                <TextNexu style={{ color: COLORS.subtext, fontSize: 13 }}>
+                <TextNexu style={{ color: colors.textSecondary, fontSize: 13 }}>
                   A senha deve ter no mínimo 8 caracteres, incluir letras maiúsculas, minúsculas e números.
                 </TextNexu>
               </View>
@@ -257,7 +259,7 @@ const ChangePasswordScreen = () => {
                 style={{ borderRadius: 12, overflow: 'hidden' }}
               >
                 <LinearGradient
-                  colors={[COLORS.primary, '#9B7EF8']}
+                  colors={[colors.primary, '#7C3AED']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                   style={styles.saveBtn}
@@ -292,13 +294,11 @@ const styles = StyleSheet.create({
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0F0F23',
     borderRadius: 10,
     paddingHorizontal: 10
   },
   input: {
     flex: 1,
-    color: '#fff',
     paddingVertical: 12,
     fontSize: 15
   },
@@ -311,7 +311,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 12
   },
-  errorText: { color: '#FF6B6B', marginTop: 8 }
+  errorText: { marginTop: 8 }
 })
 
 export default ChangePasswordScreen

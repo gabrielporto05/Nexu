@@ -5,6 +5,7 @@ import { getUsersByNameOrNick } from 'src/services/apiUser'
 import { getErrorMessage } from 'src/utils/errorHandler'
 import { useDebounce } from 'src/hooks/useDebounce'
 import TextNexu from 'src/components/ui/TextNexu'
+import { useTheme } from 'src/context/theme/ThemeContext'
 import Toast from 'react-native-toast-message'
 import { UserType } from 'src/utils/types'
 import { router } from 'expo-router'
@@ -13,16 +14,9 @@ import * as Animatable from 'react-native-animatable'
 import { Ionicons } from '@expo/vector-icons'
 import { TextInputNexu } from 'src/components/ui/TextInputNexu'
 
-const COLORS = {
-  card: '#1E1E38',
-  primary: '#855CF8',
-  subtext: '#9CA3AF',
-  text: '#FFFFFF',
-  mutedBg: '#0B0B10'
-}
-
 const SearchScreen = () => {
   const { top } = useSafeAreaInsets()
+  const { theme, colors } = useTheme()
   const [search, setSearch] = useState('')
   const [users, setUsers] = useState<UserType[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -58,7 +52,14 @@ const SearchScreen = () => {
   }, [debouncedSearch])
 
   return (
-    <LinearGradient colors={['#0F0F23', '#1A1A2E', '#16213E']} style={{ flex: 1, paddingTop: top }}>
+    <LinearGradient
+      colors={
+        theme === 'dark'
+          ? [colors.background, colors.surface, colors.card]
+          : [colors.surface, colors.background, colors.background]
+      }
+      style={{ flex: 1, paddingTop: top }}
+    >
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
@@ -66,41 +67,41 @@ const SearchScreen = () => {
       >
         <View style={{ alignItems: 'center', marginBottom: 18 }}>
           <Animatable.View animation='fadeInDown' duration={700}>
-            <TextNexu variant='headlineLarge' style={{ color: COLORS.text, fontWeight: '700', marginTop: 8 }}>
+            <TextNexu variant='headlineLarge' style={{ color: colors.text, fontWeight: '700', marginTop: 8 }}>
               Buscar
             </TextNexu>
           </Animatable.View>
-          <TextNexu style={{ color: COLORS.subtext, marginTop: 6 }}>Encontre pessoas para seguir</TextNexu>
+          <TextNexu style={{ color: colors.textSecondary, marginTop: 6 }}>Encontre pessoas para seguir</TextNexu>
         </View>
 
         <View style={styles.searchRow}>
-          <View style={styles.searchBox}>
-            <Ionicons name='search' size={20} color={COLORS.subtext} style={{ marginRight: 10 }} />
+          <View style={[styles.searchBox, { backgroundColor: colors.card }]}>
+            <Ionicons name='search' size={20} color={colors.textSecondary} style={{ marginRight: 10 }} />
             <TextInputNexu
               placeholder='Busque pelo seu influencer preferido...'
-              placeholderTextColor={COLORS.subtext}
+              placeholderTextColor={colors.textSecondary}
               value={search}
               onChangeText={setSearch}
-              style={styles.searchInput}
+              style={[styles.searchInput, { color: colors.text }]}
               autoCapitalize='none'
               returnKeyType='search'
               clearButtonMode='while-editing'
               maxLength={50}
             />
-            {isLoading ? <ActivityIndicator size='small' color={COLORS.primary} /> : null}
+            {isLoading ? <ActivityIndicator size='small' color={colors.primary} /> : null}
           </View>
         </View>
 
         <View style={{ marginTop: 18 }}>
           {isLoading && users.length === 0 ? (
             <View style={{ padding: 20, alignItems: 'center' }}>
-              <ActivityIndicator size='large' color={COLORS.primary} />
-              <TextNexu style={{ color: COLORS.subtext, marginTop: 12 }}>Buscando usuários...</TextNexu>
+              <ActivityIndicator size='large' color={colors.primary} />
+              <TextNexu style={{ color: colors.textSecondary, marginTop: 12 }}>Buscando usuários...</TextNexu>
             </View>
           ) : users.length === 0 ? (
             <View style={{ paddingVertical: 60, alignItems: 'center' }}>
-              <Ionicons name='people-outline' size={56} color={COLORS.subtext} style={{ marginBottom: 12 }} />
-              <TextNexu style={{ color: COLORS.subtext, textAlign: 'center', marginHorizontal: 20 }}>
+              <Ionicons name='people-outline' size={56} color={colors.textSecondary} style={{ marginBottom: 12 }} />
+              <TextNexu style={{ color: colors.textSecondary, textAlign: 'center', marginHorizontal: 20 }}>
                 {debouncedSearch.trim().length > 0
                   ? `Nenhum usuário encontrado com "${debouncedSearch}".`
                   : 'Digite um nome ou @nick para começar a busca.'}
@@ -108,18 +109,23 @@ const SearchScreen = () => {
             </View>
           ) : (
             users.map((u, idx) => (
-              <Animatable.View key={u.id} animation='fadeInUp' delay={idx * 40} style={styles.card}>
+              <Animatable.View
+                key={u.id}
+                animation='fadeInUp'
+                delay={idx * 40}
+                style={[styles.card, { backgroundColor: colors.card }]}
+              >
                 <TouchableOpacity onPress={() => handleUserPress(u.id)} activeOpacity={0.8} style={styles.cardLeft}>
                   <Image
                     source={{ uri: `${process.env.EXPO_PUBLIC_API_URL_UPLOADS}/avatars/${u.avatar}` }}
-                    style={styles.avatar}
+                    style={[styles.avatar, { borderColor: colors.primary }]}
                     resizeMode='cover'
                   />
                   <View style={{ flex: 1 }}>
-                    <TextNexu variant='titleMedium' style={{ color: COLORS.text, fontWeight: '700' }}>
+                    <TextNexu variant='titleMedium' style={{ color: colors.text, fontWeight: '700' }}>
                       {u.name}
                     </TextNexu>
-                    <TextNexu variant='bodySmall' style={{ color: COLORS.subtext }}>
+                    <TextNexu variant='bodySmall' style={{ color: colors.textSecondary }}>
                       @{u.nick}
                     </TextNexu>
                   </View>
@@ -140,7 +146,6 @@ const styles = StyleSheet.create({
   },
   searchBox: {
     flex: 1,
-    backgroundColor: COLORS.card,
     borderRadius: 14,
     paddingHorizontal: 12,
     paddingVertical: 10,
@@ -154,19 +159,16 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    color: COLORS.text,
     fontSize: 14
   },
   clearBtn: {
     marginLeft: 12,
-    backgroundColor: COLORS.card,
     padding: 10,
     borderRadius: 12
   },
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.card,
     borderRadius: 14,
     padding: 12,
     marginBottom: 12,
@@ -178,13 +180,7 @@ const styles = StyleSheet.create({
     elevation: 6
   },
   cardLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
-  avatar: { width: 64, height: 64, borderRadius: 32, marginRight: 12, borderWidth: 2, borderColor: COLORS.primary },
-  followButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: 12,
-    borderWidth: 1
-  }
+  avatar: { width: 64, height: 64, borderRadius: 32, marginRight: 12, borderWidth: 2 }
 })
 
 export default SearchScreen

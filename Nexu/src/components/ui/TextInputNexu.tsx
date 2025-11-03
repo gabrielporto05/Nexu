@@ -2,7 +2,7 @@ import { TextInput, TextInputProps } from 'react-native-paper'
 import { useTheme } from 'src/context/theme/ThemeContext'
 
 export const TextInputNexu = (props: TextInputProps) => {
-  const { colors } = useTheme()
+  const { colors, theme } = useTheme()
 
   return (
     <TextInput
@@ -10,6 +10,7 @@ export const TextInputNexu = (props: TextInputProps) => {
       textColor={colors.text}
       style={[{ fontFamily: 'SpaceGrotesk_400Regular' }, props.style]}
       right={props.right}
+      cursorColor={theme === 'dark' ? '#FFFFFF' : '#000000'}
       secureTextEntry={props.secureTextEntry}
       maxLength={props.maxLength}
       theme={{

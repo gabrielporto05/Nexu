@@ -100,15 +100,19 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   }, [])
 
   const setTheme = async (newTheme: ThemeMode) => {
+    setThemeState(newTheme)
+
     try {
       await setStorageItem(THEME_KEY, newTheme)
-      setThemeState(newTheme)
-    } catch {
-      setThemeState('dark')
+    } catch (error) {
+      console.warn('⚠️ Falha ao salvar tema:', error)
     }
   }
 
-  const toggleTheme = () => setTheme(theme === 'light' ? 'dark' : 'light')
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light'
+    setTheme(newTheme)
+  }
   const colors = theme === 'light' ? lightColors : darkColors
 
   if (!initialized) return null

@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as ImagePicker from 'expo-image-picker'
 import { useAuth } from 'src/context/auth/AuthContext'
+import { useTheme } from 'src/context/theme/ThemeContext'
 import TextNexu from 'src/components/ui/TextNexu'
 import { router } from 'expo-router'
 import Toast from 'react-native-toast-message'
@@ -24,19 +25,13 @@ import { getErrorMessage } from 'src/utils/errorHandler'
 import * as Animatable from 'react-native-animatable'
 import { LinearGradient } from 'expo-linear-gradient'
 
-const COLORS = {
-  card: '#1E1E38',
-  primary: '#855CF8',
-  subtext: '#9CA3AF',
-  text: '#FFFFFF',
-  danger: '#FF6B6B'
-}
-
 const UpdatePerfilScreen = () => {
   const { top } = useSafeAreaInsets()
   const { user, refreshUser } = useAuth()
+  const { theme, colors } = useTheme()
   const [selectedImage, setSelectedImage] = useState<any>(null)
   const [loading, setLoading] = useState(false)
+  const [focusedField, setFocusedField] = useState<string | null>(null)
 
   const { control, handleSubmit } = useForm({
     defaultValues: { name: user?.name || '', nick: user?.nick || '' }
@@ -101,22 +96,31 @@ const UpdatePerfilScreen = () => {
   }
 
   return (
-    <LinearGradient colors={['#0F0F23', '#1A1A2E', '#16213E']} style={[styles.container, { paddingTop: top }]}>
+    <LinearGradient
+      colors={
+        theme === 'dark'
+          ? [colors.background, colors.surface, colors.card]
+          : [colors.surface, colors.background, colors.background]
+      }
+      style={[styles.container, { paddingTop: top }]}
+    >
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps='handled'>
           <View style={styles.headerRow}>
             <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-              <Ionicons name='arrow-back' size={22} color={COLORS.text} />
+              <Ionicons name='arrow-back' size={22} color={colors.text} />
             </TouchableOpacity>
             <Animatable.View animation='fadeInDown' duration={400}>
-              <TextNexu style={styles.title}>Atualizar perfil</TextNexu>
-              <TextNexu style={styles.subtitle}>Altere suas informações e avatar</TextNexu>
+              <TextNexu style={[styles.title, { color: colors.text }]}>Atualizar perfil</TextNexu>
+              <TextNexu style={[styles.subtitle, { color: colors.textSecondary }]}>
+                Altere suas informações e avatar
+              </TextNexu>
             </Animatable.View>
           </View>
 
-          <Animatable.View animation='fadeInUp' duration={600} style={[styles.card, { backgroundColor: COLORS.card }]}>
+          <Animatable.View animation='fadeInUp' duration={600} style={[styles.card, { backgroundColor: colors.card }]}>
             <View style={{ alignItems: 'center', marginBottom: 12 }}>
-              <View style={[styles.avatarBorder, { borderColor: COLORS.primary }]}>
+              <View style={[styles.avatarBorder, { borderColor: colors.primary }]}>
                 <Image
                   source={{
                     uri: selectedImage?.uri || `${process.env.EXPO_PUBLIC_API_URL_UPLOADS}/avatars/${user.avatar}`
@@ -127,14 +131,14 @@ const UpdatePerfilScreen = () => {
               </View>
 
               <View style={{ flexDirection: 'row', marginTop: 12, gap: 12 }}>
-                <TouchableOpacity onPress={pickImage} style={styles.smallBtn}>
+                <TouchableOpacity onPress={pickImage} style={[styles.smallBtn, { backgroundColor: colors.primary }]}>
                   <Ionicons name='image-outline' size={18} color='#fff' />
                   <TextNexu style={styles.smallBtnText}>Novo</TextNexu>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   onPress={handleDeleteAvatar}
-                  style={[styles.smallBtn, { backgroundColor: COLORS.danger }]}
+                  style={[styles.smallBtn, { backgroundColor: colors.error }]}
                 >
                   <Ionicons name='trash-outline' size={18} color='#fff' />
                   <TextNexu style={styles.smallBtnText}>Remover</TextNexu>
@@ -142,31 +146,122 @@ const UpdatePerfilScreen = () => {
               </View>
             </View>
 
-            <View style={{ marginTop: 6 }}>
-              <TextNexu style={{ color: COLORS.subtext, marginBottom: 8 }}>Nome</TextNexu>
+            {/* Input Nome - Estilo igual ao ChangePasswordScreen */}
+            <View style={{ marginBottom: 16 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                <Ionicons
+                  name='person'
+                  size={20}
+                  color={focusedField === 'name' ? colors.primary : colors.textSecondary}
+                />
+                <TextNexu
+                  style={{
+                    fontSize: 16,
+                    fontWeight: '600',
+                    color: focusedField === 'name' ? colors.primary : colors.textSecondary,
+                    marginLeft: 8
+                  }}
+                >
+                  Nome
+                </TextNexu>
+              </View>
+
               <Controller
                 control={control}
                 name='name'
-                render={({ field: { onChange, value } }) => (
-                  <TextInputNexu placeholder='Seu nome' value={value} onChangeText={onChange} style={styles.input} />
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <View
+                    style={{
+                      borderWidth: 2,
+                      borderColor: focusedField === 'name' ? colors.primary : colors.border,
+                      borderRadius: 16,
+                      backgroundColor: colors.inputBackground,
+                      overflow: 'hidden',
+                      flexDirection: 'row',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <TextInputNexu
+                      placeholder='Seu nome'
+                      placeholderTextColor={colors.textSecondary}
+                      value={value}
+                      onFocus={() => setFocusedField('name')}
+                      onBlur={() => {
+                        setFocusedField(null)
+                        onBlur()
+                      }}
+                      onChangeText={onChange}
+                      style={{
+                        backgroundColor: 'transparent',
+                        fontSize: 16,
+                        paddingHorizontal: 16,
+                        flex: 1,
+                        color: colors.text
+                      }}
+                    />
+                  </View>
                 )}
               />
             </View>
 
-            <View style={{ marginTop: 12 }}>
-              <TextNexu style={{ color: COLORS.subtext, marginBottom: 8 }}>Nick</TextNexu>
+            {/* Input Nick - Estilo igual ao ChangePasswordScreen */}
+            <View style={{ marginBottom: 16 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                <Ionicons name='at' size={20} color={focusedField === 'nick' ? colors.primary : colors.textSecondary} />
+                <TextNexu
+                  style={{
+                    fontSize: 16,
+                    fontWeight: '600',
+                    color: focusedField === 'nick' ? colors.primary : colors.textSecondary,
+                    marginLeft: 8
+                  }}
+                >
+                  Nick
+                </TextNexu>
+              </View>
+
               <Controller
                 control={control}
                 name='nick'
-                render={({ field: { onChange, value } }) => (
-                  <TextInputNexu placeholder='@seuNick' value={value} onChangeText={onChange} style={styles.input} />
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <View
+                    style={{
+                      borderWidth: 2,
+                      borderColor: focusedField === 'nick' ? colors.primary : colors.border,
+                      borderRadius: 16,
+                      backgroundColor: colors.inputBackground,
+                      overflow: 'hidden',
+                      flexDirection: 'row',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <TextInputNexu
+                      placeholder='@seuNick'
+                      placeholderTextColor={colors.textSecondary}
+                      value={value}
+                      onFocus={() => setFocusedField('nick')}
+                      onBlur={() => {
+                        setFocusedField(null)
+                        onBlur()
+                      }}
+                      onChangeText={onChange}
+                      autoCapitalize='none'
+                      style={{
+                        backgroundColor: 'transparent',
+                        fontSize: 16,
+                        paddingHorizontal: 16,
+                        flex: 1,
+                        color: colors.text
+                      }}
+                    />
+                  </View>
                 )}
               />
             </View>
 
-            <View style={{ marginTop: 18 }}>
+            <View style={{ marginTop: 6 }}>
               <TouchableOpacity onPress={handleSubmit(onSubmit)} disabled={loading} activeOpacity={0.9}>
-                <View style={styles.saveBtnWrap}>
+                <View style={[styles.saveBtnWrap, { backgroundColor: colors.primary }]}>
                   {loading ? (
                     <ActivityIndicator color='#fff' />
                   ) : (
@@ -189,8 +284,8 @@ const styles = StyleSheet.create({
   scroll: { padding: 20, paddingBottom: 40 },
   headerRow: { marginBottom: 6 },
   backBtn: { marginBottom: 8 },
-  title: { fontSize: 22, fontWeight: '800', color: '#fff' },
-  subtitle: { color: COLORS.subtext, marginTop: 6 },
+  title: { fontSize: 22, fontWeight: '800' },
+  subtitle: { marginTop: 6 },
   card: {
     borderRadius: 14,
     padding: 18,
@@ -203,7 +298,6 @@ const styles = StyleSheet.create({
   avatarBorder: { borderWidth: 3, padding: 4, borderRadius: 90 },
   avatarBig: { width: 120, height: 120, borderRadius: 60 },
   smallBtn: {
-    backgroundColor: COLORS.primary,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 10,
@@ -212,9 +306,7 @@ const styles = StyleSheet.create({
     gap: 8
   },
   smallBtnText: { color: '#fff', fontWeight: '700', marginLeft: 6 },
-  input: { backgroundColor: '#0F0F23' },
   saveBtnWrap: {
-    backgroundColor: COLORS.primary,
     paddingVertical: 14,
     borderRadius: 12,
     alignItems: 'center',

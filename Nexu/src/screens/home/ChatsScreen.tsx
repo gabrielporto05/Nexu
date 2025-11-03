@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { getConnections } from 'src/services/apiFollower'
 import { getErrorMessage } from 'src/utils/errorHandler'
 import TextNexu from 'src/components/ui/TextNexu'
+import { useTheme } from 'src/context/theme/ThemeContext'
 import Toast from 'react-native-toast-message'
 import { UserType } from 'src/utils/types'
 import { router } from 'expo-router'
@@ -13,16 +14,10 @@ import { Ionicons } from '@expo/vector-icons'
 import { useAuth } from 'src/context/auth/AuthContext'
 import { TextInputNexu } from 'src/components/ui/TextInputNexu'
 
-const COLORS = {
-  card: '#1E1E38',
-  primary: '#855CF8',
-  subtext: '#9CA3AF',
-  text: '#FFFFFF'
-}
-
 const ChatsScreen = () => {
   const { top } = useSafeAreaInsets()
   const { user } = useAuth()
+  const { theme, colors } = useTheme()
 
   const [search, setSearch] = useState('')
   const [connections, setConnections] = useState<UserType[]>([])
@@ -69,50 +64,62 @@ const ChatsScreen = () => {
   if (!user) return null
 
   return (
-    <LinearGradient colors={['#0F0F23', '#1A1A2E', '#16213E']} style={{ flex: 1, paddingTop: top }}>
+    <LinearGradient
+      colors={
+        theme === 'dark'
+          ? [colors.background, colors.surface, colors.card]
+          : [colors.surface, colors.background, colors.background]
+      }
+      style={{ flex: 1, paddingTop: top }}
+    >
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
         keyboardShouldPersistTaps='handled'
-        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />}
+        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} colors={[colors.primary]} />}
       >
         <View style={{ alignItems: 'center', marginBottom: 18 }}>
           <Animatable.View animation='fadeInDown' duration={700}>
-            <TextNexu variant='headlineLarge' style={{ color: COLORS.text, fontWeight: '700', marginTop: 8 }}>
+            <TextNexu variant='headlineLarge' style={{ color: colors.text, fontWeight: '700', marginTop: 8 }}>
               Conversas
             </TextNexu>
           </Animatable.View>
-          <TextNexu style={{ color: COLORS.subtext, marginTop: 6 }}>Converse com suas conexões</TextNexu>
+          <TextNexu style={{ color: colors.textSecondary, marginTop: 6 }}>Converse com suas conexões</TextNexu>
         </View>
 
         <View style={styles.searchRow}>
-          <View style={styles.searchBox}>
-            <Ionicons name='search' size={20} color={COLORS.subtext} style={{ marginRight: 10 }} />
+          <View style={[styles.searchBox, { backgroundColor: colors.card }]}>
+            <Ionicons name='search' size={20} color={colors.textSecondary} style={{ marginRight: 10 }} />
             <TextInputNexu
               placeholder='Buscar por nome ou @nick'
-              placeholderTextColor={COLORS.subtext}
+              placeholderTextColor={colors.textSecondary}
               value={search}
               onChangeText={setSearch}
-              style={styles.searchInput}
+              style={[styles.searchInput, { color: colors.text }]}
               autoCapitalize='none'
               returnKeyType='search'
               clearButtonMode='while-editing'
               maxLength={50}
             />
-            {isLoading ? <ActivityIndicator size='small' color={COLORS.primary} /> : null}
+            {isLoading ? <ActivityIndicator size='small' color={colors.primary} /> : null}
           </View>
         </View>
 
         <View style={{ marginTop: 18 }}>
           {isLoading && connections.length === 0 ? (
             <View style={{ padding: 20, alignItems: 'center' }}>
-              <ActivityIndicator size='large' color={COLORS.primary} />
-              <TextNexu style={{ color: COLORS.subtext, marginTop: 12 }}>Carregando conversas...</TextNexu>
+              <ActivityIndicator size='large' color={colors.primary} />
+              <TextNexu style={{ color: colors.textSecondary, marginTop: 12 }}>Carregando conversas...</TextNexu>
             </View>
           ) : filtered.length === 0 ? (
             <View style={{ paddingVertical: 60, alignItems: 'center' }}>
-              <Ionicons name='chatbubble-ellipses' size={56} color={COLORS.subtext} style={{ marginBottom: 12 }} />
-              <TextNexu style={{ color: COLORS.subtext, textAlign: 'center', marginHorizontal: 20 }}>
+              <Ionicons
+                name='chatbubble-ellipses'
+                size={56}
+                color={colors.textSecondary}
+                style={{ marginBottom: 12 }}
+              />
+              <TextNexu style={{ color: colors.textSecondary, textAlign: 'center', marginHorizontal: 20 }}>
                 {connections.length === 0
                   ? 'Você ainda não tem conexões. Conecte-se com outros usuários para iniciar conversas.'
                   : `Nenhuma conversa encontrada para "${search}".`}
@@ -120,18 +127,23 @@ const ChatsScreen = () => {
             </View>
           ) : (
             filtered.map((c, idx) => (
-              <Animatable.View key={c.id} animation='fadeInUp' delay={idx * 40} style={styles.card}>
+              <Animatable.View
+                key={c.id}
+                animation='fadeInUp'
+                delay={idx * 40}
+                style={[styles.card, { backgroundColor: colors.card }]}
+              >
                 <TouchableOpacity onPress={() => handleOpenChat(c.id)} activeOpacity={0.85} style={styles.cardLeft}>
                   <Image
                     source={{ uri: `${process.env.EXPO_PUBLIC_API_URL_UPLOADS}/avatars/${c.avatar}` }}
-                    style={styles.avatar}
+                    style={[styles.avatar, { borderColor: colors.primary }]}
                     resizeMode='cover'
                   />
                   <View style={{ flex: 1 }}>
-                    <TextNexu variant='titleMedium' style={{ color: COLORS.text, fontWeight: '700' }}>
+                    <TextNexu variant='titleMedium' style={{ color: colors.text, fontWeight: '700' }}>
                       {c.name}
                     </TextNexu>
-                    <TextNexu variant='bodySmall' style={{ color: COLORS.subtext }}>
+                    <TextNexu variant='bodySmall' style={{ color: colors.textSecondary }}>
                       @{c.nick}
                     </TextNexu>
                   </View>
@@ -139,7 +151,7 @@ const ChatsScreen = () => {
 
                 <View style={{ marginLeft: 12 }}>
                   <TouchableOpacity onPress={() => handleOpenChat(c.id)} style={styles.openBtn} activeOpacity={0.8}>
-                    <Ionicons name='chatbubble' size={18} color={COLORS.primary} />
+                    <Ionicons name='chatbubble' size={18} color={colors.primary} />
                   </TouchableOpacity>
                 </View>
               </Animatable.View>
@@ -158,7 +170,6 @@ const styles = StyleSheet.create({
   },
   searchBox: {
     flex: 1,
-    backgroundColor: COLORS.card,
     borderRadius: 14,
     paddingHorizontal: 12,
     paddingVertical: 10,
@@ -172,19 +183,16 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    color: COLORS.text,
     fontSize: 15
   },
   clearBtn: {
     marginLeft: 12,
-    backgroundColor: COLORS.card,
     padding: 10,
     borderRadius: 12
   },
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.card,
     borderRadius: 14,
     padding: 12,
     marginBottom: 12,
@@ -196,7 +204,7 @@ const styles = StyleSheet.create({
     elevation: 6
   },
   cardLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
-  avatar: { width: 64, height: 64, borderRadius: 32, marginRight: 12, borderWidth: 2, borderColor: COLORS.primary },
+  avatar: { width: 64, height: 64, borderRadius: 32, marginRight: 12, borderWidth: 2 },
   openBtn: {
     padding: 8,
     borderRadius: 10,

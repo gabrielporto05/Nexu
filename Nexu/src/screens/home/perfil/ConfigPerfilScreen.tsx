@@ -1,4 +1,4 @@
-import { ScrollView, View, Image, TouchableOpacity, StyleSheet } from 'react-native'
+import { ScrollView, View, Image, TouchableOpacity, StyleSheet, Switch } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import ConfirmModal from 'src/components/modals/ConfirmModal'
 import { useTheme } from 'src/context/theme/ThemeContext'
@@ -8,17 +8,8 @@ import * as Animatable from 'react-native-animatable'
 import TextNexu from 'src/components/ui/TextNexu'
 import Loading from 'src/components/Loanding'
 import { Ionicons } from '@expo/vector-icons'
-import { Switch } from 'react-native-paper'
 import React, { useState } from 'react'
 import { router } from 'expo-router'
-
-const COLORS = {
-  card: '#1E1E38',
-  primary: '#855CF8',
-  subtext: '#9CA3AF',
-  text: '#FFFFFF',
-  danger: '#FF6B6B'
-}
 
 const configOptions = [
   { key: 'edit', label: 'Editar perfil', icon: 'create-outline', route: '/home/perfil/update-perfil' },
@@ -30,7 +21,7 @@ const configOptions = [
 const ConfigPerfilScreen = () => {
   const { top } = useSafeAreaInsets()
   const { user, signOut } = useAuth()
-  const { theme, toggleTheme } = useTheme()
+  const { theme, colors, toggleTheme } = useTheme()
 
   const [modalVisible, setModalVisible] = useState(false)
   const [modalProps, setModalProps] = useState<{
@@ -40,7 +31,7 @@ const ConfigPerfilScreen = () => {
     onConfirm?: () => void
   } | null>(null)
 
-  if (!user) return <Loading />
+  if (!user) return <Loading backgroundColor={colors.background} iconColor={colors.primary} />
 
   const openConfirm = (title: string, message: string, danger = false, onConfirm?: () => void) => {
     setModalProps({ title, message, danger, onConfirm })
@@ -78,25 +69,32 @@ const ConfigPerfilScreen = () => {
   }
 
   return (
-    <LinearGradient colors={['#0F0F23', '#1A1A2E', '#16213E']} style={[styles.container, { paddingTop: top }]}>
+    <LinearGradient
+      colors={
+        theme === 'dark'
+          ? [colors.background, colors.surface, colors.card]
+          : [colors.surface, colors.background, colors.background]
+      }
+      style={[styles.container, { paddingTop: top }]}
+    >
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={styles.headerRow}>
           <TouchableOpacity onPress={() => router.back()} style={{ marginBottom: 8 }}>
-            <Ionicons name='arrow-back' size={24} color={COLORS.text} />
+            <Ionicons name='arrow-back' size={24} color={colors.text} />
           </TouchableOpacity>
 
           <Animatable.View animation='fadeInDown' duration={600}>
-            <TextNexu style={styles.title}>Configurações</TextNexu>
-            <TextNexu style={styles.subtitle}>Gerencie seu perfil e conta</TextNexu>
+            <TextNexu style={[styles.title, { color: colors.text }]}>Configurações</TextNexu>
+            <TextNexu style={[styles.subtitle, { color: colors.textSecondary }]}>Gerencie seu perfil e conta</TextNexu>
           </Animatable.View>
         </View>
 
         <Animatable.View
           animation='fadeInUp'
           duration={700}
-          style={[styles.profileCard, { backgroundColor: COLORS.card }]}
+          style={[styles.profileCard, { backgroundColor: colors.card }]}
         >
-          <View style={styles.avatarWrap}>
+          <View style={[styles.avatarWrap, { borderColor: colors.primary }]}>
             <Image
               source={{ uri: `${process.env.EXPO_PUBLIC_API_URL_UPLOADS}/avatars/${user.avatar}` }}
               style={styles.avatar}
@@ -104,10 +102,10 @@ const ConfigPerfilScreen = () => {
             />
           </View>
 
-          <TextNexu variant='titleLarge' style={styles.profileName}>
+          <TextNexu variant='titleLarge' style={[styles.profileName, { color: colors.text }]}>
             {user.name}
           </TextNexu>
-          <TextNexu style={styles.profileNick}>@{user.nick}</TextNexu>
+          <TextNexu style={[styles.profileNick, { color: colors.textSecondary }]}>@{user.nick}</TextNexu>
         </Animatable.View>
 
         <View style={{ marginTop: 16 }}>
@@ -116,26 +114,67 @@ const ConfigPerfilScreen = () => {
               <TouchableOpacity
                 onPress={() => handleOptionPress(item)}
                 activeOpacity={0.85}
-                style={[styles.optionRow, { backgroundColor: COLORS.card }]}
+                style={[
+                  styles.optionRow,
+                  {
+                    backgroundColor: colors.card,
+                    borderColor: `${colors.primary}20`
+                  }
+                ]}
               >
                 <View style={styles.optionLeft}>
-                  <Ionicons name={item.icon as any} size={20} color={item.danger ? COLORS.danger : COLORS.primary} />
-                  <TextNexu style={[styles.optionLabel, item.danger && { color: COLORS.danger }]}>
+                  <Ionicons name={item.icon as any} size={20} color={item.danger ? colors.error : colors.primary} />
+                  <TextNexu
+                    style={[styles.optionLabel, { color: colors.text }, item.danger && { color: colors.error }]}
+                  >
                     {item.label}
                   </TextNexu>
                 </View>
-                <Ionicons name='chevron-forward' size={18} color={COLORS.subtext} />
+                <Ionicons name='chevron-forward' size={18} color={colors.textSecondary} />
               </TouchableOpacity>
             </Animatable.View>
           ))}
         </View>
 
-        <View style={{ marginTop: 16 }}>
-          <TextNexu style={{ color: COLORS.subtext, marginBottom: 8 }}>
-            {theme === 'dark' ? 'Dark mode' : 'Light mode'}
-          </TextNexu>
-          <Switch value={theme === 'dark'} onValueChange={toggleTheme} />
-        </View>
+        <Animatable.View animation='fadeInUp' delay={300} style={{ marginTop: 10 }}>
+          <View
+            style={[
+              styles.themeCard,
+              {
+                backgroundColor: colors.card,
+                borderColor: `${colors.primary}20`
+              }
+            ]}
+          >
+            <View style={styles.themeHeader}>
+              <View style={styles.themeLeft}>
+                <Ionicons
+                  name={theme === 'dark' ? 'moon' : 'sunny'}
+                  size={22}
+                  color={colors.primary}
+                  style={styles.themeIcon}
+                />
+                <View>
+                  <TextNexu style={[styles.themeTitle, { color: colors.text }]}>
+                    {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
+                  </TextNexu>
+                  <TextNexu style={{ color: colors.textSecondary }}>
+                    {theme === 'dark' ? 'Tema escuro ativado' : 'Tema claro ativado'}
+                  </TextNexu>
+                </View>
+              </View>
+
+              <View style={styles.switchContainer}>
+                <Switch
+                  value={theme === 'dark'}
+                  onValueChange={toggleTheme}
+                  trackColor={{ false: colors.border, true: colors.primary }}
+                  thumbColor={theme === 'dark' ? colors.primary : '#f4f3f4'}
+                />
+              </View>
+            </View>
+          </View>
+        </Animatable.View>
 
         <View style={{ height: 36 }} />
       </ScrollView>
@@ -158,8 +197,8 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   scroll: { padding: 20, paddingBottom: 40 },
   headerRow: { marginBottom: 8 },
-  title: { fontSize: 28, fontWeight: '800', color: '#fff' },
-  subtitle: { color: COLORS.subtext, marginTop: 6 },
+  title: { fontSize: 28, fontWeight: '800' },
+  subtitle: { marginTop: 6 },
   profileCard: {
     borderRadius: 14,
     padding: 18,
@@ -172,14 +211,13 @@ const styles = StyleSheet.create({
   },
   avatarWrap: {
     borderWidth: 3,
-    borderColor: COLORS.primary,
     borderRadius: 80,
     padding: 4,
     marginBottom: 12
   },
   avatar: { width: 140, height: 140, borderRadius: 70 },
-  profileName: { color: '#fff', fontWeight: '800', marginTop: 6 },
-  profileNick: { color: COLORS.subtext, marginTop: 2 },
+  profileName: { fontWeight: '800', marginTop: 6 },
+  profileNick: { marginTop: 2 },
   optionRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -188,11 +226,41 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     borderRadius: 12,
     marginBottom: 10,
-    borderWidth: 1,
-    borderColor: 'rgba(133,92,248,0.12)'
+    borderWidth: 1
   },
   optionLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  optionLabel: { marginLeft: 6, color: '#fff', fontWeight: '600' }
+  optionLabel: { marginLeft: 6, fontWeight: '600' },
+  themeCard: {
+    borderRadius: 14,
+    padding: 18,
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4
+  },
+  themeHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12
+  },
+  themeLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1
+  },
+  themeIcon: {
+    marginRight: 12
+  },
+  themeTitle: {
+    fontSize: 16,
+    fontWeight: '700'
+  },
+  switchContainer: {
+    alignItems: 'center'
+  }
 })
 
 export default ConfigPerfilScreen
