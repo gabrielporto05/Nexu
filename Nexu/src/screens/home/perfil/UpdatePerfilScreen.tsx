@@ -51,10 +51,10 @@ const UpdatePerfilScreen = () => {
 
     const image = result.assets[0]
 
-    if (image.fileSize && image.fileSize > 2 * 1024 * 1024) {
+    if (image.fileSize && image.fileSize > 1024 * 1024) {
       Toast.show({
         type: 'error',
-        text1: 'A imagem deve ter no máximo 2MB'
+        text1: 'A imagem deve ter no máximo 1MB'
       })
       return
     }
@@ -63,10 +63,10 @@ const UpdatePerfilScreen = () => {
       try {
         const response = await fetch(image.uri)
         const blob = await response.blob()
-        if (blob.size > 2 * 1024 * 1024) {
+        if (blob.size > 1024 * 1024) {
           Toast.show({
             type: 'error',
-            text1: 'A imagem deve ter no máximo 2MB'
+            text1: 'A imagem deve ter no máximo 1MB'
           })
           return
         }
@@ -157,6 +157,7 @@ const UpdatePerfilScreen = () => {
                   resizeMode='cover'
                 />
               </View>
+              <TextNexu style={{ marginTop: 8, color: colors.textSecondary }}>Max. 1MB</TextNexu>
 
               <View style={{ flexDirection: 'row', marginTop: 12, gap: 12 }}>
                 <TouchableOpacity onPress={pickImage} style={[styles.smallBtn, { backgroundColor: colors.primary }]}>
@@ -174,7 +175,6 @@ const UpdatePerfilScreen = () => {
               </View>
             </View>
 
-            {/* Input Nome - Estilo igual ao ChangePasswordScreen */}
             <View style={{ marginBottom: 16 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
                 <Ionicons
