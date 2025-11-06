@@ -25,9 +25,12 @@ func CreatePostController(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = r.ParseMultipartForm(5 << 20) // 5MB
+	const maxUploadSize = 2 << 20
+	r.Body = http.MaxBytesReader(w, r.Body, maxUploadSize)
+
+	err = r.ParseMultipartForm(maxUploadSize)
 	if err != nil {
-		responses.Erro(w, http.StatusBadRequest, err)
+		responses.Erro(w, http.StatusRequestEntityTooLarge, fmt.Errorf("arquivo muito grande. limite máximo de 2MB"))
 		return
 	}
 
@@ -55,14 +58,16 @@ func CreatePostController(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if post.Image != "" {
-		oldPath := "uploads/images_posts/" + post.Image
-		os.Remove(oldPath)
-	}
-
+	// ✅ Upload da imagem (opcional)
 	file, header, err := r.FormFile("image")
 	if err == nil {
 		defer file.Close()
+
+		// Verifica tamanho real da imagem
+		if header.Size > maxUploadSize {
+			responses.Erro(w, http.StatusRequestEntityTooLarge, fmt.Errorf("A imagem excede o limite de 2MB."))
+			return
+		}
 
 		filename := fmt.Sprintf("post_%d_%s", post.ID, header.Filename)
 		path := "uploads/images_posts/" + filename
@@ -73,12 +78,18 @@ func CreatePostController(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		defer out.Close()
-		io.Copy(out, file)
+
+		_, err = io.Copy(out, file)
+		if err != nil {
+			responses.Erro(w, http.StatusInternalServerError, err)
+			return
+		}
 
 		if err := repository.UpdatePostImageRepository(post.ID, filename); err != nil {
 			responses.Erro(w, http.StatusInternalServerError, err)
 			return
 		}
+		post.Image = filename
 	} else {
 		post.Image = ""
 	}
