@@ -12,6 +12,7 @@ import (
 )
 
 func main() {
+
 	config.Loading()
 
 	mux := http.NewServeMux()

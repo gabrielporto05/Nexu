@@ -44,15 +44,17 @@ func GetProfileController(w http.ResponseWriter, r *http.Request) {
 
 // UploadProfileAvatarController atualiza o avatar
 func UploadProfileAvatarController(w http.ResponseWriter, r *http.Request) {
+
 	userID, err := auth.ExtractUserIdToken(r)
 	if err != nil {
 		responses.Erro(w, http.StatusUnauthorized, err)
 		return
 	}
 
-	r.Body = http.MaxBytesReader(w, r.Body, 2<<20)
+	const maxUploadSize = 5 << 20
 
-	err = r.ParseMultipartForm(2 << 20)
+	r.Body = http.MaxBytesReader(w, r.Body, maxUploadSize)
+	err = r.ParseMultipartForm(maxUploadSize)
 	if err != nil {
 		responses.Erro(w, http.StatusBadRequest, fmt.Errorf("o arquivo deve ter no máximo 2MB"))
 		return

@@ -25,9 +25,9 @@ func CreatePostController(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	const maxUploadSize = 2 << 20
-	r.Body = http.MaxBytesReader(w, r.Body, maxUploadSize)
+	const maxUploadSize = 5 << 20
 
+	r.Body = http.MaxBytesReader(w, r.Body, maxUploadSize)
 	err = r.ParseMultipartForm(maxUploadSize)
 	if err != nil {
 		responses.Erro(w, http.StatusRequestEntityTooLarge, fmt.Errorf("arquivo muito grande. limite máximo de 2MB"))
