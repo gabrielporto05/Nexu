@@ -56,7 +56,7 @@ func UploadProfileAvatarController(w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, maxUploadSize)
 	err = r.ParseMultipartForm(maxUploadSize)
 	if err != nil {
-		responses.Erro(w, http.StatusBadRequest, fmt.Errorf("o arquivo deve ter no máximo 2MB"))
+		responses.Erro(w, http.StatusBadRequest, fmt.Errorf("o arquivo deve ter no máximo 1MB"))
 		return
 	}
 
@@ -86,8 +86,8 @@ func UploadProfileAvatarController(w http.ResponseWriter, r *http.Request) {
 	}
 	defer file.Close()
 
-	if header.Size > 2*1024*1024 {
-		responses.Erro(w, http.StatusBadRequest, fmt.Errorf("o arquivo deve ter no máximo 2MB"))
+	if header.Size > 1024*1024 {
+		responses.Erro(w, http.StatusBadRequest, fmt.Errorf("o arquivo deve ter no máximo 1MB"))
 		return
 	}
 

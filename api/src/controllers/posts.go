@@ -30,7 +30,7 @@ func CreatePostController(w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, maxUploadSize)
 	err = r.ParseMultipartForm(maxUploadSize)
 	if err != nil {
-		responses.Erro(w, http.StatusRequestEntityTooLarge, fmt.Errorf("arquivo muito grande. limite máximo de 2MB"))
+		responses.Erro(w, http.StatusRequestEntityTooLarge, fmt.Errorf("arquivo muito grande. limite máximo de 1MB"))
 		return
 	}
 
@@ -58,14 +58,12 @@ func CreatePostController(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// ✅ Upload da imagem (opcional)
 	file, header, err := r.FormFile("image")
 	if err == nil {
 		defer file.Close()
 
-		// Verifica tamanho real da imagem
 		if header.Size > maxUploadSize {
-			responses.Erro(w, http.StatusRequestEntityTooLarge, fmt.Errorf("A imagem excede o limite de 2MB."))
+			responses.Erro(w, http.StatusRequestEntityTooLarge, fmt.Errorf("a imagem excede o limite de 1MB"))
 			return
 		}
 
