@@ -267,12 +267,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between'
   },
   card: {
-    borderWidth: 1,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4
+    shadowOpacity: 0.08
   },
   avatar: { width: 44, height: 44, borderRadius: 22, borderWidth: 2 },
   postImage: { width: '100%', height: (width - 64) * 0.9, alignSelf: 'center' },

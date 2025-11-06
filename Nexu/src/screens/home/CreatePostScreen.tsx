@@ -65,6 +65,8 @@ const CreatPostScreen = () => {
   const removeImage = () => setImageUri(null)
 
   const onSubmit = async (data: PostSchemaType) => {
+    if (isSubmitting) return
+
     try {
       setIsSubmitting(true)
 
@@ -81,8 +83,12 @@ const CreatPostScreen = () => {
         const blob = await response.blob()
         const fileSize = blob.size
 
-        if (fileSize > 5 * 1024 * 1024) {
-          Toast.show({ type: 'error', text1: 'A imagem não pode ter mais de 5MB.' })
+        const maxSize = 2 * 1024 * 1024
+        if (fileSize > maxSize) {
+          Toast.show({
+            type: 'error',
+            text1: 'A imagem não pode ter mais de 2MB.'
+          })
           setIsSubmitting(false)
           return
         }
@@ -103,10 +109,12 @@ const CreatPostScreen = () => {
       await createPost(formData)
 
       Toast.show({ type: 'success', text1: 'Post publicado com sucesso!' })
-      router.push('/home')
+
+      setTimeout(() => {
+        router.push('/home')
+      }, 1500)
     } catch (err) {
       Toast.show({ type: 'error', text1: getErrorMessage(err, 'Erro ao criar post') })
-    } finally {
       setIsSubmitting(false)
     }
   }
@@ -189,7 +197,12 @@ const CreatPostScreen = () => {
 
         <View style={styles.publishWrap}>
           <Animatable.View animation='pulse' iterationCount='infinite' duration={3000}>
-            <TouchableOpacity onPress={handleSubmit(onSubmit)} disabled={isSubmitting} activeOpacity={0.9}>
+            <TouchableOpacity
+              onPress={handleSubmit(onSubmit)}
+              disabled={isSubmitting}
+              activeOpacity={isSubmitting ? 1 : 0.9}
+              style={{ opacity: isSubmitting ? 0.7 : 1 }}
+            >
               <LinearGradient
                 colors={[colors.primary, '#7C3AED']}
                 start={{ x: 0, y: 0 }}

@@ -44,10 +44,17 @@ func GetProfileController(w http.ResponseWriter, r *http.Request) {
 
 // UploadProfileAvatarController atualiza o avatar
 func UploadProfileAvatarController(w http.ResponseWriter, r *http.Request) {
-
 	userID, err := auth.ExtractUserIdToken(r)
 	if err != nil {
 		responses.Erro(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	r.Body = http.MaxBytesReader(w, r.Body, 2<<20)
+
+	err = r.ParseMultipartForm(2 << 20)
+	if err != nil {
+		responses.Erro(w, http.StatusBadRequest, fmt.Errorf("o arquivo deve ter no máximo 2MB"))
 		return
 	}
 
@@ -72,10 +79,15 @@ func UploadProfileAvatarController(w http.ResponseWriter, r *http.Request) {
 
 	file, header, err := r.FormFile("avatar")
 	if err != nil {
-		responses.Erro(w, http.StatusBadRequest, err)
+		responses.Erro(w, http.StatusBadRequest, fmt.Errorf("erro ao ler o arquivo: %v", err))
 		return
 	}
 	defer file.Close()
+
+	if header.Size > 2*1024*1024 {
+		responses.Erro(w, http.StatusBadRequest, fmt.Errorf("o arquivo deve ter no máximo 2MB"))
+		return
+	}
 
 	filename := fmt.Sprintf("user_%d_%s", userID, header.Filename)
 	path := "uploads/avatars/" + filename
@@ -86,7 +98,12 @@ func UploadProfileAvatarController(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer out.Close()
-	io.Copy(out, file)
+
+	_, err = io.Copy(out, file)
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, fmt.Errorf("erro ao salvar o arquivo: %v", err))
+		return
+	}
 
 	err = repository.UpdateUserAvatarRepository(userID, filename)
 	if err != nil {
@@ -95,7 +112,6 @@ func UploadProfileAvatarController(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responses.JSON(w, http.StatusOK, "Avatar atualizado com sucesso", map[string]string{"avatar": path})
-
 }
 
 // DeleteProfileAvatarController deleta o avatar

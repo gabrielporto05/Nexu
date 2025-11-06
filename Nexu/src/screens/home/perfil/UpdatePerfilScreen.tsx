@@ -46,7 +46,36 @@ const UpdatePerfilScreen = () => {
       aspect: [1, 1],
       quality: 0.9
     })
-    if (!result.canceled) setSelectedImage(result.assets[0])
+
+    if (result.canceled) return
+
+    const image = result.assets[0]
+
+    if (image.fileSize && image.fileSize > 2 * 1024 * 1024) {
+      Toast.show({
+        type: 'error',
+        text1: 'A imagem deve ter no máximo 2MB'
+      })
+      return
+    }
+
+    if (!image.fileSize && image.uri) {
+      try {
+        const response = await fetch(image.uri)
+        const blob = await response.blob()
+        if (blob.size > 2 * 1024 * 1024) {
+          Toast.show({
+            type: 'error',
+            text1: 'A imagem deve ter no máximo 2MB'
+          })
+          return
+        }
+      } catch (err) {
+        console.warn('Erro ao verificar o tamanho da imagem:', err)
+      }
+    }
+
+    setSelectedImage(image)
   }
 
   const handleAvatarUpload = async () => {
@@ -60,7 +89,6 @@ const UpdatePerfilScreen = () => {
     if (Platform.OS === 'web') {
       const response = await fetch(selectedImage.uri)
       const blob = await response.blob()
-      // @ts-ignore
       formData.append('avatar', new File([blob], filename, { type: mimeType }))
     } else {
       formData.append('avatar', { uri: selectedImage.uri, name: filename, type: mimeType } as any)
