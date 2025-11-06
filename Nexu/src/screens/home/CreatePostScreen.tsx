@@ -83,11 +83,11 @@ const CreatPostScreen = () => {
         const blob = await response.blob()
         const fileSize = blob.size
 
-        const maxSize = 2 * 1024 * 1024
+        const maxSize = 1024 * 1024
         if (fileSize > maxSize) {
           Toast.show({
             type: 'error',
-            text1: 'A imagem não pode ter mais de 2MB.'
+            text1: 'A imagem não pode ter mais de 1MB.'
           })
           setIsSubmitting(false)
           return
@@ -190,6 +190,7 @@ const CreatPostScreen = () => {
                 </View>
               )}
             </TouchableOpacity>
+            <TextNexu style={{ marginTop: 8, color: colors.textSecondary, textAlign: 'center' }}>Max. 1MB</TextNexu>
           </Animatable.View>
 
           <View style={styles.footerSpace} />
