@@ -69,33 +69,33 @@ func (user *User) validation(stage string) error {
 		return errors.New("o campo nick deve ter no mínimo 3 caracteres")
 	}
 
-	if stage == "create" {
+	if stage == "update" {
+		return nil
+	}
 
-		// Validation email
-		if user.Email == "" {
-			return errors.New("o campo email é obrigatório")
-		}
-		if !strings.Contains(user.Email, "@") || !strings.Contains(user.Email, ".") {
-			return errors.New("o campo email inválido")
-		}
-		if err := checkmail.ValidateFormat(user.Email); err != nil {
-			return errors.New("campo email inválido")
-		}
+	// Validation email
+	if user.Email == "" {
+		return errors.New("o campo email é obrigatório")
+	}
+	if !strings.Contains(user.Email, "@") || !strings.Contains(user.Email, ".") {
+		return errors.New("o campo email inválido")
+	}
+	if err := checkmail.ValidateFormat(user.Email); err != nil {
+		return errors.New("campo email inválido")
+	}
 
-		// Validation password
-		if user.Password == "" {
-			return errors.New("o campo password é obrigatório")
-		}
-		if len(user.Password) < 8 {
-			return errors.New("a senha deve ter no mínimo 8 caracteres")
-		}
-		if !containsLetter(user.Password) {
-			return errors.New("a senha deve conter pelo menos uma letra")
-		}
-		if !containsNumber(user.Password) {
-			return errors.New("a senha deve conter pelo menos um número")
-		}
-
+	// Validation password
+	if user.Password == "" {
+		return errors.New("o campo password é obrigatório")
+	}
+	if len(user.Password) < 8 {
+		return errors.New("a senha deve ter no mínimo 8 caracteres")
+	}
+	if !containsLetter(user.Password) {
+		return errors.New("a senha deve conter pelo menos uma letra")
+	}
+	if !containsNumber(user.Password) {
+		return errors.New("a senha deve conter pelo menos um número")
 	}
 
 	return nil
@@ -106,9 +106,10 @@ func (user *User) format(stage string) error {
 
 	user.Name = strings.TrimSpace(user.Name)
 	user.Nick = strings.TrimSpace(user.Nick)
-	user.Email = strings.TrimSpace(user.Email)
 
 	if stage == "create" {
+
+		user.Email = strings.TrimSpace(user.Email)
 
 		hash, err := secret.Hash(user.Password)
 		if err != nil {

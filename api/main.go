@@ -37,6 +37,7 @@ func main() {
 		allowedOrigins = []string{
 			"http://localhost:8081",
 			"http://192.168.15.11:8081",
+			"http://192.168.6.121:8081",
 			"exp://*",
 		}
 	}
